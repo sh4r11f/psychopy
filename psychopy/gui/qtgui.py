@@ -155,11 +155,19 @@ class Dlg(QtWidgets.QDialog):
 
     """
 
-    def __init__(self, title=_translate('PsychoPy Dialog'),
-                 pos=None, size=None, style=None,
-                 labelButtonOK=_translate(" OK "),
-                 labelButtonCancel=_translate(" Cancel "),
-                 screen=-1, alwaysOnTop=False):
+    def __init__(
+        self,
+        title=_translate('PsychoPy Dialog'),
+        pos=None,
+        size=None,
+        style=None,
+        font=None,
+        font_size=None,
+        labelButtonOK=_translate(" OK "),
+        labelButtonCancel=_translate(" Cancel "),
+        screen=-1,
+        alwaysOnTop=False
+    ):
 
         ensureQtApp()
         QtWidgets.QDialog.__init__(self, None)
@@ -170,6 +178,9 @@ class Dlg(QtWidgets.QDialog):
         self.data = {}
         self.irow = 0
         self.pos = pos
+        if font and font_size:
+            dialogFont = QtGui.QFont(font, font_size)
+            self.setFont(dialogFont)
         # QtWidgets.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
 
         # set always stay on top
@@ -179,6 +190,13 @@ class Dlg(QtWidgets.QDialog):
         # add buttons for OK and Cancel
         buttons = QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel
         self.buttonBox = QtWidgets.QDialogButtonBox(buttons, parent=self)
+
+        # Set custom text
+        okButton = self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok)
+        cancelButton = self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Cancel)
+        okButton.setText(labelButtonOK)
+        cancelButton.setText(labelButtonCancel)
+
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
         # store references to OK and CANCEL buttons
@@ -208,8 +226,9 @@ class Dlg(QtWidgets.QDialog):
         # add message about required fields (shown/hidden by validate)
         msg = _translate("Fields marked with an asterisk (*) are required.")
         self.requiredMsg = QtWidgets.QLabel(text=msg, parent=self)
-        self.layout.addWidget(self.requiredMsg, 0, 0, 1, -1)
-        self.irow += 1
+        self.requiredMsg.hide()
+        # self.layout.addWidget(self.requiredMsg, 0, 0, 1, -1)
+        # self.irow += 1
 
         self.setLayout(self.layout)
 
