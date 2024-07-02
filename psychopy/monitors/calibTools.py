@@ -705,34 +705,62 @@ class GammaCalculator:
             raise AttributeError("gammaTable needs EITHER a gamma value"
                                    " or some luminance measures")
 
+    # def fitGammaFun(self, x, y):
+    #     """
+    #     Fits a gamma function to the monitor calibration data.
+
+    #     **Parameters:**
+    #         -xVals are the monitor look-up-table vals, either 0-255 or 0.0-1.0
+    #         -yVals are the measured luminances from a photometer/spectrometer
+
+    #     """
+    #     import scipy.optimize as optim
+    #     minGamma = 0.8
+    #     maxGamma = 20.0
+    #     gammaGuess = 2.0
+    #     y = np.asarray(y)
+    #     minLum = y[0]
+    #     maxLum = y[-1]
+    #     if self.eq == 4:
+    #         aGuess = minLum / 5.0
+    #         kGuess = (maxLum - aGuess) ** (1.0 / gammaGuess) - aGuess
+    #         guess = [gammaGuess, aGuess, kGuess]
+    #         bounds = [[0.8, 5.0], [0.00001, minLum - 0.00001], [2, 200]]
+    #     else:
+    #         guess = [gammaGuess]
+    #         bounds = [[0.8, 5.0]]
+    #     # gamma = optim.fmin(self.fitGammaErrFun, guess, (x, y, minLum, maxLum))
+    #     # gamma = optim.fminbound(self.fitGammaErrFun,
+    #     #    minGamma, maxGamma,
+    #     #    args=(x,y, minLum, maxLum))
+    #     params = optim.fmin_tnc(self.fitGammaErrFun, np.array(guess),
+    #                             approx_grad=True,
+    #                             args=(x, y, minLum, maxLum),
+    #                             bounds=bounds, messages=0)
+    #     return minLum, maxLum, params[0]
+
     def fitGammaFun(self, x, y):
-        """
-        Fits a gamma function to the monitor calibration data.
-
-        **Parameters:**
-            -xVals are the monitor look-up-table vals, either 0-255 or 0.0-1.0
-            -yVals are the measured luminances from a photometer/spectrometer
-
-        """
         import scipy.optimize as optim
-        minGamma = 0.8
-        maxGamma = 20.0
+        import numpy as np
+
         gammaGuess = 2.0
         y = np.asarray(y)
         minLum = y[0]
         maxLum = y[-1]
+
         if self.eq == 4:
             aGuess = minLum / 5.0
             kGuess = (maxLum - aGuess) ** (1.0 / gammaGuess) - aGuess
             guess = [gammaGuess, aGuess, kGuess]
-            bounds = [[0.8, 5.0], [0.00001, minLum - 0.00001], [2, 200]]
+            bounds = [(0.8, 20.0), (0.00001, minLum - 0.00001), (2, 200)]
         else:
             guess = [gammaGuess]
-            bounds = [[0.8, 5.0]]
-        # gamma = optim.fmin(self.fitGammaErrFun, guess, (x, y, minLum, maxLum))
-        # gamma = optim.fminbound(self.fitGammaErrFun,
-        #    minGamma, maxGamma,
-        #    args=(x,y, minLum, maxLum))
+            bounds = [(0.8, 20.0)]
+
+        # Ensure all initial guesses are within bounds
+        for i, bound in enumerate(bounds):
+            guess[i] = max(min(guess[i], bound[1]), bound[0])
+
         params = optim.fmin_tnc(self.fitGammaErrFun, np.array(guess),
                                 approx_grad=True,
                                 args=(x, y, minLum, maxLum),
