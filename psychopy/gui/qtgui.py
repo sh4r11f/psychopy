@@ -7,7 +7,7 @@
 # Copyright (C) 2002-2018 Jonathan Peirce (C) 2019-2024 Open Science Tools Ltd.
 # Distributed under the terms of the GNU General Public License (GPL).
 import importlib
-from psychopy import logging, data
+from psychopy import logging, data, core
 from . import util
 
 haveQt = False  # until we confirm otherwise
@@ -445,7 +445,7 @@ class Dlg(QtWidgets.QDialog):
         else:
             self.requiredMsg.hide()
 
-    def show(self):
+    def show(self, wait=None):
         """Presents the dialog and waits for the user to press OK or CANCEL.
 
         If user presses OK button, function returns a list containing the
@@ -459,7 +459,13 @@ class Dlg(QtWidgets.QDialog):
         #    ** QDialog already has a show() method. So this method calls
         #       QDialog.show() and then exec_(). This seems to not cause issues
         #       but we need to keep an eye out for any in future.
-        return self.display()
+        if wait is not None:
+            super().show()            
+            core.wait(wait)
+            self.OK = True
+            return self.data
+        else:
+            return self.display()
 
     def exec_(self):
         """Presents the dialog and waits for the user to press OK or CANCEL.
@@ -493,7 +499,6 @@ class Dlg(QtWidgets.QDialog):
         if QtWidgets.QDialog.exec(self):  # == QtWidgets.QDialog.accepted:
             self.OK = True
             return self.data
-
 
 class DlgFromDict(Dlg):
     """Creates a dialogue box that represents a dictionary of values.
