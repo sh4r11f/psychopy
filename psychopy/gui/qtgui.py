@@ -460,12 +460,38 @@ class Dlg(QtWidgets.QDialog):
         #       QDialog.show() and then exec_(). This seems to not cause issues
         #       but we need to keep an eye out for any in future.
         if wait is not None:
-            super().show()            
-            core.wait(wait)
-            self.OK = True
-            return self.data
+            return self.wait_exec(wait)
         else:
             return self.display()
+
+    def wait_exec(self, wait):
+        """
+        Presents the dialog and waits for a bit.
+        """
+        self.layout.addWidget(self.buttonBox, self.irow, 0, 1, 2)
+
+        if self.pos is None:
+            # Center Dialog on appropriate screen
+            frameGm = self.frameGeometry()
+            if self.screen <= 0:
+                qtscreen = QtGui.QGuiApplication.primaryScreen()
+            else:
+                qtscreen = self.screen
+            centerPoint = qtscreen.availableGeometry().center()
+            frameGm.moveCenter(centerPoint)
+            self.move(frameGm.topLeft())
+        else:
+            self.move(self.pos[0], self.pos[1])
+        QtWidgets.QDialog.show(self)
+        self.raise_()
+        self.activateWindow()
+        if self.inputFields:
+            self.inputFields[0].setFocus()
+
+        core.wait(wait)
+        self.OK = True
+
+        return self.data
 
     def exec_(self):
         """Presents the dialog and waits for the user to press OK or CANCEL.
