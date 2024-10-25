@@ -409,7 +409,7 @@ class MicrophoneComponent(BaseDeviceComponent):
 
     def writeInitCodeJS(self, buff):
         inits = getInitVals(self.params)
-        inits['sampleRate'] = sampleRates[inits['sampleRate'].val]
+        inits['sampleRate'] = at.sampleRates[inits['sampleRate'].val]
         # Alert user if non-default value is selected for device
         if inits['device'].val != 'default':
             alert(5055, strFields={'name': inits['name'].val})
