@@ -490,7 +490,6 @@ class RunnerPanel(wx.Panel, ScriptProcess, handlers.ThemeMixin):
 
         # setup ribbon
         self.ribbon = RunnerRibbon(self)
-        self.ribbon.buttons['pyswitch'].setMode(0)
         self.mainSizer.Add(self.ribbon, border=0, flag=wx.EXPAND | wx.ALL)
 
         # Setup splitter
@@ -843,6 +842,20 @@ class RunnerPanel(wx.Panel, ScriptProcess, handlers.ThemeMixin):
         del self.entries[self.currentFile]  # remove from our tracking dictionary
         self.expCtrl.DeleteItem(self.currentSelection) # from wx control
         self.app.updateWindowMenu()
+    
+    def updateRunModeIcons(self, evt=None):
+        """
+        Function to update run/pilot icons according to run mode
+        """
+        mode = self.ribbon.buttons['pyswitch'].mode
+        # show/hide run buttons
+        for key in ("pyrun", "jsrun"):
+            self.ribbon.buttons[key].Show(mode)
+        # hide/show pilot buttons
+        for key in ("pypilot", "jspilot"):
+            self.ribbon.buttons[key].Show(not mode)
+        # update
+        self.ribbon.Layout()
 
     def onRunModeToggle(self, evt):
         """
@@ -850,18 +863,15 @@ class RunnerPanel(wx.Panel, ScriptProcess, handlers.ThemeMixin):
         """
         mode = evt.GetInt()
         # update buttons
-        # show/hide run buttons
-        for key in ("pyrun", "jsrun"):
-            self.ribbon.buttons[key].Show(mode)
-        # hide/show pilot buttons
-        for key in ("pypilot", "jspilot"):
-            self.ribbon.buttons[key].Show(not mode)
+        self.updateRunModeIcons()
         # update experiment mode
         if self.currentExperiment is not None:
             # find any Builder windows with this experiment open
             for frame in self.app.getAllFrames(frameType='builder'):
                 if frame.exp == self.currentExperiment:
-                    frame.ribbon.buttons['pyswitch'].setMode(mode)
+                    frame.ribbon.buttons['pyswitch'].setMode(mode, silent=True)
+                    if hasattr(frame, "updateRunModeIcons"):
+                        frame.updateRunModeIcons()
             # update current selection
             runMode = "pilot"
             if mode:
@@ -904,7 +914,7 @@ class RunnerPanel(wx.Panel, ScriptProcess, handlers.ThemeMixin):
         # disable stop
         self.ribbon.buttons['pystop'].Disable()
         # switch mode
-        self.ribbon.buttons['pyswitch'].setMode(runMode == "run", silent=True)
+        self.ribbon.buttons['pyswitch'].setMode(runMode == "run")
         # update
         self.updateAlerts()
         self.app.updateWindowMenu()
