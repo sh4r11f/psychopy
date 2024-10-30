@@ -69,7 +69,7 @@ class PhotodiodeValidator:
             else:
                 rect.size = layout.Size((0.05, 0.05), units="norm", win=self.win)
 
-    def validate(self, state, t=None):
+    def validate(self, state, t=None, adjustment=0):
         """
         Confirm that stimulus was shown/hidden at the correct time, to within an acceptable margin of variability.
 
@@ -79,29 +79,37 @@ class PhotodiodeValidator:
             State which the photodiode is expected to have been in
         t : clock.Timestamp, visual.Window or None
             Time at which the photodiode should have read the given state.
+        adjustment : float
+            Adjustment to apply to the received timestamp - in order to account for e.g. an 
+            expected flip time
 
         Returns
         -------
+        float
+            Start/stop time according to the photodiode
+        float
+            Delay between requested start/stop time and measured start/stop time
         bool
-            True if photodiode state matched requested state, False otherwise.
+            True/False according to whether the delay is within acceptable bounds
         """
         # if there's no time to validate, return empty handed
         if t is None:
-            return None, None
+            return None, None, None
 
         # get and clear responses
         messages = self.diode.getResponses(state=state, channel=self.channel, clear=True)
         # if there have been no responses yet, return empty handed
         if not messages:
-            return None, None
+            return None, None, None
 
         # if there are responses, get most recent timestamp
         lastTime = messages[-1].t
         # if there's no time on the last message, return empty handed
         if lastTime is None:
-            return None, None
+            return None, None, None
         # validate
-        valid = abs(lastTime - t) < self.variability
+        delay = lastTime - adjustment - t
+        valid = abs(delay) < self.variability
 
         # construct message to report
         validStr = "within acceptable variability"
@@ -128,7 +136,7 @@ class PhotodiodeValidator:
             self.report(state, t, valid, logMsg)
 
         # return timestamp and validity
-        return lastTime, valid
+        return lastTime, delay, valid
 
     def resetTimer(self, clock=logging.defaultClock):
         self.diode.resetTimer(clock=clock)

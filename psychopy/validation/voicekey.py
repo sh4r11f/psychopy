@@ -46,26 +46,29 @@ class VoiceKeyValidator:
         -------
         float
             Start/stop time according to the voicekey
+        float
+            Delay between requested start/stop time and measured start/stop time
         bool
-            True if photodiode state matched requested state, False otherwise.
+            True/False according to whether the delay is within acceptable bounds
         """
         # if there's no time to validate, return empty handed
         if t is None:
-            return None, None
+            return None, None, None
 
         # get and clear responses
         messages = self.vk.getResponses(state=state, channel=self.channel, clear=True)
         # if there have been no responses yet, return empty handed
         if not messages:
-            return None, None
+            return None, None, None
 
         # if there are responses, get most recent timestamp
         lastTime = messages[-1].t
         # if there's no time on the last message, return empty handed
         if lastTime is None:
-            return None, None
+            return None, None, None
         # validate
-        valid = abs(lastTime - adjustment - t) < self.variability
+        delay = lastTime - adjustment - t
+        valid = abs(delay) < self.variability
 
         # construct message to report
         validStr = "within acceptable variability"
@@ -92,7 +95,7 @@ class VoiceKeyValidator:
             self.report(state, t, valid, logMsg)
 
         # return timestamp and validity
-        return lastTime, valid
+        return lastTime, delay, valid
 
     def resetTimer(self, clock=logging.defaultClock):
         self.vk.resetTimer(clock=clock)
