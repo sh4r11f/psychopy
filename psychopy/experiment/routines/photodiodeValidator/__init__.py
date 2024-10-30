@@ -27,7 +27,7 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             self,
             # basic
             exp, name='visualVal',
-            variability="1/60", report="log",
+            variability="0.03", report="log",
             findThreshold=True, threshold=127,
             # layout
             findDiode=True, diodePos="(1, 1)", diodeSize="(0.1, 0.1)", diodeUnits="norm",
