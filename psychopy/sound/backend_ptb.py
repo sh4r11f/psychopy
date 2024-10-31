@@ -125,10 +125,14 @@ class SoundPTB(_SoundBase):
         :param autoLog: whether to automatically log every change
         :param syncToWin: if you want start/stop to sync with win flips add this
         """
+        # if given the name of a managed speaker, get it
+        if isinstance(speaker, str) and DeviceManager.getDevice(speaker):
+            speaker = DeviceManager.getDevice(speaker)
         # make sure speaker is a SpeakerDevice
         if not isinstance(speaker, SpeakerDevice):
             speaker = SpeakerDevice(speaker)
         self.speaker = speaker
+        
         self.sound = value
         self.name = name
         self.secs = secs  # for any synthesised sounds (notesand freqs)
