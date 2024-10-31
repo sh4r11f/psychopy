@@ -27,6 +27,9 @@ class SpeakerDevice(BaseDevice):
             pref = prefs.hardware['audioDevice']
             if isinstance(pref, (list, tuple)):
                 pref = pref[0]
+            if pref in ("default", "None"):
+                # if no pref, use first device
+                pref = self.getAvailableDevices()[0]['index']
             index = pref
         # store name and index
         self.name = name
