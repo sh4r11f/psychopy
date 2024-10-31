@@ -33,6 +33,8 @@ class SpeakerDevice(BaseDevice):
         self.index = index
         # create stream
         self.createStream()
+        # start off open
+        self.open()
     
     def createStream(self):
         """
