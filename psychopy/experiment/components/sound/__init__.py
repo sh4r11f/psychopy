@@ -187,7 +187,7 @@ class SoundComponent(BaseDeviceComponent):
             "deviceManager.addDevice(\n"
             "    deviceName=%(deviceLabel)s,\n"
             "    deviceClass='psychopy.hardware.speaker.SpeakerDevice',\n"
-            "    index=%(speakerIndex)s\n,"
+            "    index=%(speakerIndex)s,\n"
             "    resampling=%(resampling)s,\n"
             "    exclusive=%(exclusive)s,\n"
             ")\n"
