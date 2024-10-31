@@ -7,15 +7,13 @@ from psychopy.hardware import BaseDevice
 from psychopy import logging
 
 __all__ = [
-    "BaseSpeakerDevice",
     "SpeakerDevice",
-    "PTBSpeakerDevice"
 ]
 
 
-class BaseSpeakerDevice(BaseDevice):
-    # label for subclasses to use to assign a value in prefs
-    label = None
+class SpeakerDevice(BaseDevice):
+    # dict of extant streams, by numeric index
+    streams = {}
 
     def __init__(self, index=None, name=None):
         # try simple integerisation of index
@@ -36,106 +34,6 @@ class BaseSpeakerDevice(BaseDevice):
         # create stream
         self.createStream()
     
-    def createStream(self):
-        """
-        Create the underlying object for playing audio from the sound backend (psychtoolbox, 
-        pygame, etc.)
-
-        Attributes
-        ----------
-        Calling this method will set the following attributes:
-
-        stream : object
-            Underlying audio object from the backend. The type of this object will differ between 
-            backends.
-        profile : object
-            The profile from the sound backend. The type of this object will differ between 
-            backends.
-        index : int
-            A numeric index referring to the device. This may differ from the value of `index` this 
-            object was initialised with, as this will be the numeric index of the actual physical 
-            speaker best matching what was requested.
-        name : str
-            A string name referring to the device. This may differ from the value of `name` this 
-            object was initialised with, as this will be the system-reported name of the actual 
-            physical speaker best matching what was requested.
-        """
-        raise NotImplementedError()
-
-    def open(self):
-        """
-        Open the audio stream for this speaker so that sound can be played to it.
-        """
-        raise NotImplementedError()
-    
-    def close(self):
-        """
-        Close the audio stream for this speaker.
-        """
-        raise NotImplementedError()
-    
-    @property
-    def isOpen(self):
-        """
-        Is this speaker "open", i.e. is it active and ready for a Sound to play tracks on it
-        """
-        raise NotImplementedError()
-    
-    def isSameDevice(self, other):
-        """
-        Determine whether this object represents the same physical speaker as a given other object.
-
-        Parameters
-        ----------
-        other : SpeakerDevice, dict
-            Other SpeakerDevice to compare against, or a dict of params (which must include
-            `index` as a key)
-
-        Returns
-        -------
-        bool
-            True if the two objects represent the same physical device
-        """
-        if isinstance(other, type(self)):
-            # if given another object, get index
-            index = other.index
-        elif isinstance(other, dict) and "index" in other:
-            # if given a dict, get index from key
-            index = other['index']
-        else:
-            # if the other object is the wrong type or doesn't have an index, it's not this
-            return False
-
-        return index in (self.index, self.name)
-
-    def testDevice(self):
-        """
-        Play a simple sound to check whether this device is working.
-        """
-        from psychopy.sound import Sound
-        import time
-        # create a basic sound
-        snd = Sound(
-            speaker=self,
-            value="A",
-            stereo=self.channels > 1,
-            sampleRate=self.sampleRateHz
-        )
-        # play the sound for 1s
-        snd.play()
-        time.sleep(1)
-        snd.stop()
-
-    @staticmethod
-    def getAvailableDevices():
-        raise NotImplementedError()
-
-
-class PTBSpeakerDevice(BaseSpeakerDevice):
-    label = "ptb"
-    # dict of extant streams, by numeric index
-    streams = {}
-
     def createStream(self):
         """
         Create the psychtoolbox audio stream
@@ -177,8 +75,8 @@ class PTBSpeakerDevice(BaseSpeakerDevice):
                 "No speaker device found with index {}".format(self.index)
             )
         # if physical device already has a stream, use it rather than making a new one
-        if self.profile['DeviceIndex'] in PTBSpeakerDevice.streams:
-            self.stream = PTBSpeakerDevice.streams['DeviceIndex']
+        if self.profile['DeviceIndex'] in SpeakerDevice.streams:
+            self.stream = SpeakerDevice.streams['DeviceIndex']
         else:
             self.stream = None
         # try to connect using profile at various sample rates
@@ -253,6 +151,51 @@ class PTBSpeakerDevice(BaseSpeakerDevice):
         """
         return bool(self.stream.status['Active'])
     
+    def isSameDevice(self, other):
+        """
+        Determine whether this object represents the same physical speaker as a given other object.
+
+        Parameters
+        ----------
+        other : SpeakerDevice, dict
+            Other SpeakerDevice to compare against, or a dict of params (which must include
+            `index` as a key)
+
+        Returns
+        -------
+        bool
+            True if the two objects represent the same physical device
+        """
+        if isinstance(other, type(self)):
+            # if given another object, get index
+            index = other.index
+        elif isinstance(other, dict) and "index" in other:
+            # if given a dict, get index from key
+            index = other['index']
+        else:
+            # if the other object is the wrong type or doesn't have an index, it's not this
+            return False
+
+        return index in (self.index, self.name)
+    
+    def testDevice(self):
+        """
+        Play a simple sound to check whether this device is working.
+        """
+        from psychopy.sound import Sound
+        import time
+        # create a basic sound
+        snd = Sound(
+            speaker=self,
+            value="A",
+            stereo=self.channels > 1,
+            sampleRate=self.sampleRateHz
+        )
+        # play the sound for 1s
+        snd.play()
+        time.sleep(1)
+        snd.stop()
+    
     @staticmethod
     def getAvailableDevices():
         # only show WASAPI drivers for Windows
@@ -275,27 +218,3 @@ class PTBSpeakerDevice(BaseSpeakerDevice):
             devices.append(device)
 
         return devices
-
-
-# start off with psychtoolbox as the audio backend
-SpeakerDevice = PTBSpeakerDevice
-
-
-def setBackend(backend):
-    """
-    Set the audio backend to use for speakers.
-
-    Parameters
-    ----------
-    backend : str or type
-        Either the label of the desired backend, or the handle to the BaseSpeakerDevice subclass 
-        to use.
-    """
-    global SpeakerDevice
-    # if given a class, use it
-    if isinstance(backend, type) and issubclass(backend, BaseSpeakerDevice):
-        SpeakerDevice = backend
-    # otherwise, find from subclasses of BaseSpeakerDevice
-    for subcls in BaseSpeakerDevice.__subclasses__:
-        if subcls.label == backend:
-            SpeakerDevice = subcls

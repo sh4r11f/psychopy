@@ -114,15 +114,6 @@ class _SoundBase(AttributeGetSetMixin):
     # def setVolume(self, newVol, log=True):
     # def _setSndFromFile(self, fileName):
     # def _setSndFromArray(self, thisArray):
-
-    def _parseSpeaker(self, speaker):
-        from psychopy.hardware.speaker import SpeakerDevice
-        # if already a SpeakerDevice, great!
-        if isinstance(speaker, SpeakerDevice):
-            return speaker
-        # if no device, create one
-        return SpeakerDevice(speaker)
-
     def setSound(self, value, secs=0.5, octave=4, hamming=True, log=True):
         """Set the sound to be played.
 

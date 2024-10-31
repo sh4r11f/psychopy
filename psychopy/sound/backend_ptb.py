@@ -14,6 +14,7 @@ from pathlib import Path
 from psychopy import prefs, logging, exceptions
 from psychopy.constants import (STARTED, PAUSED, FINISHED, STOPPING,
                                 NOT_STARTED)
+from psychopy.hardware.speaker import SpeakerDevice
 from psychopy.tools import systemtools
 from psychopy.tools import filetools as ft
 from .exceptions import SoundFormatError, DependencyError
@@ -124,7 +125,10 @@ class SoundPTB(_SoundBase):
         :param autoLog: whether to automatically log every change
         :param syncToWin: if you want start/stop to sync with win flips add this
         """
-        self.speaker = self._parseSpeaker(speaker)
+        # make sure speaker is a SpeakerDevice
+        if not isinstance(speaker, SpeakerDevice):
+            speaker = SpeakerDevice(speaker)
+        self.speaker = speaker
         self.sound = value
         self.name = name
         self.secs = secs  # for any synthesised sounds (notesand freqs)
