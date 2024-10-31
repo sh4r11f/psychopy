@@ -41,7 +41,7 @@ class SoundComponent(BaseDeviceComponent):
         # playback
         volume=1,
         stopWithRoutine=True,
-        forceEndRoutine=False
+        forceEndRoutine=False,
         # testing
         validator="",
         disabled=False,
