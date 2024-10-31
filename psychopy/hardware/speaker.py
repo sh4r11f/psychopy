@@ -5,6 +5,7 @@ import psychtoolbox.audio as ptb
 from psychopy.preferences import prefs
 from psychopy.hardware import BaseDevice
 from psychopy import logging
+from psychopy.tools import systemtools
 
 __all__ = [
     "SpeakerDevice",
@@ -203,6 +204,9 @@ class SpeakerDevice(BaseDevice):
     
     @staticmethod
     def getAvailableDevices():
+        # skip in vm
+        if systemtools.isVM_CI():  # GitHub actions VM does not have a sound device
+            return []
         # only show WASAPI drivers for Windows
         if sys.platform == 'win32':
             deviceType = 13
