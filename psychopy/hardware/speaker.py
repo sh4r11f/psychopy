@@ -1,6 +1,7 @@
 import io
 import sys
 import contextlib
+from types import SimpleNamespace
 import psychtoolbox.audio as ptb
 from psychopy.preferences import prefs
 from psychopy.hardware import BaseDevice
@@ -13,10 +14,36 @@ __all__ = [
 
 
 class SpeakerDevice(BaseDevice):
+    """
+    
+
+    Parameters
+    ----------
+    index : int, optional
+        Numeric index for the physical speaker device, according to psychtoolbox. Leave as None to 
+        find the speaker by name.
+    name : str, optional
+        String name for the physical speaker device, according to your operating system. Leave as 
+        None to find the speaker by numeric index.
+    resampling : str, optional
+        One of:
+        - "play": Let your operating system handle resampling on playback. Not recommended for low 
+        latency playback.
+        - "load": Let PsychoPy resample audio clips when they're loaded. This allows low latency on 
+        playback, but can mean slower loading with large files. This is the default mode.
+        - "none": Do not resample audio clips. This is the safest option for low latency and fast 
+        loading but means you'll get errors playing audio clips with a different sample rate to the 
+        speaker / to previously played audio clips. Approach with caution.
+    exclusive : bool, optional
+        Should PsychoPy take exclusive control of the speaker, denying other applications access 
+        when in use? In most cases the answer is no, but if resampling is "none" then taking 
+        exclusive control allows you to play audio clips of a different sample rate to the speaker 
+        without having to resample them (provided they are the same sample rate as one another).
+    """
     # dict of extant streams, by numeric index
     streams = {}
 
-    def __init__(self, index=None, name=None):
+    def __init__(self, index=None, name=None, resampling="load", exclusive=False):
         # try simple integerisation of index
         if isinstance(index, str):
             try:
@@ -35,6 +62,13 @@ class SpeakerDevice(BaseDevice):
         # store name and index
         self.name = name
         self.index = index
+        # store playback prefs
+        resampling = str(resampling)
+        assert resampling in ("play", "load", "none"), (
+            "SpeakerDevice.resampling must be one of three values: 'play', 'load' or 'none'"
+        )
+        self.resampling = resampling
+        self.exclusive = exclusive
         # create stream
         self.createStream()
         # start off open
@@ -63,6 +97,18 @@ class SpeakerDevice(BaseDevice):
             object was initialised with, as this will be the system-reported name of the actual 
             physical speaker best matching what was requested.
         """
+        # work out latency class from exclusive / resampling modes
+        if self.resampling == "play":
+            if self.exclusive:
+                logging.warn(
+                    "Cannot use speaker exclusive mode with 'play' resampling - defaulting to "
+                    "nonexclusive mode."
+                )
+            latencyClass = 0
+        elif self.exclusive:
+            latencyClass = 2
+        else:
+            latencyClass = 1
         # find ptb profile for this device
         self.profile = None
         for thisProfile in ptb.get_devices(device_type=13):
@@ -110,14 +156,14 @@ class SpeakerDevice(BaseDevice):
                             device_id=self.profile['DeviceIndex'],
                             freq=sampleRateHz,
                             channels=self.profile['NrOutputChannels'],
-                            latency_class=[1],
+                            latency_class=[latencyClass],
                         )
                 # if it worked, set own parameters
                 self.index = self.profile['DeviceIndex']
                 self.name = self.profile['DeviceName']
                 self.sampleRateHz = sampleRateHz
                 self.channels = self.profile['NrOutputChannels']
-                self.latencyClass = 1
+                self.latencyClass = latencyClass
                 # ...and log/print the stderr from psychtoolbox (only if successful!)
                 logs = errBuff.getvalue() + outBuff.getvalue()
                 for line in logs.split("\n"):
