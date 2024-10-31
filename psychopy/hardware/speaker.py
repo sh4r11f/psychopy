@@ -26,6 +26,8 @@ class BaseSpeakerDevice(BaseDevice):
         # store name and index
         self.name = name
         self.index = index
+        # create stream
+        self.createStream()
     
     def createStream(self):
         """
