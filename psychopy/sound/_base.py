@@ -120,36 +120,8 @@ class _SoundBase(AttributeGetSetMixin):
         # if already a SpeakerDevice, great!
         if isinstance(speaker, SpeakerDevice):
             return speaker
-        # if no device, populate from prefs
-        if speaker is None:
-            pref = prefs.hardware['audioDevice']
-            if isinstance(pref, (list, tuple)):
-                pref = pref[0]
-            speaker = pref
-        # if first pref is defualt, use first device
-        if speaker in ("default", "", None):
-            for profile in DeviceManager.getAvailableDevices("psychopy.hardware.speaker.SpeakerDevice"):
-                # log
-                logging.debug("Using speaker %(deviceName)s as defaultSpeaker" % profile)
-                # initialise as defaultSpeaker
-                profile['deviceName'] = "defaultSpeaker"
-                device = DeviceManager.addDevice(**profile)
-                
-                return device
-        # look for device if initialised
-        device = DeviceManager.getDevice(speaker)
-        # if no matching name, try matching index
-        if device is None:
-            device = DeviceManager.getDeviceBy("index", speaker)
-        # if still no match, make a new device
-        if device is None:
-            device = DeviceManager.addDevice(
-                deviceClass="psychopy.hardware.speaker.SpeakerDevice",
-                deviceName=speaker,
-                index=speaker,
-            )
-
-        return device
+        # if no device, create one
+        return SpeakerDevice(speaker)
 
     def setSound(self, value, secs=0.5, octave=4, hamming=True, log=True):
         """Set the sound to be played.
