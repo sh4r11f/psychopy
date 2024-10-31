@@ -361,6 +361,9 @@ class SoundPTB(_SoundBase):
 
         if loops is not None and self.loops != loops:
             self.setLoops(loops)
+        
+        # make sure speaker is open
+        self.speaker.open()
 
         self._tSoundRequestPlay = time.time()
 
