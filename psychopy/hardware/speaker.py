@@ -242,6 +242,26 @@ class PTBSpeakerDevice(BaseSpeakerDevice):
         Is this speaker "open", i.e. is it active and ready for a Sound to play tracks on it
         """
         return bool(self.stream.status['Active'])
+    
+    @staticmethod
+    def getAvailableDevices():
+        # only show WASAPI drivers for Windows
+        if sys.platform == 'win32':
+            deviceType = 13
+        else:
+            deviceType = None
+        
+        devices = []
+        for profile in ptb.get_devices(device_type=deviceType):
+            # skip input-only devices (microphones)
+            if profile['NrOutputChannels'] == 0:
+                continue
+            # construct profile
+            device = {
+                'deviceName': profile.get('DeviceName', "Unknown Speaker"),
+                'index': profile.get('DeviceIndex', None),
+                'name': profile.get('DeviceName', None)
+            }
+            devices.append(device)
 
-    
-    
+        return devices
