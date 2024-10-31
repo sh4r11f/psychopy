@@ -6,9 +6,16 @@ from psychopy.preferences import prefs
 from psychopy.hardware import BaseDevice
 from psychopy import logging
 
+__all__ = [
+    "BaseSpeakerDevice",
+    "SpeakerDevice",
+    "PTBSpeakerDevice"
+]
+
 
 class BaseSpeakerDevice(BaseDevice):
-    streams = {}
+    # label for subclasses to use to assign a value in prefs
+    label = None
 
     def __init__(self, index=None, name=None):
         # try simple integerisation of index
@@ -125,6 +132,7 @@ class BaseSpeakerDevice(BaseDevice):
 
 
 class PTBSpeakerDevice(BaseSpeakerDevice):
+    label = "ptb"
     # dict of extant streams, by numeric index
     streams = {}
 
@@ -267,3 +275,27 @@ class PTBSpeakerDevice(BaseSpeakerDevice):
             devices.append(device)
 
         return devices
+
+
+# start off with psychtoolbox as the audio backend
+SpeakerDevice = PTBSpeakerDevice
+
+
+def setBackend(backend):
+    """
+    Set the audio backend to use for speakers.
+
+    Parameters
+    ----------
+    backend : str or type
+        Either the label of the desired backend, or the handle to the BaseSpeakerDevice subclass 
+        to use.
+    """
+    global SpeakerDevice
+    # if given a class, use it
+    if isinstance(backend, type) and issubclass(backend, BaseSpeakerDevice):
+        SpeakerDevice = backend
+    # otherwise, find from subclasses of BaseSpeakerDevice
+    for subcls in BaseSpeakerDevice.__subclasses__:
+        if subcls.label == backend:
+            SpeakerDevice = subcls
