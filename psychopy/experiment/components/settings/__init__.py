@@ -906,10 +906,6 @@ class SettingsComponent:
             buff.writelines(
                 "prefs.hardware['audioLib'] = {}\n".format(self.params['Audio lib'])
             )
-        if self.params['Audio latency priority'].val.lower() != 'use prefs':
-            buff.writelines(
-                "prefs.hardware['audioLatencyMode'] = {}\n".format(self.params['Audio latency priority'])
-            )
         buff.write(
             "from psychopy import %s\n" % ', '.join(psychopyImports) +
             "from psychopy.tools import environmenttools\n"
