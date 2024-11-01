@@ -27,6 +27,9 @@
     3115: Component start/stop times cannot sync with screen refresh
   3200: Audio
   3400: Response
+  3600:
+    cat: Validation
+    3610: Multiple Components in same Routine validated by same validator
 
 4000:
   cat: Builder experiments

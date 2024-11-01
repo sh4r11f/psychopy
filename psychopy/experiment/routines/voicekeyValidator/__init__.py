@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from pathlib import Path
+from psychopy.alerts._alerts import alert
 from psychopy.experiment import Param
 from psychopy.experiment.plugins import PluginDevicesMixin, DeviceBackend
 from psychopy.experiment.components import getInitVals
@@ -263,6 +264,7 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
     def findConnectedStimuli(self):
         # list of linked components
         stims = []
+        routines = []
         # inspect each Routine
         for emt in self.exp.flow:
             # skip non-standard Routines
@@ -276,6 +278,12 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
                 if compValidator == self:
                     # if found, add the comp to the list
                     stims.append(comp)
+                    # add to list of Routines containing comps
+                    if emt not in routines:
+                        routines.append(emt)
+        # if any rt has two validated comps, warn
+        if len(routines) < len(stims):
+            alert(3610, obj=self, strFields={'validator': self.name})
 
         return stims
 
