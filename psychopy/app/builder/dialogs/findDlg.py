@@ -35,7 +35,7 @@ class BuilderFindDlg(wx.Dialog):
         # create search box
         self.termCtrl = wx.SearchCtrl(self.searchPnl)
         self.termCtrl.Bind(wx.EVT_TEXT, self.onSearchTyping)
-        self.searchPnl.sizer.Add(self.termCtrl, proportion=1, flag=wx.EXPAND | wx.RIGHT, border=6)
+        self.searchPnl.sizer.Add(self.termCtrl, proportion=1, flag=wx.EXPAND, border=6)
 
         # add toggle for case sensitivity
         self.caseSensitiveToggle = wx.ToggleButton(self.searchPnl, style=wx.BU_EXACTFIT)
@@ -44,7 +44,7 @@ class BuilderFindDlg(wx.Dialog):
         )
         self.caseSensitiveToggle.SetToolTipString(_translate("Match case?"))
         self.caseSensitiveToggle.Bind(wx.EVT_TOGGLEBUTTON, self.onSearchTyping)
-        self.searchPnl.sizer.Add(self.caseSensitiveToggle, flag=wx.EXPAND | wx.RIGHT, border=6)
+        self.searchPnl.sizer.Add(self.caseSensitiveToggle, flag=wx.EXPAND | wx.LEFT, border=6)
 
         # add toggle for regex
         self.regexToggle = wx.ToggleButton(self.searchPnl, style=wx.BU_EXACTFIT)
@@ -53,7 +53,7 @@ class BuilderFindDlg(wx.Dialog):
         )
         self.regexToggle.SetToolTipString(_translate("Match regex?"))
         self.regexToggle.Bind(wx.EVT_TOGGLEBUTTON, self.onSearchTyping)
-        self.searchPnl.sizer.Add(self.regexToggle, flag=wx.EXPAND | wx.RIGHT, border=6)
+        self.searchPnl.sizer.Add(self.regexToggle, flag=wx.EXPAND | wx.LEFT, border=6)
 
         # create results box
         self.resultsCtrl = utils.ListCtrl(self, style=wx.LC_REPORT | wx.LC_SINGLE_SEL)
