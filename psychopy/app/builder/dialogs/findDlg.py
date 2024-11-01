@@ -25,18 +25,25 @@ class BuilderFindDlg(wx.Dialog):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.border.Add(self.sizer, border=12, proportion=1, flag=wx.EXPAND | wx.ALL)
 
-        # create search box and checkbox sizer
-        searchSizer = wx.BoxSizer(wx.VERTICAL)
+        # create search box and controls
+        self.searchPnl = wx.Panel(self)
+        self.searchPnl.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.searchPnl.SetSizer(self.searchPnl.sizer)
+        self.sizer.Add(self.searchPnl, flag=wx.EXPAND | wx.ALL, border=6)
 
         # create search box
-        self.termCtrl = wx.SearchCtrl(self)
+        self.termCtrl = wx.SearchCtrl(self.searchPnl)
         self.termCtrl.Bind(wx.EVT_TEXT, self.onSearchTyping)
-        searchSizer.Add(self.termCtrl, flag=wx.EXPAND | wx.BOTTOM, border=6)
+        self.searchPnl.sizer.Add(self.termCtrl, proportion=1, flag=wx.EXPAND | wx.RIGHT, border=6)
 
-        # Add checkbox for case sensitivity
-        self.caseSensitiveCheckbox = wx.CheckBox(self, label=_translate("Case sensitive"))
-        self.caseSensitiveCheckbox.Bind(wx.EVT_CHECKBOX, self.onSearchTyping)
-        searchSizer.Add(self.caseSensitiveCheckbox, flag=wx.BOTTOM, border=6)
+        # add toggle for case sensitivity
+        self.caseSensitiveToggle = wx.ToggleButton(self.searchPnl, style=wx.BU_EXACTFIT)
+        self.caseSensitiveToggle.SetBitmap(
+            icons.ButtonIcon("case", size=16, theme="light").bitmap
+        )
+        self.caseSensitiveToggle.SetToolTipString(_translate("Match case?"))
+        self.caseSensitiveToggle.Bind(wx.EVT_TOGGLEBUTTON, self.onSearchTyping)
+        self.searchPnl.sizer.Add(self.caseSensitiveToggle, flag=wx.EXPAND | wx.RIGHT, border=6)
 
         # Add the search sizer to the main sizer
         self.sizer.Add(searchSizer, flag=wx.EXPAND | wx.ALL, border=6)
@@ -85,7 +92,7 @@ class BuilderFindDlg(wx.Dialog):
 
     def onSearchTyping(self, evt):
         term = self.termCtrl.GetValue()
-        case_sensitive = self.caseSensitiveCheckbox.GetValue()
+        case_sensitive = self.caseSensitiveToggle.GetValue()
         
         if term:
             # get locations of term in experiment
