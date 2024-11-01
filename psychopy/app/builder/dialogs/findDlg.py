@@ -188,6 +188,12 @@ def compareStrings(text, term, caseSensitive, regex):
         text = text.lower()
     # convert to regex object if using regex
     if regex:
+        # if term isn't valid regex, assume no match
+        try:
+            stringtools.re.compile(term)
+        except stringtools.re.error:
+            return False
+        # convert to a regex searchable
         text = stringtools.RegexSearchText(text)
     
     return term in text
