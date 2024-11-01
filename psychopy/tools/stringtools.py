@@ -55,14 +55,14 @@ def is_file(source):
     return isFile
 
 
-class RegexSearchText(str):
+class RegexSearchable(str):
     """
-    Like a string, but uses `re.search` for `in` comparisons rather than 
+    Like a string, but uses `re.search` for `in` comparisons
 
     Example
     -------
     ```
-    r".*" in RegexSearchText("any text!")
+    r".*" in RegexSearchable("any text!")
     ```
     is the same as 
     ```

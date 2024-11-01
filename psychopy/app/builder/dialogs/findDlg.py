@@ -194,7 +194,7 @@ def compareStrings(text, term, caseSensitive, regex):
         except stringtools.re.error:
             return False
         # convert to a regex searchable
-        text = stringtools.RegexSearchText(text)
+        text = stringtools.RegexSearchable(text)
     
     return term in text
 
