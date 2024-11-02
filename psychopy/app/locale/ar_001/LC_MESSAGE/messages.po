@@ -44,7 +44,7 @@ msgstr "وقت المثير {type} الذي يبلغ {time} أقل من زمن �
 #: psychopy/alerts/alertsCatalogue/alertmsg.py:28
 #, python-brace-format
 msgid "Your stimulus {type} time of {time} seconds cannot be accurately presented for {time} on a {Hz}Hz monitor."
-msgstr "لا يمكن عرض وقت التحفيز {type} الذي يبلغ {time} ثانية بدقة لمدة {time} على شاشة {Hz} هرتز."
+msgstr "لا يمكن عرض وقت المثير {type} الذي يبلغ {time} ثانية بدقة لمدة {time} على شاشة {Hz} هرتز."
 
 #: psychopy/alerts/alertsCatalogue/alertmsg.py:32
 #, python-brace-format
@@ -59,10 +59,10 @@ msgstr "تم إنشاء التجربة في إصدار سابق من PsychoPy ({
 #: psychopy/alerts/alertsCatalogue/alertmsg.py:40
 #, python-brace-format
 msgid "Your stimulus start {type} exceeds the stop {type}. Consider using a {type} duration."
-msgstr "بداية التحفيز الخاصة بك {type} تتجاوز نقطة التوقف {type}. فكر في استخدام مدة {type}."
+msgstr "بداية المثير الخاصة بك {type} تتجاوز نقطة التوقف {type}. فكر في استخدام مدة {type}."
 
 msgid "Your stimulus {type} time of {time} seconds cannot be accurately presented for {time} on a {Hz}Hz monitor."
-msgstr "لا يمكن عرض وقت التحفيز {type} الذي يبلغ {time} ثانية بدقة لمدة {time} على شاشة {Hz} هرتز."
+msgstr "لا يمكن عرض وقت المثير {type} الذي يبلغ {time} ثانية بدقة لمدة {time} على شاشة {Hz} هرتز."
 
 #: psychopy/alerts/alertsCatalogue/alertmsg.py:32
 #, python-brace-format
@@ -77,12 +77,12 @@ msgstr "تم إنشاء التجربة في إصدار سابق من PsychoPy ({
 #: psychopy/alerts/alertsCatalogue/alertmsg.py:40
 #, python-brace-format
 msgid "Your stimulus start {type} exceeds the stop {type}. Consider using a {type} duration."
-msgstr "بداية التحفيز الخاصة بك {type} تتجاوز نقطة التوقف {type}. فكر في استخدام مدة {type}."
+msgstr "بداية المثير الخاصة بك {type} تتجاوز نقطة التوقف {type}. فكر في استخدام مدة {type}."
 
 #: psychopy/alerts/alertsCatalogue/alertmsg.py:44
 #, python-brace-format
 msgid "Your stimulus {type} type {frameType} must be expressed as a whole number."
-msgstr "يجب التعبير عن نوع التحفيز {type} {frameType} كرقم صحيح."
+msgstr "يجب التعبير عن نوع المثير {type} {frameType} كرقم صحيح."
 
 #: psychopy/alerts/alertsCatalogue/alertmsg.py:48
 #, python-brace-format
@@ -253,7 +253,7 @@ msgstr "يتطلب الناسخ الذي تم اختياره '{engine}' مفتا
 #: psychopy/alerts/alertsCatalogue/alertmsg.py:136
 #, python-brace-format
 msgid "Column name '{param}' in conditions file already exists as a variable in this experiment ({category})."
-msgstr "اسم العمود \"{param}\" في ملف الشروط موجود بالفعل كمتغير في هذه التجربة ({category})."
+msgstr "اسم العمود \"{param}\" في ملف الإشراطات موجود بالفعل كمتغير في هذه التجربة ({category})."
 
 #: psychopy/alerts/alertsCatalogue/alertmsg.py:139
 #, python-brace-format
@@ -380,11 +380,10 @@ msgstr "فشل في فتح المبرمج مع النصوص المطلوبة، �
 "خطأ: {}"
 
 #: psychopy/app/_psychopyApp.py:619
-#, fuzzy
 msgid "Failed to open Builder with requested experiments, opening with no experiments open.\n"
 msgstr "فشل في فتح المنشئ بالتجارب المطلوبة، فتح بدون تجارب مفتوحة.\n"
 "مطلوب: {}\n"
-"خطأ: {}"
+"خطأ: {}\n"
 
 #: psychopy/app/_psychopyApp.py:647
 msgid "Compatibility information"
@@ -406,9 +405,9 @@ msgstr "حدد ملف (ملفات) .psydat لاستخراجها"
 #: psychopy/app/_psychopyApp.py:1083
 #: psychopy/app/_psychopyApp.py:1069
 msgid "For stimulus generation and experimental control in Python.\n"
-msgstr "لتوليد المثيرات والتحكم التجريبي في Python.\n"
+msgstr "لتوليد المثير والتحكم التجريبي في Python.\n"
 "يعتمد PsychoPy على ملاحظاتك. إذا كان هناك شيء لا يعمل\n"
-"فأخبرنا بذلك على psychopy-users@googlegroups.com"
+"فأخبرنا بذلك على psychopy-users@googlegroups.com\n"
 
 #: psychopy/app/builder/builder.py:285 psychopy/app/builder/builder.py:3389
 #: psychopy/app/coder/coder.py:1382 psychopy/app/pavlovia_ui/_base.py:25
@@ -431,7 +430,7 @@ msgstr "المفضلة"
 
 #: psychopy/app/builder/builder.py:78
 msgid "Stimuli"
-msgstr "محفزات"
+msgstr "مثيرات"
 
 #: psychopy/app/builder/builder.py:79
 msgid "Responses"
@@ -1315,31 +1314,29 @@ msgid "No parameters set (select a file above)"
 msgstr "لم يتم تعيين أي معلمات (حدد ملفاً أعلاه)"
 
 #: psychopy/app/builder/dialogs/__init__.py:1641
-#, fuzzy, python-format
+#, python-format
 msgid "%(nCondition)i conditions, with %(nParam)i parameters\n"
 "%(paramStr)s"
-msgstr "شروط %(nCondition)i، مع %(nParam)i معلمات %(nParam)i\n"
+msgstr "إشراطات %(nCondition)i، مع %(nParam)i معلمات %(nParam)i"
 
 #: psychopy/app/builder/dialogs/__init__.py:1617
 #, python-format
 msgid "%(nCondition)i conditions, with %(nParam)i parameters\n"
 "%(paramStr)s"
-msgstr "مثيرات conditions %(nCondition)i، مع %(nParam)i عوامل متغيرة parameters %(nParam)i\n"
+msgstr "إشراطات  conditions %(nCondition)i، مع %(nParam)i عوامل متغيرة parameters %(nParam)i"
 
 #: psychopy/app/builder/dialogs/__init__.py:1650
-#, fuzzy
 msgid "No parameters set (conditionsFile not found)"
-msgstr "لم يتم تعيين أي معلمات (لم يتم العثور على ملف الشروط)"
+msgstr "لم يتم تعيين أي معلمات (لم يتم العثور على ملف الإشراطات)"
 
 #: psychopy/app/builder/dialogs/__init__.py:1737
-#, fuzzy
 msgid "Conditions file set from variable."
-msgstr "تم تعيين ملف الشروط من المتغير."
+msgstr "تم تعيين ملف الإشراطات من المتغير."
 
 #: psychopy/app/builder/dialogs/__init__.py:1752
-#, fuzzy, python-format
+#, python-format
 msgid "Could not read conditions from: %s\n"
-msgstr "تعذر قراءة الشروط من: %s\n"
+msgstr "تعذر قراءة الإشراطات من: %s\n"
 
 #: psychopy/app/builder/dialogs/__init__.py:1759
 #, fuzzy, python-format
@@ -1357,9 +1354,9 @@ msgid "Builder variable(s) ({}) in file:{}"
 msgstr "متغير (متغيرات) المنشئ ({}) في الملف:{}"
 
 #: psychopy/app/builder/dialogs/__init__.py:1805
-#, fuzzy, python-format
+#, python-format
 msgid "Duplicate condition names, different conditions file: %s"
-msgstr "أسماء شروط مكررة، ملف شروط مختلفة: %s"
+msgstr "أسماء الإشراطات مكررة، ملف الإشراطات مختلف: %s"
 
 #: psychopy/app/builder/dialogs/__init__.py:1907
 #, fuzzy
@@ -1426,9 +1423,8 @@ msgid "New (no file)"
 msgstr "جديد (لا يوجد ملف)"
 
 #: psychopy/app/builder/dialogs/dlgsConditions.py:87
-#, fuzzy
 msgid "Conditions data (no file)"
-msgstr "بيانات الشروط (لا يوجد ملف)"
+msgstr "بيانات الإشراطات (لا يوجد ملف)"
 
 #: psychopy/app/builder/dialogs/dlgsConditions.py:160
 #, fuzzy
@@ -1466,9 +1462,8 @@ msgid "+cond."
 msgstr "+ثانية."
 
 #: psychopy/app/builder/dialogs/dlgsConditions.py:477
-#, fuzzy
 msgid "Add a condition (row); to delete a condition, delete all of its values."
-msgstr "إضافة شرط (صف)؛ لحذف شرط، احذف جميع قيمه."
+msgstr "إضافة إشراط (صف)؛ لحذف إشراط، احذف جميع قيمه."
 
 #: psychopy/app/builder/dialogs/dlgsConditions.py:483
 #, fuzzy
@@ -1714,9 +1709,8 @@ msgid "Advanced"
 msgstr "متقدم"
 
 #: psychopy/app/builder/localizedStrings.py:30
-#, fuzzy
 msgid "Stimuli"
-msgstr "محفزات"
+msgstr "مثيرات"
 
 #: psychopy/app/builder/localizedStrings.py:31
 msgid "Responses"
@@ -2072,7 +2066,7 @@ msgstr "الإطار N"
 
 #: psychopy/app/builder/localizedStrings.py:87
 msgid "condition"
-msgstr "المثير"
+msgstr "الإشراط"
 
 #: psychopy/app/builder/localizedStrings.py:83
 #: psychopy/app/builder/localizedStrings.py:88
@@ -2374,7 +2368,7 @@ msgstr "كل شيء"
 
 #: psychopy/app/builder/localizedStrings.py:165
 msgid "one of your Components, Routines, or condition parameters"
-msgstr "أحد مكوناتك أو إجراءاتك الروتينية أو بارامترات المثيرات"
+msgstr "أحد مكوناتك أو إجراءاتك الروتينية أو بارامترات الإشراطات"
 
 #: psychopy/app/builder/localizedStrings.py:167
 msgid " Avoid `this`, `these`, `continue`, `Clock`, or `component` in name"
@@ -2566,7 +2560,7 @@ msgstr "المدخلات"
 
 #: psychopy/app/coder/coder.py:84 psychopy/app/runner/runner.py:375
 msgid "stimuli"
-msgstr "المحفزات"
+msgstr "المثيرات"
 
 #: psychopy/app/coder/coder.py:85 psychopy/app/runner/runner.py:376
 msgid "exp control"
@@ -5223,7 +5217,7 @@ msgid "Could not parse file {}."
 msgstr "تعذر تفسير القيمة على أنها إملاء: {}"
 
 #: psychopy/data/utils.py:341
-#, fuzzy, python-format
+#, python-format
 msgid "Conditions file %s: Missing parameter name(s); empty cell(s) in the first row?"
 msgstr "ملف الشروط %s: اسم (أسماء) معلمات مفقودة؛ خلية (خلايا) فارغة في الصف الأول؟"
 
@@ -5352,9 +5346,8 @@ msgid "Save onset/offset times"
 msgstr "حفظ أوقات البدء/الإزاحة"
 
 #: psychopy/experiment/components/_base.py:113
-#, fuzzy
 msgid "Synchronize times with screen refresh (good for visual stimuli and responses based on them)"
-msgstr "مزامنة الأوقات مع تحديث الشاشة (جيد للمحفزات البصرية والاستجابات بناءً عليها)"
+msgstr "مزامنة الأوقات مع تحديث الشاشة (جيد للمثيرات البصرية والاستجابات بناءً عليها)"
 
 #: psychopy/experiment/components/_base.py:118
 #, fuzzy
@@ -5388,9 +5381,8 @@ msgstr ""
 #: psychopy/experiment/components/_base.py:1436
 #: psychopy/experiment/routines/eyetracker_calibrate/__init__.py:119
 #: psychopy/experiment/routines/eyetracker_validate/__init__.py:162
-#, fuzzy
 msgid "Units of dimensions for this stimulus"
-msgstr "وحدات الأبعاد لهذا المحفز"
+msgstr "وحدات الأبعاد لهذا المثير"
 
 #: psychopy/experiment/components/_base.py:983
 #: psychopy/experiment/routines/eyetracker_calibrate/__init__.py:120
@@ -5454,7 +5446,7 @@ msgid "Opacity of the stimulus (1=opaque, 0=fully transparent, 0.5=translucent).
 msgstr "عتامة المحفز (1= شفاف، 0= شفاف تمامًا، 0.5= شفاف، 0.5= شفاف). اتركه فارغًا ليكون لكل لون عتامة خاصة به (موصى به إذا كان أي لون لا يوجد)."
 
 msgid "Opacity of the stimulus (1=opaque, 0=fully transparent, 0.5=translucent). Leave blank for each color to have its own opacity (recommended if any color is None)."
-msgstr "عتامة المحفز (1= شفاف، 0= شفاف تمامًا، 0.5= شفاف، 0.5= شفاف). اتركه فارغًا ليكون لكل لون عتامة خاصة به (موصى به إذا كان أي لون لا يوجد)."
+msgstr "عتامة المثير (1= شفاف، 0= شفاف تمامًا، 0.5= شفاف، 0.5= شفاف). اتركه فارغًا ليكون لكل لون عتامة خاصة به (موصى به إذا كان أي لون لا يوجد)."
 
 #: psychopy/experiment/components/_base.py:1026
 #: psychopy/localization/_localization.py:172
@@ -5524,9 +5516,8 @@ msgid "Name of validator Component/Routine to use to check the timing of this st
 msgstr ""
 
 #: psychopy/experiment/components/aperture/__init__.py:30
-#, fuzzy
 msgid "Aperture: restrict the drawing of stimuli to a given region"
-msgstr "الفتحة: قصر رسم المحفزات على منطقة معينة"
+msgstr "الفتحة: قصر رسم المثيرات على منطقة معينة"
 
 #: psychopy/experiment/components/aperture/__init__.py:51
 #, fuzzy
@@ -7007,9 +6998,8 @@ msgstr "إنهاء الروتين على الصحافة"
 #: psychopy/experiment/components/joystick/__init__.py:97
 #: psychopy/experiment/components/mouse/__init__.py:18
 #: psychopy/experiment/components/mouse/__init__.py:105
-#, fuzzy
 msgid "Clickable stimuli"
-msgstr "المحفزات القابلة للنقر"
+msgstr "المثيرات القابلة للنقر"
 
 #: psychopy/experiment/components/joystick/__init__.py:21
 #: psychopy/experiment/components/joystick/__init__.py:108
