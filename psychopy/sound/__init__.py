@@ -198,6 +198,7 @@ else:
 if Sound is not None:
     audioLib = thisLibName
     init = backend.init
+    getDevices = None
     if hasattr(backend, 'getDevices'):
         getDevices = backend.getDevices
     logging.info('sound is using audioLib: %s' % audioLib)
@@ -275,12 +276,13 @@ elif hasattr(backend, 'defaultOutput'):
     # is it simply "default" (do nothing)
     if dev == 'default' or systemtools.isVM_CI():
         pass  # do nothing
-    elif dev not in backend.getDevices(kind='output'):
-        deviceNames = sorted(backend.getDevices(kind='output').keys())
-        logging.warn(
-            u"Requested audio device '{}' that is not available on "
-            "this hardware. The 'audioDevice' preference should be one of "
-            "{}".format(dev, deviceNames))
+    elif getDevices is not None:
+        if dev not in backend.getDevices(kind='output'):
+            deviceNames = sorted(backend.getDevices(kind='output').keys())
+            logging.warn(
+                u"Requested audio device '{}' that is not available on "
+                "this hardware. The 'audioDevice' preference should be one of "
+                "{}".format(dev, deviceNames))
     else:
         setDevice(dev, kind='output')
 
