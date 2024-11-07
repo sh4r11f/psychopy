@@ -199,8 +199,17 @@ if Sound is not None:
     audioLib = thisLibName
     init = backend.init
     getDevices = None
-    if hasattr(backend, 'getDevices'):
+    if audioLib != 'ptb' and hasattr(backend, 'getDevices'):
         getDevices = backend.getDevices
+    else:
+        import psychopy.hardware.speaker as speaker
+
+        def _getDevices(*args, **kwargs):  # for matching function signiture
+            allDevices = speaker.SpeakerDevice.getAvailableDevices()
+            return [dev['name'] for dev in allDevices]
+
+        getDevices = _getDevices
+
     logging.info('sound is using audioLib: %s' % audioLib)
 else:
     # if we get here, there is no audioLib that is supported
