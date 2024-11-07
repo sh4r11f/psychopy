@@ -131,8 +131,12 @@ class SpeakerDevice(BaseDevice):
             latencyClass = 1
 
         # get the devices from psychtoolbox
-        useWASAPI = sys.platform == 'win32'  # WASAPI drivers only for Windows
-        if useWASAPI:  
+        try:
+            wasapiPref = prefs.hardware['audioWASAPIOnly']
+        except KeyError:
+            wasapiPref = False
+            
+        if sys.platform == 'win32' and wasapiPref:
             allFoundDevices = ptb.get_devices(device_type=13)
         else:
             allFoundDevices = ptb.get_devices()
