@@ -7,38 +7,30 @@
 
 """Control joysticks and gamepads from within PsychoPy.
 
-You do need a window (and you need to be flipping it) for the joystick to be
-updated.
+For most backends, you do need a window using the same backend (and you need to 
+be flipping it) for the joystick to be updated.
 
 """
 
-__all__ = ['Joystick', 'getNumJoysticks', 'getAllJoysticks']
-
-try:
-    from pyglet import input as pyglet_input  # pyglet 1.2+
-    from pyglet import app as pyglet_app
-    havePyglet = True
-except Exception:
-    havePyglet = False
+__all__ = ['Joystick', 'getJoystickInterfaces']
 
 from psychopy import logging, visual
+from psychopy.hardware.base import BaseDevice
+from psychopy.hardware.joystick._base import BaseJoystickInterface
+from psychopy.hardware.joystick.backend_pyglet import JoystickInterfacePyglet
+
+import numpy as np
+
 backend = 'pyglet'  # 'pyglet' or 'pygame'
 
-if havePyglet:
-    class PygletDispatcher:
-        def dispatch_events(self):
-            pyglet_app.platform_event_loop.step(timeout=0.001)
 
-    pyglet_dispatcher = PygletDispatcher()
-
-
-class Joystick:
-    """Class for interfacting with a multi-axis joystick or gamepad.
+class Joystick(BaseDevice):
+    """Class for interfacing with a multi-axis joystick or gamepad.
 
     Parameters
     ----------
-    deviceIndex : int
-        The ID of the joystick to control.
+    device : int or str
+        The index or name of the joystick to control.
 
     Examples
     --------
@@ -71,138 +63,84 @@ class Joystick:
       joystick and these can't be turned off :-/
 
     """
-    def __init__(self, deviceIndex=0, **kwargs):
-        # legacy argumnet name 'id' might still be used
-        self._deviceIndex = kwargs.get('id', deviceIndex)
+    def __init__(self, device=0, **kwargs):
+        super(Joystick, self).__init__()
+        # get the joystick device interface
+        try:
+            joyInterface = getJoystickInterfaces()[backend]
+        except KeyError:
+            logging.error(
+                "No joystick interface found for backend '{}'".format(
+                    backend))
 
-        # axis scaling factors and inversion
+        # create a device interface
+        self._joy = joyInterface(device, **kwargs)
+
+        # scale factors for the axes
         self._scaleX = self._scaleY = self._scaleZ = 1.0
 
-        if backend == 'pyglet':
-            joys = pyglet_input.get_joysticks()
-            if self._deviceIndex >= len(joys):
-                logging.error(
-                    "You don't have that many joysticks attached (remember "
-                    "that the first joystick has deviceIndex=0 etc...)")
-            else:
-                self._device = joys[self._deviceIndex]
-                try:
-                    self._device.open()
-                except pyglet_input.DeviceOpenException as e:
-                    pass
-                # self.name = self._device.device.name
-            if len(visual.openWindows) == 0:
-                logging.error(
-                    "You need to open a window before creating your joystick")
-            else:
-                for win in visual.openWindows:
-                    win()._eventDispatchers.append(pyglet_dispatcher)
-        elif backend == 'glfw':
-            import glfw
-            # We can create a joystick anytime after glfwInit() is called, but
-            # there should be a window open first.
-            # Joystick events are processed when flipping the associated window.
-            if not glfw.init():
-                logging.error("GLFW could not be initialized. Exiting.")
-
-            # get all available joysticks, GLFW supports up to 16.
-            joys = []
-            for joy in range(glfw.JOYSTICK_1, glfw.JOYSTICK_LAST):
-                if glfw.joystick_present(joy):
-                    joys.append(joy)
-
-            # error checks
-            if not joys:  # if the list is empty, no joysticks were found
-                error_msg = ("No joysticks were found by the GLFW runtime. "
-                             "Check connections and try again.")
-                logging.error(error_msg)
-                raise RuntimeError(error_msg)
-            elif self._deviceIndex not in joys:
-                error_msg = ("You don't have that many joysticks attached "
-                             "(remember that the first joystick has deviceIndex=0 "
-                             "etc...)")
-                logging.error(error_msg)
-                raise RuntimeError(error_msg)
-
-            self._device = self._deviceIndex  # just need the ID for GLFW
-            self.name = glfw.get_joystick_name(self._device).decode("utf-8")
-
-            if len(visual.openWindows) == 0:
-                logging.error(
-                    "You need to open a window before creating your joystick")
-            else:
-                for win in visual.openWindows:
-                    # sending the raw ID to the window.
-                    win()._eventDispatchers.append(self._device)
-
-        else:
-            import pygame.joystick
-            pygame.joystick.init()
-            self._device = pygame.joystick.Joystick(deviceIndex)
-            self._device.init()
-            self.name = self._device.get_name()
-
     @staticmethod
-    def setBackend(newBackend):
-        """Set the backend for the joystick module.
+    def getAvailableDevices():
+        """Return a list of available joystick devices.
 
-        After this is set, successive instances of Joystick will use the new
-        value as the backend. Ideally, this should match the backend used for
-        the window. However, the joystick backend can be set independently of
-        the window backend if the need arises.
-
-        Parameters
-        ----------
-        newBackend : str
-            The new backend to use. Must be one of 'pyglet' or 'pygame'.
-
-        """
-        global backend
-        if newBackend not in ['pyglet', 'glfw', 'pygame']:
-            raise ValueError("Invalid backend specified. Must be one of "
-                             "'pyglet', 'glfw', or 'pygame'.")
-        backend = newBackend
-
-    @staticmethod
-    def getAllJoysticks():
-        """Enumerate all available joysticks.
-
-        Returns a dictionary of all available joysticks with the joystick ID
-        as the key and the joystick name as the value.
+        This method is used by `DeviceManager` to get a list of available
+        devices.
 
         Returns
         -------
-        dict
-            A dictionary of all available joysticks with the joystick ID as the
-            key and the keys containing information about the joystick. As a
-            minimum, the dictionary will contain the key 'name' which contains
-            the name of the joystick. The dictionary may contain additional
-            information about the joystick if that information is available.
+        list
+            A list of available joystick devices.
 
         """
-        allJoysticks = {}
-        if backend == 'pyglet':
-            joysticks = pyglet_input.get_joysticks()
-            for i, joy in enumerate(joysticks):
-                thisDevice = joy.device
-                deviceInfo = {}
-                deviceInfo['name'] = thisDevice.name 
-                allJoysticks[i] = deviceInfo
-        elif backend == 'glfw':
-            import glfw
-            for joy in range(glfw.JOYSTICK_1, glfw.JOYSTICK_LAST):
-                if glfw.joystick_present(joy):
-                    name = glfw.get_joystick_name(joy).decode("utf-8")
-                    allJoysticks[joy] = {'name': name}
-        else:
-            import pygame.joystick
-            pygame.joystick.init()
-            for i in range(pygame.joystick.get_count()):
-                joy = pygame.joystick.Joystick(i)
-                joy.init()
-                allJoysticks[i] = {'name': joy.get_name()}
+        # use the selected backend class to get the available devices
+        return getJoystickInterfaces()[backend].getAvailableDevices()
 
-        return allJoysticks
+    def isSameDevice(self, otherDevice):
+        """Check if the device is the same as another device.
+
+        Parameters
+        ----------
+        otherDevice : Joystick
+            The other device to compare against.
+
+        Returns
+        -------
+        bool
+            True if the devices are the same, False otherwise.
+
+        """
+        # only need to check the index since the device ID is unique
+        return self._joy.isSameDevice(otherDevice._device)
+
+    def open(self):
+        """Open the joystick device.
+
+        """
+        self._joy.open()
+
+    @property
+    def isOpen(self):
+        """Check if the joystick device is open.
+
+        Returns
+        -------
+        bool
+            True if the joystick device is open, False otherwise.
+
+        """
+        return self._joy.isOpen
+
+    def close(self):
+        """Close the joystick device.
+
+        """
+        self._joy.close()
+
+    def __del__(self):
+        """Close the joystick device when the object is deleted.
+
+        """
+        self.close()
 
     @property
     def name(self):
@@ -220,19 +158,19 @@ class Joystick:
     def x(self):
         """The X axis value (`float`).
         """
-        return self.getX() * self._scaleX
+        return self._joy.getX() * self._scaleX
 
     @property
     def y(self):
         """The Y axis value (`float`).
         """
-        return self.getY() * self._scaleY
+        return self._joy.getY() * self._scaleY
 
     @property
     def z(self):
         """The Z axis value (`float`).
         """
-        return self.getZ() * self._scaleZ
+        return self._joy.getZ() * self._scaleZ
 
     @property
     def scaleX(self):
@@ -273,64 +211,31 @@ class Joystick:
     def getName(self):
         """Return the manufacturer-defined name describing the device.
         """
-        return self.name
+        return self._joy.getName()
 
     def getNumButtons(self):
         """Return the number of digital buttons on the device.
         """
-        if backend == 'pyglet':
-            return len(self._device.buttons)
-        elif backend == 'glfw':
-            _, count = glfw.get_joystick_buttons(self._device)
-            return count
-        else:
-            return self._device.get_numbuttons()
+        return self._joy.getNumButtons()
 
     def getButton(self, buttonId):
         """Get the state of a given button.
 
         buttonId should be a value from 0 to the number of buttons-1
         """
-        if backend == 'pyglet':
-            return self._device.buttons[buttonId]
-        elif backend == 'glfw':
-            bs, _ = glfw.get_joystick_buttons(self._device)
-            return bs[buttonId]
-        else:
-            return self._device.get_button(buttonId)
+        return self._joy.getButton(buttonId)
 
     def getAllButtons(self):
         """Get the state of all buttons as a list.
         """
-        if backend == 'pyglet':
-            return self._device.buttons
-        elif backend == 'glfw':
-            import glfw
-            bs, count = glfw.get_joystick_buttons(self._device)
-            return [bs[i] for i in range(count)]
-        else:
-            bs = []
-            for buttonIndex in range(self._device.get_numbuttons()):
-                bs.append(self._device.get_button(buttonIndex))
-            return bs
+        return self._joy.getAllButtons()
 
     def getAllHats(self):
         """Get the current values of all available hats as a list of tuples.
 
         Each value is a tuple (x, y) where x and y can be -1, 0, +1
         """
-        hats = []
-        if backend == 'pyglet':
-            for ctrl in self._device.device.get_controls():
-                if ctrl.name != None and 'hat' in ctrl.name:
-                    hats.append((self._device.hat_x, self._device.hat_y))
-        elif backend == 'glfw':
-            # GLFW treats hats as buttons
-            pass
-        else:
-            for n in range(self._device.get_numhats()):
-                hats.append(self._device.get_hat(n))
-        return hats
+        return self._joy.getAllHats()
 
     def getNumHats(self):
         """Get the number of hats on this joystick.
@@ -339,12 +244,7 @@ class Joystick:
         'getNumHats()' will return 0.
 
         """
-        if backend == 'pyglet':
-            return len(self.getAllHats())
-        elif backend == 'glfw':
-            return 0
-        else:
-            return self._device.get_numhats()
+        return self._joy.getNumHats()
 
     def getHat(self, hatId=0):
         """Get the position of a particular hat.
@@ -352,91 +252,35 @@ class Joystick:
         The position returned is an (x, y) tuple where x and y
         can be -1, 0 or +1
         """
-        if backend == 'pyglet':
-            if hatId == 0:
-                return self._device.hat
-            else:
-                return self.getAllHats()[hatId]
-        elif backend == 'glfw':
-            # does nothing, hats are buttons in GLFW
-            pass
-        else:
-            return self._device.get_hat(hatId)
+        return self._joy.getHat(hatId)
 
     def getX(self):
         """Return the X axis value (equivalent to joystick.getAxis(0))."""
-        if backend == 'pyglet':
-            return self._device.x
-        elif backend == 'glfw':
-            return self.getAxis(0)
-        else:
-            return self._device.get_axis(0)
+        return self._joy.getX()
 
     def getY(self):
         """Return the Y axis value (equivalent to joystick.getAxis(1))."""
-        if backend == 'pyglet':
-            return self._device.y
-        elif backend == 'glfw':
-            return self.getAxis(1)
-        else:
-            return self._device.get_axis(1)
+        return self._joy.getY()
 
     def getZ(self):
         """Return the Z axis value (equivalent to joystick.getAxis(2))."""
-        if backend == 'pyglet':
-            return self._device.z
-        elif backend == 'glfw':
-            return self.getAxis(2)
-        else:
-            return self._device.get_axis(2)
+        return self._joy.getZ()
 
     def getAllAxes(self):
         """Get a list of all current axis values."""
-        axes = []
-        if backend == 'pyglet':
-            names = ['x', 'y', 'z', 'rx', 'ry', 'rz', ]
-            for axName in names:
-                if hasattr(self._device, axName):
-                    axes.append(getattr(self._device, axName))
-        elif backend == 'glfw':
-            import glfw
-            _axes, count = glfw.get_joystick_axes(self._device)
-            for i in range(count):
-                axes.append(_axes[i])
-        else:
-            for axisIdx in range(self._device.get_numaxes()):
-                axes.append(self._device.get_axis(axisIdx))
-        return axes
+        return self._joy.getAllAxes()
 
     def getNumAxes(self):
         """Return the number of joystick axes found.
-
         """
-        if backend == 'pyglet':
-            return len(self.getAllAxes())
-        elif backend == 'glfw':
-            import glfw
-            _, count = glfw.get_joystick_axes(self._device)
-            return count
-        else:
-            return self._device.get_numaxes()
+        return self._joy.getNumAxes()
 
     def getAxis(self, axisId):
         """Get the value of an axis by an integer id.
 
         (from 0 to number of axes - 1)
         """
-        if backend == 'pyglet':
-            val = self.getAllAxes()[axisId]
-            if val is None:
-                val = 0
-            return val
-        elif backend == 'glfw':
-            import glfw
-            val, _ = glfw.get_joystick_axes(self._device)
-            return val[axisId]
-        else:
-            return self._device.get_axis(axisId)
+        return self._joy.getAxis(axisId)
 
 
 class XboxController(Joystick):
@@ -716,29 +560,25 @@ class XboxController(Joystick):
         return val
 
 
-def getNumJoysticks():
-    """Return a count of the number of joysticks available.
+def getJoystickInterfaces():
+    """Return a list of joystick interfaces available.
 
     Returns
     -------
-    int
-        The number of joysticks available.
+    list
+        A list of joystick interfaces available.
 
     """
-    if backend == 'pyglet':
-        return len(pyglet_input.get_joysticks())
-    elif backend == 'glfw':
-        import glfw
-        n_joys = 0
-        for joy in range(glfw.JOYSTICK_1, glfw.JOYSTICK_LAST):
-            if glfw.joystick_present(joy):
-                n_joys += 1
+    foundJoystickInterfaces = {}
 
-        return n_joys
-    else:
-        import pygame.joystick
-        pygame.joystick.init()
-        return pygame.joystick.get_count()
+    # look for subclasses of JoystickInterface in this module's namespace
+    for name in globals():
+        obj = globals()[name]
+        if isinstance(obj, type) and issubclass(obj, BaseJoystickInterface):
+            if obj != BaseJoystickInterface:
+                foundJoystickInterfaces[obj.backendName] = obj
+
+    return foundJoystickInterfaces.copy()
 
 
 def getAllJoysticks():
