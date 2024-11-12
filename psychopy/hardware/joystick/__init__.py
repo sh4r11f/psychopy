@@ -27,6 +27,9 @@ backend = 'pyglet'  # 'pyglet' or 'pygame'
 class Joystick(BaseDevice):
     """Class for interfacing with a multi-axis joystick or gamepad.
 
+    Upon creating a `Joystick` object, the joystick device is opened and the 
+    states of the device's axes and buttons can be read.
+
     Parameters
     ----------
     device : int or str
