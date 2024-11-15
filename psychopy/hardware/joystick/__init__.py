@@ -12,16 +12,57 @@ be flipping it) for the joystick to be updated.
 
 """
 
-__all__ = ['Joystick', 'getJoystickInterfaces']
+__all__ = [
+    'Joystick', 
+    'JoystickError',
+    'JoystickAxisNotAvailableError',
+    'JoysticButtonNotAvailableError',
+    'getJoystickInterfaces']
 
 from psychopy import logging, visual
 from psychopy.hardware.base import BaseDevice
 from psychopy.hardware.joystick._base import BaseJoystickInterface
 from psychopy.hardware.joystick.backend_pyglet import JoystickInterfacePyglet
 
+import psychopy.hardware.joystick.mappings as mappings
+
+import math
 import numpy as np
 
+# backend to use when creating joystick objects
 backend = 'pyglet'  # 'pyglet' or 'pygame'
+
+# constants
+JOYSTICK_AXIS_X = JOYSTICK_BUTTON_A = 0
+JOYSTICK_AXIS_Y = JOYSTICK_BUTTON_B = 1
+JOYSTICK_AXIS_Z = JOYSTICK_BUTTON_X = 2
+JOYSTICK_AXIS_RX = JOYSTICK_BUTTON_Y = 3
+JOYSTICK_AXIS_RY = 4
+JOYSTICK_AXIS_RZ = 5
+
+
+class JoystickError(Exception):
+    """Exception raised for errors in the joystick module.
+    """
+    pass
+
+
+class JoystickAxisNotAvailableError(JoystickError):
+    """Exception raised when an axis is not available on the joystick.
+    """
+    pass
+
+
+class InvalidInputNameError(JoystickError):
+    """Exception raised when an input name is not valid.
+    """
+    pass
+
+
+class JoysticButtonNotAvailableError(JoystickError):
+    """Exception raised when a button is not available on the joystick.
+    """
+    pass
 
 
 class Joystick(BaseDevice):
@@ -29,6 +70,28 @@ class Joystick(BaseDevice):
 
     Upon creating a `Joystick` object, the joystick device is opened and the 
     states of the device's axes and buttons can be read.
+
+    Values for the axes are returned as floating point numbers, typically
+    between -1.0 and +1.0 unless scaling is applied. The values for the buttons
+    are returned as booleans, where True indicates the button is pressed down
+    at the time the device was last polled.
+
+    Scaling factors can be set for each axis to adjust the range of the axis
+    values. The scaling factor is a floating point value that is multiplied by
+    the axis value. If the scaling factor is negative, the axis value is
+    inverted. Deadzones can also be applied for each axis to prevent small 
+    fluctuations in the joystick's resting position from being interpreted as 
+    valid input. The deadzone is a floating point value between 0.0 and 1.0. If 
+    the absolute value of the axis value is less than the deadzone, the axis 
+    value is set to zero.
+
+    Device inputs can be named to provide a more human-readable interface. The 
+    names can be set for axes, buttons, and hats where they can be used to get 
+    the input values instead of using the integer indices. Furthermore,
+    like inputs can be grouped together under a single name. For example, both
+    X and Y of a thumbstick can be grouped together under the name 'thumbstick'.
+    When getting the value of the thumbstick, a tuple of the X and Y values is
+    returned instead of having to get each axis individually.
 
     Parameters
     ----------
@@ -51,9 +114,36 @@ class Joystick(BaseDevice):
 
         nAxes = joy.getNumAxes()  # for interest
         while True:  # while presenting stimuli
-            joy.getX()
+            joyX = joy.getX()
             # ...
             win.flip()  # flipping implicitly updates the joystick info
+    
+    Set the deadzone for axis 0 to 0.1::
+
+        joy.setAxisDeadzone(0, 0.1)
+
+    Set the scaling factor for 1 axis to 2.0::
+
+        joy.setAxisScale(1, 2.0)
+
+    Setting the names of the inputs can be useful for debugging and for
+    providing a more human-readable interface::
+
+        joy.setInputName('axis', 0, 'x')
+        joy.setInputName('axis', 1, 'y')
+
+    You can get the imput value by name by passing it to the get method for the
+    input type::
+
+        joy.getAxis('axis', 'x')  # instead of joy.getAxis(0)
+
+    Automatically set the input names to the default Xbox controller mapping
+    scheme::
+
+        joy.setInputScheme('xbox')
+        # ...
+        xVal, yVal = joy.getAxis('left_thumbstick')
+        leftTrigger, rightTrigger = joy.getAxis('triggers')
 
     Notes
     -----
@@ -79,9 +169,43 @@ class Joystick(BaseDevice):
         # create a device interface
         self._joy = joyInterface(device, **kwargs)
 
-        # scale factors for the axes
-        self._scaleX = self._scaleY = self._scaleZ = 1.0
+        # input counts for the device, these don't chnage after opening
+        self._numAxes = self._joy.getNumAxes()
+        self._numButtons = self._joy.getNumButtons()
+        self._numHats = self._joy.getNumHats()
 
+        # axis value modifiers
+        numAxes = self._joy.getNumAxes()
+        self._axisScale = [1.0] * numAxes
+        self._axisDeadzone = [0.0] * numAxes
+
+        # VR and motion tracking properties
+        self._pos = np.zeros(3, dtype=np.float32)
+        self._ori = np.array([0., 0., 0., 1.], dtype=np.float32)
+
+        # axis name mapping, some defaults are provided for common axes
+        self._inputNames = {
+            'axis': { 
+                'x': JOYSTICK_AXIS_X,
+                'y': JOYSTICK_AXIS_Y,
+                'xy': (JOYSTICK_AXIS_X, JOYSTICK_AXIS_Y),  # gang axes together
+                'z': JOYSTICK_AXIS_Z,
+                'rx': JOYSTICK_AXIS_RX,
+                'ry': JOYSTICK_AXIS_RY,
+                'rz': JOYSTICK_AXIS_RZ}, 
+            'button': {
+                'a': JOYSTICK_BUTTON_A,
+                'b': JOYSTICK_BUTTON_B,
+                'x': JOYSTICK_BUTTON_X,
+                'y': JOYSTICK_BUTTON_Y}, 
+            'hat': {}}
+
+    def __del__(self):
+        """Close the joystick device when the object is deleted.
+        """
+        if hasattr(self, '_joy'):
+            self.close()
+        
     @staticmethod
     def getAvailableDevices():
         """Return a list of available joystick devices.
@@ -117,8 +241,10 @@ class Joystick(BaseDevice):
 
     def open(self):
         """Open the joystick device.
-
         """
+        if self.isOpen:
+            return
+
         self._joy.open()
 
     @property
@@ -135,15 +261,11 @@ class Joystick(BaseDevice):
 
     def close(self):
         """Close the joystick device.
-
         """
+        if not self.isOpen:
+            return
+
         self._joy.close()
-
-    def __del__(self):
-        """Close the joystick device when the object is deleted.
-
-        """
-        self.close()
 
     @property
     def name(self):
@@ -161,82 +283,438 @@ class Joystick(BaseDevice):
     def x(self):
         """The X axis value (`float`).
         """
-        return self._joy.getX() * self._scaleX
+        return self.getX()
 
     @property
     def y(self):
         """The Y axis value (`float`).
         """
-        return self._joy.getY() * self._scaleY
+        return self.getY()
 
     @property
     def z(self):
         """The Z axis value (`float`).
         """
-        return self._joy.getZ() * self._scaleZ
+        return self.getZ()
 
     @property
-    def scaleX(self):
-        """Scale factor for the X axis (`float`).
+    def rx(self):
+        """The RX axis value (`float`).
         """
-        return self._scaleX
-
-    @scaleX.setter
-    def scaleX(self, scale):
-        if not isinstance(scale, (int, float)):
-            raise TypeError("Scaling factor must be a numeric type.")
-        self._scaleX = scale
+        return self.getRX()
 
     @property
-    def scaleY(self):
-        """Scale factor for the Y axis (`float`).
+    def ry(self):
+        """The RY axis value (`float`).
         """
-        return self._scaleY
-
-    @scaleY.setter
-    def scaleY(self, scale):
-        if not isinstance(scale, (int, float)):
-            raise TypeError("Scaling factor must be a numeric type.")
-        self._scaleY = scale
+        return self.getRY()
 
     @property
-    def scaleZ(self):
-        """Scale factor for the Z axis (`float`).
+    def rz(self):
+        """The RZ axis value (`float`).
         """
-        return self._scaleZ
-
-    @scaleZ.setter
-    def scaleZ(self, scale):
-        if not isinstance(scale, (int, float)):
-            raise TypeError("Scaling factor must be a numeric type.")
-        self._scaleZ = scale
+        return self.getRZ()
 
     def getName(self):
-        """Return the manufacturer-defined name describing the device.
+        """Return the manufacturer-defined name describing the device (`str`).
         """
         return self._joy.getName()
 
-    def getNumButtons(self):
-        """Return the number of digital buttons on the device.
+    def setInputScheme(self, mapping):
+        """Set the input mapping scheme for the joystick.
+
+        The input mapping scheme determines the names of the inputs for the
+        joystick. The mapping scheme can be set to 'default', 'xbox', or
+        'custom'. The default mapping scheme provides names for the axes and
+        buttons that are common to most joysticks.
+
+        Note that setting the mapping scheme will overwrite any custom input
+        names that have been set prior to calling this method.
+
+        Parameters
+        ----------
+        mapping : str
+            The mapping scheme to set. Must be one of 'default', 'xbox', or
+            'custom'.
+
         """
-        return self._joy.getNumButtons()
+        # get the mapping scheme
+        inputMap = mappings.getInputScheme(mapping)
+        if inputMap is None:
+            raise ValueError("Invalid mapping scheme '{}'.".format(mapping))
+
+        logging.info(
+            "Setting input scheme for joystick to '{}'.".format(mapping))
+
+        # set the input names
+        self._inputNames = inputMap
+    
+    def setInputName(self, inputType, inputIndex, name):
+        """Set the name of an input.
+
+        Parameters
+        ----------
+        inputType : str
+            The type of input to set the name for. Must be one of 'axis',
+            'button', or 'hat'.
+        inputIndex : int or list of int
+            The index of the input to set the name for. If a list of indices is
+            supplied, multiple axes will be grouped together.
+        name : str or None
+            The name to set for the axis. If None, the name for the axis is
+            removed.
+
+        Raises
+        ------
+        ValueError
+            If the inputType is not 'axis', 'button', or 'hat'.
+        
+        Examples
+        --------
+        Set the name of axis `0` to 'x' and get its value by name::
+
+            joy.setInputName('axis', 0, 'x')
+            xVal = joy.getAxis('x')  # instead of joy.getAxis(0)
+
+        Joystick inputs often have multiple axes ganged together on a single
+        control, such as a thumbstick. You can group axes together by passing a 
+        list of indices::
+
+            joy.setInputName('axis', [0, 1], 'left_thumbstick')
+            xVal, yVal = joy.getAxis('left_thumbstick')  # returns 2 values
+
+        """
+        if inputType not in ('axes', 'buttons', 'hats'):
+            raise ValueError("Input type must be 'axes', 'buttons', or 'hats'.")
+
+        if name is None:
+            if inputIndex in self._inputNames[inputType]:
+                del self._inputNames[inputType][inputIndex]
+            return
+
+        self._inputNames[inputType][inputIndex] = name
+
+    def _getIndexFromName(self, inputType, name):
+        """Get the index of an input from its name.
+
+        Parameters
+        ----------
+        inputType : str
+            The type of input to get the index for. Must be one of 'axis',
+            'button', or 'hat'.
+        name : str
+            The name of the input to get the index for.
+
+        Returns
+        -------
+        int or None
+            The index of the input. If the input name is not found, `None` is
+            returned.
+
+        Raises
+        ------
+        InvalidInputNameError
+            If the input name is not valid or has not been set.
+        
+        """
+        inputIndex = self._inputNames[inputType].get(name, None)
+        if inputIndex is not None:
+            return inputIndex
+
+        raise InvalidInputNameError("Input name '{}' is not valid.".format(name))
+
+    # --------------------------------------------------------------------------
+    # VR methods
+    #
+
+    @property
+    def pos(self):
+        """Position of the joystick in 3D space.
+
+        Returns
+        -------
+        tuple
+            The position of the joystick in 3D space as a tuple (x, y, z).
+
+        """
+        return self.getPos()
+
+    @property
+    def ori(self):
+        """Orientation of the joystick in 3D space.
+
+        Returns
+        -------
+        tuple
+            The orientation of the joystick as a quaternion (x, y, z, w).
+
+        """
+        return self.getOri()
+
+    def getPos(self):
+        """Get the position of the joystick in 3D space.
+
+        Use to get the tracked position of an input device in 3D space.
+
+        Returns
+        -------
+        tuple
+            The position of the joystick in 3D space as a tuple (x, y, z).
+
+        """
+        return self._pos
+
+    def getOri(self):
+        """Get the orientation of the joystick.
+
+        Use to get the tracked orientation of an input device in 3D space.
+
+        Returns
+        -------
+        tuple
+            The orientation of the joystick as a quaternion (x, y, z, w).
+
+        """
+        return self._ori
+
+    # --------------------------------------------------------------------------
+    # Axis filtering methods
+    #
+
+    def getAxisScale(self, axisId):
+        """Get the scale factor for a given axis.
+
+        Parameters
+        ----------
+        axisId : int
+            The axis ID to get the scale factor for.
+
+        Returns
+        -------
+        float
+            The scale factor for the given axis.
+
+        """
+        return self._axisScale[axisId]
+
+    def setAxisScale(self, axisId, scale):
+        """Set the scale factor for a given axis.
+
+        Parameters
+        ----------
+        axisId : int or None
+            The axis ID to set the scale factor for. If None, set the scale
+            factor for all axes to the given value.
+        scale : float
+            The scale factor to set. This factor will be multiplied by the
+            axis value. If negative, the axis value will be inverted.
+
+        """
+        if not isinstance(scale, (int, float)):
+            raise TypeError("Scaling factor must be a numeric type.")
+
+        if isinstance(axisId, str):
+            axisId = self._getIndexFromName('axes', axisId)
+
+        if axisId is None:
+            self._axisScale = [scale] * len(self._axisScale)
+        else:
+            self._axisScale[axisId] = scale
+        
+    def getAxisDeadzone(self, axisId):
+        """Get the deadzone for a given axis.
+
+        Parameters
+        ----------
+        axisId : int
+            The axis ID to get the deadzone for.
+
+        Returns
+        -------
+        float
+            The deadzone for the given axis.
+
+        """
+        return self._axisDeadzone[axisId]
+
+    def setAxisDeadzone(self, axisId, deadzone):
+        """Set the deadzone for a given axis.
+
+        Parameters
+        ----------
+        axisId : int or None
+            The axis ID to set the deadzone for. If None, set the deadzone for
+            all axes to the given value.
+        deadzone : float
+            The deadzone to set, must be between 0.0 and 1.0.
+
+        """
+        if not isinstance(deadzone, (int, float)):
+            raise TypeError("Deadzone must be a numeric type.")
+
+        if isinstance(axisId, str):  # name supplied
+            axisId = self._getIndexFromName('axes', axisId)
+
+        deadzone = min(1.0, max(0.0, deadzone))
+        if axisId is None:
+            self._axisDeadzone = [deadzone] * len(self._axisDeadzone)
+        else:
+            self._axisDeadzone[axisId] = deadzone
+
+    # --------------------------------------------------------------------------
+    # Axis methods
+    #
+
+    def getAllAxes(self):
+        """Get a list of all current axis values (`int`).
+        """
+        allAxes = self._joy.getAllAxes()
+
+        # apply scaling and deadzone to axes
+        for i, axisVal in enumerate(allAxes):
+            allAxes[i] = axisVal * self._axisScale[i] \
+                if abs(axisVal) >= self._axisDeadzone[i] else 0.0
+
+        return allAxes
+
+    def getNumAxes(self):
+        """Get the number of available joystick axes.
+
+        The first axis usually corresponds to the X axis, the second to the Y
+        axis for most joysticks. Additional axes may be present for other 
+        controls such as addtional thumbsticks or throttle lever.
+
+        Returns
+        -------
+        int
+            The number of axes found on the joystick.
+
+        """
+        return self._numAxes
+
+    def getAxis(self, axisId):
+        """Get the value of an axis by an integer id.
+
+        Parameters
+        ----------
+        axisId : int, str or list
+            The axis ID to get the value for. If a string is supplied, the name
+            of the axis is used to get the value. If a list of axes indices or
+            names is supplied, a list of values is returned.
+
+        Returns
+        -------
+        float or list
+            The value of the axis. If a list of axes is supplied, a list of
+            values is returned.
+
+        """
+        if isinstance(axisId, str):  # name supplied
+            axisId = self._getIndexFromName('axes', axisId)
+
+        # is axisId a sequence?
+        if isinstance(axisId, (list, tuple)):
+            return [self.getAxis(ax) for ax in axisId]  # recusively called
+
+        # get the axis value from `int` axisId
+        axisVal = self._joy.getAxis(axisId)
+        return axisVal * self._axisScale[axisId] \
+            if abs(axisVal) >= self._axisDeadzone[axisId] else 0.0
+
+    def getX(self):
+        """Return the X axis value (equivalent to joystick.getAxis(0))."""
+        return self.getAxis(JOYSTICK_AXIS_X)
+
+    def getY(self):
+        """Return the Y axis value (equivalent to joystick.getAxis(1))."""
+        return self.getAxis(JOYSTICK_AXIS_Y)
+    
+    def getXY(self):
+        """Return the X and Y axis values as a tuple.
+
+        Returns
+        -------
+        tuple
+            The X and Y axis values as a tuple.
+
+        """
+        return self.getAxis([JOYSTICK_AXIS_X, JOYSTICK_AXIS_Y])
+
+    def getZ(self):
+        """Return the Z axis value (equivalent to joystick.getAxis(2))."""
+        return self.getAxis(JOYSTICK_AXIS_Z)
+
+    def getRX(self):
+        """Return the RX axis value (equivalent to joystick.getAxis(3))."""
+        return self.getAxis(JOYSTICK_AXIS_RX)
+
+    def getRY(self):
+        """Return the RY axis value (equivalent to joystick.getAxis(4))."""
+        return self.getAxis(JOYSTICK_AXIS_RY)
+
+    def getRZ(self):
+        """Return the RZ axis value (equivalent to joystick.getAxis(5))."""
+        return self.getAxis(JOYSTICK_AXIS_RZ)
+
+    # --------------------------------------------------------------------------
+    # Button methods
+    #
+
+    def getNumButtons(self):
+        """Get the number of buttons on the device (`int`).
+
+        Returns
+        -------
+        int
+            The number of buttons on the joystick.
+
+        """
+        return self._numButtons
 
     def getButton(self, buttonId):
-        """Get the state of a given button.
+        """Get the state of a given button on the device (`bool`).
 
-        buttonId should be a value from 0 to the number of buttons-1
+        Parameters
+        ----------
+        buttonId : int, str or list
+            The button ID to get the state for. If a string is supplied, the
+            name of the button is used to get the state. If a list of button
+            indices or names is supplied, a list of states is returned.
+
+        Returns
+        -------
+        bool or list
+            The state of the button. If a list of buttons was passed as 
+            `buttonId`, a list of states is returned where each state is a
+            boolean.
+
         """
+        if isinstance(buttonId, str):  # name supplied
+            buttonId = self._getIndexFromName('buttons', buttonId)
+
+        if isinstance(buttonId, (list, tuple)):
+            return [self.getButton(b) for b in buttonId]
+
         return self._joy.getButton(buttonId)
 
     def getAllButtons(self):
-        """Get the state of all buttons as a list.
+        """Get the state of all buttons on the device (`list`).
         """
         return self._joy.getAllButtons()
 
-    def getAllHats(self):
-        """Get the current values of all available hats as a list of tuples.
+    # --------------------------------------------------------------------------
+    # Hat methods
+    #
 
-        Each value is a tuple (x, y) where x and y can be -1, 0, +1
+    def getAllHats(self):
+        """Get the current values of all available hats.
+
+        Returns
+        -------
+        list
+            Each value is a tuple (x, y) where x and y axis states are trinary
+            (-1, 0, +1)
+
         """
         return self._joy.getAllHats()
 
@@ -247,43 +725,31 @@ class Joystick(BaseDevice):
         'getNumHats()' will return 0.
 
         """
-        return self._joy.getNumHats()
+        return self._numHats
 
     def getHat(self, hatId=0):
         """Get the position of a particular hat.
 
-        The position returned is an (x, y) tuple where x and y
-        can be -1, 0 or +1
+        Parameters
+        ----------
+        hatId : int or str
+            The hat ID to get the position for. If a string is supplied, the
+            name of the hat is used to get the position.
+
+        Returns
+        -------
+        tuple
+            The position returned is an (x, y) tuple where x and y can be -1, 0 
+            or +1.
+
         """
+        if isinstance(hatId, str):  # name supplied
+            hatId = self._getIndexFromName('hats', hatId)
+
+        if isinstance(hatId, (list, tuple)):
+            return [self.getHat(h) for h in hatId]
+
         return self._joy.getHat(hatId)
-
-    def getX(self):
-        """Return the X axis value (equivalent to joystick.getAxis(0))."""
-        return self._joy.getX()
-
-    def getY(self):
-        """Return the Y axis value (equivalent to joystick.getAxis(1))."""
-        return self._joy.getY()
-
-    def getZ(self):
-        """Return the Z axis value (equivalent to joystick.getAxis(2))."""
-        return self._joy.getZ()
-
-    def getAllAxes(self):
-        """Get a list of all current axis values."""
-        return self._joy.getAllAxes()
-
-    def getNumAxes(self):
-        """Return the number of joystick axes found.
-        """
-        return self._joy.getNumAxes()
-
-    def getAxis(self, axisId):
-        """Get the value of an axis by an integer id.
-
-        (from 0 to number of axes - 1)
-        """
-        return self._joy.getAxis(axisId)
 
 
 class XboxController(Joystick):

@@ -231,7 +231,7 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
 
         """
         if hatId == 0:
-            return self._device.hat
+            return self._device.hat_x, self._device.hat_y
         else:
             return self.getAllHats()[hatId]
     
