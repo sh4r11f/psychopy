@@ -1048,6 +1048,7 @@ class TrialHandler2(_BaseTrialHandler):
                     break  # break out of the forever loop
                 # do stuff here for the trial
         """
+        print("NEXT", "thisTrial", self.thisTrial, "upcomingTrials", self.upcomingTrials)
         # mark previous trial as elapsed
         if self.thisTrial is not None:
             self.elapsedTrials.append(self.thisTrial)
@@ -1282,26 +1283,24 @@ class TrialHandler2(_BaseTrialHandler):
         """
         # treat -n as n
         n = abs(n)
-        # account for the fact current trial will end once skipped
-        n += 1
         # if rewinding past first trial, print warning and rewind to first trial
         if n > len(self.elapsedTrials):
             logging.warn(
                 f"Requested rewind of {n} trials when only {len(self.elapsedTrials)} trials have "
-                f"elapsed. Rewinding to the first trial."
+                f"elapsed. Rewinding to before the first trial."
             )
             n = len(self.elapsedTrials)
-        # mark current trial as skipping so it ends
-        self.thisTrial.status = constants.STOPPING
         # start with no trials
         rewound = [self.thisTrial]
         # pop the last n values from elapsed trials
         for i in range(n):
             rewound = [self.elapsedTrials.pop(-1)] + rewound
-        # set thisTrial from first rewound value
-        self.thisTrial = rewound.pop(0)
+        # clear thisTrial so we progress to the first rewound trial
+        self.thisTrial = None
         # prepend rewound trials to upcoming array
         self.upcomingTrials = rewound + self.upcomingTrials
+        # progress so we get the first upcoming trial
+        self.__next__()
 
         return self.thisTrial
     
