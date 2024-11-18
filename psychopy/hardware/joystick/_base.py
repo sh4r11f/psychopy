@@ -68,13 +68,8 @@ class BaseJoystickInterface:
 
     @property
     def inputLib(self):
-        """Return the GLFW library.
-
-        Returns
-        -------
-        glfw
-            The GLFW library.
-
+        """The name of the input library (`str`).
+        
         """
         return self._inputLib
     
