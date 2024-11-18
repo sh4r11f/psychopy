@@ -1134,14 +1134,70 @@ class XboxController(Joystick):
         return val
 
 
+# Setter and getter methods for the joystick backend, this allows us to sanity
+# check the backend value before setting it.
+
+def getBackend():
+    """Get the joystick backend in use.
+
+    Returns
+    -------
+    str
+        The name of the joystick backend in use.
+
+    """
+    return backend
+
+
+def setBackend(inputLib):
+    """Set the joystick backend (input library) to use.
+    
+    Successive instances of `Joystick` will use the backend set here. If the
+    backend is not available, a `ValueError` is raised.
+
+    Parameters
+    ----------
+    inputLib : str or None
+        The name of the joystick input library to use. If None, the backend is 
+        set to the window backend.
+
+    Examples
+    --------
+    Set the joystick backend to 'glfw'::
+
+        joystick.setBackend('glfw')
+        joy = joystick.Joystick(0)  # uses the GLFW backend
+
+        joy.inputLib == 'glfw'  # True
+
+    """
+    if inputLib is None:
+        if not visual.openWindows:
+            raise ValueError("Cannot determine the window backend.")
+        
+        win = visual.openWindows[0]()
+        inputLib = win.backend.winTypeName  # get window backend name
+
+    # get available backends and check if the requested backend is available
+    availableBackends = getJoystickInterfaces()
+    if inputLib not in availableBackends.keys():
+        raise ValueError(
+            "Joystick backend '{}' is not available.".format(inputLib))
+
+    global backend  # set the global backend
+    backend = inputLib 
+
+
 def getJoystickInterfaces():
-    """Get available joystick interfaces.
+    """Get available joystick input interfaces.
 
     Returns
     -------
     dict
         A mapping of joystick interfaces available where the key is the input
         library identifier and the value is the joystick interface class.
+        Setting the backend to one of these keys will use the corresponding
+        joystick interface.
 
     """
     foundJoystickInterfaces = {}
