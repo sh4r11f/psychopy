@@ -19,7 +19,7 @@ class BaseJoystickInterface:
     joystick or gamepad device interface.
 
     """
-    backendName = None
+    _inputLib = None
     def __init__(self, device=0, **kwargs):
         self._device = None
 
@@ -53,6 +53,30 @@ class BaseJoystickInterface:
 
         """
         raise NotImplementedError
+
+    @property
+    def hasTracking(self):
+        """Check if the device has tracking capabilities.
+
+        Returns
+        -------
+        bool
+            True if the device has tracking capabilities, False otherwise.
+
+        """
+        return False
+
+    @property
+    def inputLib(self):
+        """Return the GLFW library.
+
+        Returns
+        -------
+        glfw
+            The GLFW library.
+
+        """
+        return self._inputLib
     
     def open(self):
         """Open the joystick device.
@@ -161,3 +185,18 @@ class BaseJoystickInterface:
         (from 0 to number of axes - 1)
         """
         raise NotImplementedError
+
+    def update(self):
+        """Update the joystick state.
+
+        This method should be called before querying the states of the controls
+        to obtain the most recent values. Some joystick implementations may not
+        require this method to be called explicitly, but it is provided for
+        consistency.
+
+        """
+        pass
+
+
+if __name__ == "__main__":
+    pass

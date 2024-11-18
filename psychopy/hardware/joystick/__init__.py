@@ -23,8 +23,9 @@ from psychopy import logging, visual
 from psychopy.hardware.base import BaseDevice
 from psychopy.hardware.joystick._base import BaseJoystickInterface
 from psychopy.hardware.joystick.backend_pyglet import JoystickInterfacePyglet
-
+from psychopy.hardware.joystick.backend_glfw import JoystickInterfaceGLFW
 import psychopy.hardware.joystick.mappings as mappings
+import psychopy.core as core
 
 import math
 import numpy as np
@@ -154,6 +155,8 @@ class Joystick(BaseDevice):
       change to each axis.
     * Currently pygame (1.9.1) spits out lots of debug messages about the
       joystick and these can't be turned off :-/
+    * The GLFW backend can be used without first opening a window and can be 
+      used with other window backends.
 
     """
     def __init__(self, device=0, **kwargs):
@@ -161,6 +164,9 @@ class Joystick(BaseDevice):
         # get the joystick device interface
         try:
             joyInterface = getJoystickInterfaces()[backend]
+            logging.info(
+                "Using joystick interface '{}' for backend '{}'".format(
+                    joyInterface.__name__, backend))
         except KeyError:
             logging.error(
                 "No joystick interface found for backend '{}'".format(
@@ -175,36 +181,69 @@ class Joystick(BaseDevice):
         self._numHats = self._joy.getNumHats()
 
         # axis value modifiers
-        numAxes = self._joy.getNumAxes()
-        self._axisScale = [1.0] * numAxes
-        self._axisDeadzone = [0.0] * numAxes
+        self._axisScale = [1.0] * self._numAxes
+        self._axisDeadzone = [0.0] * self._numAxes
+
+        # device states
+        self._lastUpdateTime = 0.0  # in experiment time
+        self._axisVals = np.zeros(self._numAxes, dtype=np.float32)
+        self._btnStates = np.zeros(self._numButtons, dtype=bool)
+        self._hatStates = np.zeros((self._numHats, 2), dtype=np.int8)
 
         # VR and motion tracking properties
         self._pos = np.zeros(3, dtype=np.float32)
         self._ori = np.array([0., 0., 0., 1.], dtype=np.float32)
+        self._angularVel = np.zeros(3, dtype=np.float32)
+        self._linearVel = np.zeros(3, dtype=np.float32)
 
         # axis name mapping, some defaults are provided for common axes
-        self._inputNames = {
-            'axis': { 
-                'x': JOYSTICK_AXIS_X,
-                'y': JOYSTICK_AXIS_Y,
-                'xy': (JOYSTICK_AXIS_X, JOYSTICK_AXIS_Y),  # gang axes together
-                'z': JOYSTICK_AXIS_Z,
-                'rx': JOYSTICK_AXIS_RX,
-                'ry': JOYSTICK_AXIS_RY,
-                'rz': JOYSTICK_AXIS_RZ}, 
-            'button': {
-                'a': JOYSTICK_BUTTON_A,
-                'b': JOYSTICK_BUTTON_B,
-                'x': JOYSTICK_BUTTON_X,
-                'y': JOYSTICK_BUTTON_Y}, 
-            'hat': {}}
+        self._inputNames = {}
+        self.setInputScheme('default')  # use default mapping scheme
 
     def __del__(self):
         """Close the joystick device when the object is deleted.
         """
         if hasattr(self, '_joy'):
             self.close()
+
+    def lastUpdateTime(self):
+        """Return the time of the last update to the joystick state.
+
+        Returns
+        -------
+        float
+            The time of the last update to the joystick state.
+
+        """
+        return self._lastUpdateTime
+
+    def poll(self):
+        """Poll the joystick device for the current state.
+
+        This method should be called at the beginning of each frame to update
+        the state of the joystick device. The time of the last update is stored
+        and can be accessed using the `lastUpdateTime` property.
+
+        """
+        self._joy.update()
+
+        # update the internal state of the joystick
+        self._axisVals[:] = self.getAllAxes()
+        self._btnStates[:] = self.getAllButtons()
+
+        if backend != 'glfw':  # cannot use hats with GLFW
+            self._hatStates[:] = self.getAllHats()
+
+        # update the VR properties
+        if self.hasTracking:
+            self._pos = self.getPos()
+            self._ori = self.getOri()
+            self._angularVel = self.getAngularVelocity()
+            self._linearVel = self.getLinearVelocity()
+
+        self._lastUpdateTime = core.getTime()
+
+        return self._lastUpdateTime
         
     @staticmethod
     def getAvailableDevices():
@@ -221,6 +260,27 @@ class Joystick(BaseDevice):
         """
         # use the selected backend class to get the available devices
         return getJoystickInterfaces()[backend].getAvailableDevices()
+
+    @property
+    def inputLib(self):
+        """Input interface library used (`str`).
+        """
+        if not hasattr(self, '_joy'):
+            return None
+            
+        return self._joy.inputLib
+
+    @property
+    def hasTracking(self):
+        """Check if the joystick has tracking capabilities.
+
+        Returns
+        -------
+        bool
+            True if the joystick has tracking capabilities, False otherwise.
+
+        """
+        return self._joy.hasTracking
 
     def isSameDevice(self, otherDevice):
         """Check if the device is the same as another device.
@@ -459,7 +519,8 @@ class Joystick(BaseDevice):
         Returns
         -------
         tuple
-            The position of the joystick in 3D space as a tuple (x, y, z).
+            The position of the joystick in 3D space as a tuple (x, y, z). Units
+            are typically in meters unless otherwise specified. The or
 
         """
         return self._pos
@@ -476,6 +537,28 @@ class Joystick(BaseDevice):
 
         """
         return self._ori
+
+    def getAngularVelocity(self):
+        """Get the angular velocity of the joystick.
+
+        Returns
+        -------
+        tuple
+            The angular velocity of the joystick as a tuple (x, y, z).
+
+        """
+        return self._angularVel
+
+    def getLinearVelocity(self):
+        """Get the linear velocity of the joystick.
+
+        Returns
+        -------
+        tuple
+            The linear velocity of the joystick as a tuple (x, y, z).
+
+        """
+        return self._linearVel
 
     # --------------------------------------------------------------------------
     # Axis filtering methods
@@ -535,16 +618,27 @@ class Joystick(BaseDevice):
             The deadzone for the given axis.
 
         """
+        if axisId is None:
+            return self._axisDeadzone
+
+        if isinstance(axisId, str):
+            axisId = self._getIndexFromName('axes', axisId)
+
+        if isinstance(axisId, (list, tuple)):
+            return [self.getAxisDeadzone(ax) for ax in axisId]
+
         return self._axisDeadzone[axisId]
 
-    def setAxisDeadzone(self, axisId, deadzone):
+    def setAxisDeadzone(self, axisId=None, deadzone=0.1):
         """Set the deadzone for a given axis.
 
         Parameters
         ----------
-        axisId : int or None
+        axisId : int, str, list or None
             The axis ID to set the deadzone for. If None, set the deadzone for
-            all axes to the given value.
+            all axes to the given value. A string can be supplied to set the
+            deadzone for an axis by name. A list of axes can also be supplied to
+            set the deadzone for multiple axes at once.
         deadzone : float
             The deadzone to set, must be between 0.0 and 1.0.
 
@@ -552,14 +646,20 @@ class Joystick(BaseDevice):
         if not isinstance(deadzone, (int, float)):
             raise TypeError("Deadzone must be a numeric type.")
 
-        if isinstance(axisId, str):  # name supplied
-            axisId = self._getIndexFromName('axes', axisId)
-
         deadzone = min(1.0, max(0.0, deadzone))
         if axisId is None:
             self._axisDeadzone = [deadzone] * len(self._axisDeadzone)
-        else:
-            self._axisDeadzone[axisId] = deadzone
+            return
+
+        if isinstance(axisId, str):  # name supplied
+            axisId = self._getIndexFromName('axes', axisId)
+
+        if isinstance(axisId, (list, tuple)):
+            for ax in axisId:
+                self.setAxisDeadzone(ax, deadzone)
+            return
+
+        self._axisDeadzone[axisId] = deadzone
 
     # --------------------------------------------------------------------------
     # Axis methods
@@ -671,6 +771,17 @@ class Joystick(BaseDevice):
         """
         return self._numButtons
 
+    def getAllButtons(self):
+        """Get the state of all buttons on the devics.
+
+        Returns
+        -------
+        list
+            A list of button states. Each state is a boolean.
+
+        """
+        return self._joy.getAllButtons()
+
     def getButton(self, buttonId):
         """Get the state of a given button on the device (`bool`).
 
@@ -697,14 +808,17 @@ class Joystick(BaseDevice):
 
         return self._joy.getButton(buttonId)
 
-    def getAllButtons(self):
-        """Get the state of all buttons on the device (`list`).
-        """
-        return self._joy.getAllButtons()
-
     # --------------------------------------------------------------------------
     # Hat methods
     #
+    def getNumHats(self):
+        """Get the number of hats on this joystick.
+
+        The GLFW backend makes no distinction between hats and buttons. Calling
+        'getNumHats()' will return 0.
+
+        """
+        return self._numHats
 
     def getAllHats(self):
         """Get the current values of all available hats.
@@ -717,15 +831,6 @@ class Joystick(BaseDevice):
 
         """
         return self._joy.getAllHats()
-
-    def getNumHats(self):
-        """Get the number of hats on this joystick.
-
-        The GLFW backend makes no distinction between hats and buttons. Calling
-        'getNumHats()' will return 0.
-
-        """
-        return self._numHats
 
     def getHat(self, hatId=0):
         """Get the position of a particular hat.
@@ -1030,12 +1135,13 @@ class XboxController(Joystick):
 
 
 def getJoystickInterfaces():
-    """Return a list of joystick interfaces available.
+    """Get available joystick interfaces.
 
     Returns
     -------
-    list
-        A list of joystick interfaces available.
+    dict
+        A mapping of joystick interfaces available where the key is the input
+        library identifier and the value is the joystick interface class.
 
     """
     foundJoystickInterfaces = {}
@@ -1045,7 +1151,7 @@ def getJoystickInterfaces():
         obj = globals()[name]
         if isinstance(obj, type) and issubclass(obj, BaseJoystickInterface):
             if obj != BaseJoystickInterface:
-                foundJoystickInterfaces[obj.backendName] = obj
+                foundJoystickInterfaces[obj._inputLib] = obj
 
     return foundJoystickInterfaces.copy()
 
@@ -1056,12 +1162,24 @@ def getAllJoysticks():
 
     Returns
     -------
-    dict
-        A dictionary of all available joysticks with the joystick ID as the
-        key and the keys containing information about the joystick. As a
-        minimum, the dictionary will contain the key 'name' which contains the
-        name of the joystick. The dictionary may contain additional information
-        about the joystick if that information is available.
+    list
+        A list of dictionaries containing information about each available
+        joystick. Information varies depending on the joystick interface used,
+        however the `'index'` key is always present and contains the index of
+        the joystick. Passing this index to the `Joystick` constructor will
+        create a joystick object for that device.
+
+    Examples
+    --------
+    Get information about all available joysticks::
+
+        joysticks = getAllJoysticks()
+        for joy in joysticks:
+            print(joy)
+
+    Create a `Joystick` object for the first joystick found::
+
+        joy = Joystick(joysticks[0]['index'])
 
     """
     return Joystick.getAllJoysticks()
