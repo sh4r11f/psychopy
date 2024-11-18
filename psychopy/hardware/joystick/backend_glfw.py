@@ -5,35 +5,23 @@
 # Copyright (C) 2002-2018 Jonathan Peirce (C) 2019-2024 Open Science Tools Ltd.
 # Distributed under the terms of the GNU General Public License (GPL).
 
-"""Pyglet backend for joystick support.
+"""GLFW backend for joystick support.
 
 """
 
-__all__ = ['JoystickInterfacePyglet']
+__all__ = ['JoystickInterfaceGLFW']
 
-try:
-    from pyglet import input as pyglet_input  # pyglet 1.2+
-    from pyglet import app as pyglet_app
-    havePyglet = True
-except Exception:
-    havePyglet = False
-
-from psychopy import logging, visual
+from psychopy import logging
 from psychopy.hardware.base import BaseDevice
-
 from psychopy.hardware.joystick._base import BaseJoystickInterface
 
-if havePyglet:
-    class PygletDispatcher:
-        def dispatch_events(self):
-            pyglet_app.platform_event_loop.step(timeout=0.001)
 
-    pyglet_dispatcher = PygletDispatcher()
-
-
-class JoystickInterfacePyglet(BaseJoystickInterface):
+class JoystickInterfaceGLFW(BaseJoystickInterface):
     """Class for defining an interface for joystick and gamepad devices using
-    the Pyglet library.
+    the GLFW library.
+
+    Once can use GLFW for joystick support in PsychoPy even if the window is
+    created with another library (e.g., Pyglet).
 
     Parameters
     ----------
@@ -41,20 +29,33 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
         The name or index of the joystick to control.
 
     """
-    _inputLib = 'pyglet'
+    _inputLib = 'glfw'
     def __init__(self, device, **kwargs):
-        super(JoystickInterfacePyglet, self).__init__(device, **kwargs)
+        super(JoystickInterfaceGLFW, self).__init__(device, **kwargs)
 
-        joys = pyglet_input.get_joysticks()  # enum all joysticks
+        # We can create a joystick anytime after glfwInit() is called, but
+        # there should be a window open first.
+        # Joystick events are processed when flipping the associated window.
+        import glfw
+        self._glfwLib = glfw  # keep a reference to the GLFW library
+
+        if not glfw.init():
+            logging.error("GLFW could not be initialized. Exiting.")
+
+        # get all available joysticks, GLFW supports up to 16.
+        joys = []
+        for joy in range(glfw.JOYSTICK_1, glfw.JOYSTICK_LAST):
+            if glfw.joystick_present(joy):
+                joys.append(joy)
 
         if isinstance(device, str):   # get index by string name
             if device in ('None', 'default'):
                 self._device = 0  # use first device
             else:
                 # find the device by name
-                for i, joy in enumerate(joys):
-                    if joy.device.name == device:
-                        self._device = i
+                for joy in joys:
+                    if glfw.get_joystick_name(joy) == device:
+                        self._device = joy
                         break
                 else:
                     logging.error(
@@ -63,23 +64,20 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
             if device >= len(joys):
                 logging.error(
                     "You don't have that many joysticks attached (remember "
-                    "that the first joystick has deviceIndex=0 etc...)")
+                    "that the first joystick has device=0 etc...)")
+                raise ValueError("Invalid joystick index")
 
             self._device = joys[device]
 
-        self._isOpen = False
+        # if len(visual.openWindows) == 0:
+        #     logging.error(
+        #         "You need to open a window before creating your joystick")
+        # else:
+        #     for win in visual.openWindows:
+        #         # sending the raw ID to the window.
+        #         win()._eventDispatchers.append(self._device)
 
-        try:
-            self.open()  # open the device
-        except pyglet_input.DeviceOpenException as e:
-            pass
-
-        if len(visual.openWindows) == 0:
-            logging.error(
-                "You need to open a window before creating your joystick")
-        else:
-           for win in visual.openWindows:
-               win()._eventDispatchers.append(pyglet_dispatcher)
+        self._isOpen = True   # GLFW joysticks don't need to be opened
 
     @staticmethod
     def getAvailableDevices():
@@ -94,16 +92,17 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
             A list of available joystick devices.
 
         """
-        joys = pyglet_input.get_joysticks()
-
-        if not joys:
-            return []
+        import glfw
 
         deviceList = []
-        for i, joy in enumerate(joys):
+        for joy in range(glfw.JOYSTICK_1, glfw.JOYSTICK_LAST):
+            if not glfw.joystick_present(joy):
+                continue
+
             config = {}
-            config['index'] = i
-            config['name'] = joy.device.name
+            config['index'] = joy
+            config['name'] = glfw.get_joystick_name(joy).decode("utf-8")
+
             deviceList.append(config)
 
         return deviceList
@@ -124,7 +123,7 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
         """Open the joystick device.
 
         """
-        self._device.open()
+        # self._device.open()
         self._isOpen = True
 
     @property
@@ -144,14 +143,14 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
         """Close the joystick device.
 
         """
-        self._device.close()
+        # self._device.close()
         self._isOpen = False
 
     def __del__(self):
         """Close the joystick device when the object is deleted.
 
         """
-        if hasattr(self, '_device'):
+        if hasattr(self, '_isOpen'):
             self.close()
 
     def getName(self):
@@ -163,7 +162,7 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
             The name of the joystick.
 
         """
-        return self._device.device.name
+        return self._glfwLib.get_joystick_name(self._device).decode("utf-8")
 
     def getNumButtons(self):
         """Number of digital buttons on the device.
@@ -174,7 +173,8 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
             The number of buttons on the joystick.
 
         """
-        return len(self._device.buttons)
+        _, count = self._glfwLib.get_joystick_buttons(self._device)
+        return count
 
     def getButton(self, buttonId):
         """Get the state of a given button.
@@ -192,7 +192,8 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
             True if the button is pressed, False otherwise.
 
         """
-        return self._device.buttons[buttonId]
+        bs, _ = self._glfwLib.get_joystick_buttons(self._device)
+        return bs[buttonId]
 
     def getAllButtons(self):
         """Get the state of all buttons.
@@ -203,7 +204,8 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
             A list of button states.
 
         """
-        return self._device.buttons
+        bs, count = self._glfwLib.get_joystick_buttons(self._device)
+        return [bs[i] for i in range(count)]
 
     def getAllHats(self):
         """Get the current values of all available hats as a list of tuples.
@@ -215,11 +217,7 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
             a tuple (x, y) where x and y can be -1, 0, +1.
 
         """
-        hats = []
-        for ctrl in self._device.device.get_controls():
-            if ctrl.name != None and 'hat' in ctrl.name:
-                hats.append((self._device.hat_x, self._device.hat_y))
-        return hats
+        return []
 
     def getNumHats(self):
         """Get the number of hats on this joystick.
@@ -230,7 +228,7 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
             The number of hats on the joystick.
 
         """
-        return len(self.getAllHats())
+        return 0
 
     def getHat(self, hatId=0):
         """Get the position of a particular hat.
@@ -242,31 +240,41 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
             0, or +1.
 
         """
-        if hatId == 0:
-            return self._device.hat_x, self._device.hat_y
-        else:
-            return self.getAllHats()[hatId]
+        return []
     
     def getX(self):
         """Return the X axis value (equivalent to joystick.getAxis(0))."""
-        return self._device.x
+        return self.getAxis(0)
 
     def getY(self):
         """Return the Y axis value (equivalent to joystick.getAxis(1))."""
-        return self._device.y
+        return self.getAxis(1)
 
     def getZ(self):
         """Return the Z axis value (equivalent to joystick.getAxis(2))."""
-        return self._device.z
+        return self.getAxis(2)
+    
+    def getRX(self):
+        """Return the RX axis value (equivalent to joystick.getAxis(3))."""
+        return self.getAxis(3)
+
+    def getRY(self):
+        """Return the RY axis value (equivalent to joystick.getAxis(4))."""
+        return self.getAxis(4)
+
+    def getRZ(self):
+        """Return the RZ axis value (equivalent to joystick.getAxis(5))."""
+        return self.getAxis(5)
+
+    def getXY(self):
+        """Return the XY axis value (equivalent to joystick.getAxis(6))."""
+        return [self.getAxis(0), self.getAxis(1)]
 
     def getAllAxes(self):
-        """Get a list of all current axis values."""
-        names = ['x', 'y', 'z', 'rx', 'ry', 'rz', ]
-        axes = []
-        for axName in names:
-            if hasattr(self._device, axName):
-                axes.append(getattr(self._device, axName))
-        return axes
+        """Get a list of all current axis values.
+        """
+        axes, count = self._glfwLib.get_joystick_axes(self._device)
+        return [axes[i] for i in range(count)]
     
     def getNumAxes(self):
         """Number of joystick axes found.
@@ -277,21 +285,22 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
             The number of axes found on the joystick.
 
         """
-        return len(self.getAllAxes())
+        _, count = self._glfwLib.get_joystick_axes(self._device)
+        return count
 
     def getAxis(self, axisId):
         """Get the value of an axis by an integer id.
 
         (from 0 to number of axes - 1)
         """
-        val = self.getAllAxes()[axisId]
-        return 0 if val is None else val
+        val, _ = self._glfwLib.get_joystick_axes(self._device)
+        return val[axisId]
 
     def update(self):
         """Update the joystick state.
 
         """
-        pass  # NOP, automatically done by pyglet event dispatching loop
+        self._glfwLib.poll_events()
 
 
 if __name__ == "__main__":
