@@ -48,6 +48,12 @@ class JoystickError(Exception):
     pass
 
 
+class JoystickBackendNotAvailableError(JoystickError):
+    """Exception raised when the backend is not available.
+    """
+    pass
+
+
 class JoystickAxisNotAvailableError(JoystickError):
     """Exception raised when an axis is not available on the joystick.
     """
@@ -1158,8 +1164,9 @@ def setBackend(inputLib):
     Parameters
     ----------
     inputLib : str or None
-        The name of the joystick input library to use. If None, the backend is 
-        set to the window backend.
+        The name of the joystick input library to use. If None, the value will 
+        be set to match the window backend name. You cannot set the backend to
+        None if there are no open windows.
 
     Examples
     --------
@@ -1169,6 +1176,12 @@ def setBackend(inputLib):
         joy = joystick.Joystick(0)  # uses the GLFW backend
 
         joy.inputLib == 'glfw'  # True
+
+    Use the window backend as the joystick backend::
+
+        win = visual.Window([400, 400], winType='pyglet')  # create first!
+        joystick.setBackend(None)  # set to window backend
+        print(joystick.getBackend())  # 'pyglet'
 
     """
     if inputLib is None:
@@ -1181,7 +1194,7 @@ def setBackend(inputLib):
     # get available backends and check if the requested backend is available
     availableBackends = getJoystickInterfaces()
     if inputLib not in availableBackends.keys():
-        raise ValueError(
+        raise JoystickBackendNotAvailableError(
             "Joystick backend '{}' is not available.".format(inputLib))
 
     global backend  # set the global backend
@@ -1215,6 +1228,8 @@ def getJoystickInterfaces():
 def getAllJoysticks():
     """Enumerate all available joysticks and return a dictionary of their
     information.
+
+    Uses the presently set joystick backend to get the available joysticks.
 
     Returns
     -------
