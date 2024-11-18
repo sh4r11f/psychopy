@@ -1048,7 +1048,6 @@ class TrialHandler2(_BaseTrialHandler):
                     break  # break out of the forever loop
                 # do stuff here for the trial
         """
-        print("NEXT", "thisTrial", self.thisTrial, "upcomingTrials", self.upcomingTrials)
         # mark previous trial as elapsed
         if self.thisTrial is not None:
             self.elapsedTrials.append(self.thisTrial)
