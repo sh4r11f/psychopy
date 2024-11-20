@@ -25,25 +25,36 @@ class SpeakerDevice(BaseDevice):
     name : str, optional
         String name for the physical speaker device, according to your operating system. Leave as 
         None to find the speaker by numeric index.
-    resampling : str, optional
+    latencyClass : int
         One of:
-        - "play": Let your operating system handle resampling on playback. Not recommended for low 
-        latency playback.
-        - "load": Let PsychoPy resample audio clips when they're loaded. This allows low latency on 
-        playback, but can mean slower loading with large files. This is the default mode.
-        - "none": Do not resample audio clips. This is the safest option for low latency and fast 
-        loading but means you'll get errors playing audio clips with a different sample rate to the 
-        speaker / to previously played audio clips. Approach with caution.
-    exclusive : bool, optional
-        Should PsychoPy take exclusive control of the speaker, denying other applications access 
-        when in use? In most cases the answer is no, but if resampling is "none" then taking 
-        exclusive control allows you to play audio clips of a different sample rate to the speaker 
-        without having to resample them (provided they are the same sample rate as one another).
+        - 0: Don't take exclusive control over the speaker, so other apps can still use it. Send 
+             sounds via the system mixer so that sample rates are all handled, even though this 
+             introduces latency.
+        - 1: Don't take exclusive control over the speaker, so other apps can still use it. Send 
+             sounds directly to reduce latency, so sounds will need to match the sample rate of the 
+             speaker. **Recommended in most cases; if `resample` is True then sample rates are 
+             already handled on load!**
+        - 2: Take exclusive control over the speaker, so other apps can't use it. Send sounds 
+             directly to reduce latency, so sounds will need to be the same sample rate as one 
+             another, but this can be any sample rate supported by the speaker.
+        - 3: Take exclusive control over the speaker, so other apps can't use it. Send sounds 
+             directly to reduce latency, so sounds will need to be the same sample rate as one 
+             another, but this can be any sample rate supported by the speaker. Force the system to 
+             prioritise resources towards playing sounds on this speaker for absolute minimum 
+             latency, but fallback to mode 2 if the system rejects this.
+        - 4: Take exclusive control over the speaker, so other apps can't use it. Send sounds 
+             directly to reduce latency, so sounds will need to be the same sample rate as one 
+             another, but this can be any sample rate supported by the speaker. Force the system to 
+             prioritise resources towards playing sounds on this speaker for absolute minimum 
+             latency, and raise an error if the system rejects this.
+    resample : bool, optional
+        If the sample rate of an audio clip doesn't match the sample rate of the speaker, should 
+        PsychoPy resample the sound on load?
     """
     # dict of extant streams, by numeric index
     streams = {}
 
-    def __init__(self, index=None, name=None, resampling="load", exclusive=False):
+    def __init__(self, index=None, name=None, latencyClass=1, resample=True):
         # try simple integerisation of index
         if isinstance(index, str):
             try:
@@ -63,16 +74,23 @@ class SpeakerDevice(BaseDevice):
         self.name = name
         self.index = index
         # store playback prefs
-        resampling = str(resampling)
-        assert resampling in ("play", "load", "none"), (
-            "SpeakerDevice.resampling must be one of three values: 'play', 'load' or 'none'"
-        )
-        self.resampling = resampling
-        self.exclusive = exclusive
+        self.resample = resample
+        self.latencyClass = latencyClass
         # create stream
         self.createStream()
         # start off open
         self.open()
+    
+    @property
+    def exclusive(self):
+        """
+        Returns
+        -------
+        bool
+            Does PsychoPy have exclusive control of this speaker? If True then other apps will not be 
+            able to play sounds on the same speaker.
+        """
+        return self.latencyClass >= 2
     
     def createStream(self):
         """
@@ -97,18 +115,6 @@ class SpeakerDevice(BaseDevice):
             object was initialised with, as this will be the system-reported name of the actual 
             physical speaker best matching what was requested.
         """
-        # work out latency class from exclusive / resampling modes
-        if self.resampling == "play":
-            if self.exclusive:
-                logging.warn(
-                    "Cannot use speaker exclusive mode with 'play' resampling - defaulting to "
-                    "nonexclusive mode."
-                )
-            latencyClass = 0
-        elif self.exclusive:
-            latencyClass = 2
-        else:
-            latencyClass = 1
         # find ptb profile for this device
         self.profile = None
         for thisProfile in ptb.get_devices(device_type=13):
@@ -156,7 +162,7 @@ class SpeakerDevice(BaseDevice):
                             device_id=self.profile['DeviceIndex'],
                             freq=sampleRateHz,
                             channels=self.profile['NrOutputChannels'],
-                            latency_class=[latencyClass],
+                            latency_class=[self.latencyClass],
                         )
                 # if it worked, set own parameters
                 self.index = self.profile['DeviceIndex']
