@@ -231,7 +231,7 @@ class SpeakerDevice(BaseDevice):
                 "(%(DeviceIndex)s)." % self.profile
             )
 
-        logging.warning(
+        logging.info(
             f"Created stream for speaker device: {self.profile['DeviceName']} "
             f"({self.profile['DeviceIndex']})"
         )
