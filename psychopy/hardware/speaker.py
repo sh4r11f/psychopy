@@ -183,12 +183,12 @@ class SpeakerDevice(BaseDevice):
         # try to connect using profile at various sample rates
         for sampleRateHz in (
             # start with the rate from profile (this will usually work)
-            self.profile['DefaultSampleRate'], 
+            int(self.profile['DefaultSampleRate']), 
             # if that fails, try some common sample rates
-            48000.0,
-            44100.0, 
-            22050.0, 
-            16000.0
+            48000,
+            44100, 
+            22050, 
+            16000
         ):
             # stop trying new options once we have a stream
             if self.stream is not None:
