@@ -94,6 +94,7 @@ Tools to creating and using affine transformation matrices.
     normalMatrix
     forwardProject
     reverseProject
+    lookAt
     applyMatrix
     posOriToMatrix
 
