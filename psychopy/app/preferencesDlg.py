@@ -552,36 +552,6 @@ class PreferencesDlg(wx.Dialog):
                             labels=labels,
                             values=[i for i in range(len(labels))],
                             value=default, helpText=helpText)
-                # # audio latency mode for the PTB driver
-                elif prefName == 'audioLatencyMode':
-                    # get the labels from above
-                    labels = []
-                    for val, labl in audioLatencyLabels.items():
-                        labels.append(u'{}: {}'.format(val, labl))
-
-                    # get the options from the config file spec
-                    vals = thisSpec.replace("option(", "").replace("'", "")
-                    # item -1 is 'default=x' from spec
-                    vals = vals.replace(", ", ",").split(',')
-
-                    try:
-                        # set the field to the value in the pref
-                        default = int(thisPref)
-                    except ValueError:
-                        try:
-                            # use first if default not in list
-                            default = int(vals[-1].strip('()').split('=')[1])
-                        except (IndexError, TypeError, ValueError):
-                            # no default
-                            default = 0
-
-                    self.proPrefs.addEnumItem(
-                            sectionName,
-                            pLabel,
-                            prefName,
-                            labels=labels,
-                            values=[i for i in range(len(labels))],
-                            value=default, helpText=helpText)
                 # # option items are given a dropdown, current value is shown
                 # # in the box
                 elif thisSpec.startswith('option') or prefName == 'audioDevice':
