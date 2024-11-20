@@ -1259,7 +1259,7 @@ class TrialHandler2(_BaseTrialHandler):
         self.thisTrial.status = constants.STOPPING
         # before iterating, add "skipped" to data
         self.addData("skipped", True)
-        # iterate n times (-1 to account for current trial)
+        # iterate n times
         for i in range(n):
             self.__next__()
             # before iterating, add "skipped" to data
@@ -1290,7 +1290,10 @@ class TrialHandler2(_BaseTrialHandler):
             )
             n = len(self.elapsedTrials)
         # start with no trials
-        rewound = [self.thisTrial]
+        if self.thisTrial is None:
+            rewound = []
+        else:
+            rewound = [self.thisTrial]
         # pop the last n values from elapsed trials
         for i in range(n):
             rewound = [self.elapsedTrials.pop(-1)] + rewound
