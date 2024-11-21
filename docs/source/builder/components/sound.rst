@@ -49,22 +49,31 @@ Parameters for setting up the :class:`~psychopy.hardware.speaker.SpeakerDevice` 
 Speaker : str
     Choose from a dropdown list of available speaker devices which one to use.
 
-Resampling : str
-    If the given sound is a different sample rate from the given speaker, when should resampling 
-    happen? Options are:
-    * On load: Let PsychoPy resample audio clips when they're loaded. This allows low latency on 
-      playback, but can mean slower loading with large files. This is the default mode.
-    * When playing: Let your operating system handle resampling on playback. Not recommended for low 
-      latency playback.
-    * Do not resample: Do not resample audio clips. This is the safest option for low latency and fast 
-      loading but means you'll get errors playing audio clips with a different sample rate to the 
-      speaker / to previously played audio clips. Approach with caution.
-
-Exclusive control : bool
-    Should PsychoPy take exclusive control of the speaker, denying other applications access 
-    when in use? In most cases the answer is no, but if you're not resampling then taking 
-    exclusive control allows you to play audio clips of a different sample rate to the speaker 
-    without having to resample them (provided they are the same sample rate as one another).
+Latency/exclusivity mode : int
+    One of:
+    - Shared: Don't take exclusive control over the speaker, so other apps can still use it. Send 
+        sounds via the system mixer so that sample rates are all handled, even though this 
+        introduces latency.
+    - Shared low-latency: Don't take exclusive control over the speaker, so other apps can still use it. Send 
+        sounds directly to reduce latency, so sounds will need to match the sample rate of the 
+        speaker. **Recommended in most cases; if `resample` is True then sample rates are 
+        already handled on load!**
+    - Exclusive low-latency: Take exclusive control over the speaker, so other apps can't use it. Send sounds 
+        directly to reduce latency, so sounds will need to be the same sample rate as one 
+        another, but this can be any sample rate supported by the speaker.
+    - Exclusive aggressive low-latency (with fallback): Take exclusive control over the speaker, so other apps can't use it. Send sounds 
+        directly to reduce latency, so sounds will need to be the same sample rate as one 
+        another, but this can be any sample rate supported by the speaker. Force the system to 
+        prioritise resources towards playing sounds on this speaker for absolute minimum 
+        latency, but fallback to mode 2 if the system rejects this.
+    - Exclusive aggressive low-latency (no fallback): Take exclusive control over the speaker, so other apps can't use it. Send sounds 
+        directly to reduce latency, so sounds will need to be the same sample rate as one 
+        another, but this can be any sample rate supported by the speaker. Force the system to 
+        prioritise resources towards playing sounds on this speaker for absolute minimum 
+        latency, and raise an error if the system rejects this.
+Resample : bool
+    If the sample rate of an audio clip doesn't match the sample rate of the speaker, should 
+    PsychoPy resample the sound on load?
 
 
 .. seealso::
