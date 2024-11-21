@@ -1,5 +1,7 @@
 .. _speaker:
 
+Speaker
+-------------------------------
 
 .. autoclass:: SpeakerDevice
     :members:
