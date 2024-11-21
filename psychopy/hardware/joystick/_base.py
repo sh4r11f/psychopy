@@ -181,6 +181,17 @@ class BaseJoystickInterface:
         """
         raise NotImplementedError
 
+    def poll(self):
+        """Check for new joystick events.
+
+        Returns
+        -------
+        float
+            The time the joystick state was sampled.
+
+        """
+        pass
+
     def update(self):
         """Update the joystick state.
 
