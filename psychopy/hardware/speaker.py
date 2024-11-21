@@ -46,7 +46,7 @@ class SpeakerDevice(BaseDevice):
         another, but this can be any sample rate supported by the speaker. Force the system to 
         prioritise resources towards playing sounds on this speaker for absolute minimum 
         latency, but fallback to mode 2 if the system rejects this.
-        
+
         * 4: Take exclusive control over the speaker, so other apps can't use it. Send sounds 
         directly to reduce latency, so sounds will need to be the same sample rate as one 
         another, but this can be any sample rate supported by the speaker. Force the system to 
@@ -174,7 +174,6 @@ class SpeakerDevice(BaseDevice):
                 self.name = self.profile['DeviceName']
                 self.sampleRateHz = sampleRateHz
                 self.channels = self.profile['NrOutputChannels']
-                self.latencyClass = latencyClass
                 # ...and log/print the stderr from psychtoolbox (only if successful!)
                 logs = errBuff.getvalue() + outBuff.getvalue()
                 for line in logs.split("\n"):
