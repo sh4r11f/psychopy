@@ -144,7 +144,9 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
         """Close the joystick device.
 
         """
-        self._device.close()
+        if hasattr(self._device, 'close'):
+            self._device.close()
+
         self._isOpen = False
 
     def __del__(self):
@@ -286,6 +288,17 @@ class JoystickInterfacePyglet(BaseJoystickInterface):
         """
         val = self.getAllAxes()[axisId]
         return 0 if val is None else val
+
+    def poll(self):
+        """Check for new joystick events.
+
+        Returns
+        -------
+        bool
+            True if there are new joystick events, False otherwise.
+
+        """
+        return self._device.poll()
 
     def update(self):
         """Update the joystick state.
