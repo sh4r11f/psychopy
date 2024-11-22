@@ -12,6 +12,7 @@ from psychopy.iohub.constants import EventConstants as EC
 from psychopy.iohub.devices.keyboard import KeyboardInputEvent
 from psychopy.iohub.errors import print2err
 from psychopy.constants import PLAYING
+from psychopy.tools.stimulustools import serialize, actualize
 
 currentTime = Computer.getTime
 
@@ -182,10 +183,7 @@ class BaseCalibrationProcedure:
         if self._calibration_args.get('target_type') == 'CIRCLE_TARGET':
             setDefaultCalibrationTarget()
         else:
-            self.targetStim = createCustomCalibrationStim(self.window, self._calibration_args)
-            if self.targetStim is None:
-                # Error creating custom stim, so use default target stim type
-                setDefaultCalibrationTarget()
+            actualize(self._calibration_args.get('target_attributes'))
 
         self.originalTargetSize = self.targetStim.size
         self.targetClassHasPlayPause = hasattr(self.targetStim, 'play') and hasattr(self.targetStim, 'pause')
