@@ -539,11 +539,13 @@ class FileBrowserPanel(wx.Panel, handlers.ThemeMixin):
             elif isinstance(self.selectedItem, FileItemData):
                 # add some mimetypes which aren't recognised by default
                 mimetypes.add_type("text/xml", ".psyexp")
-                mimetypes.add_type("text/json", ".psyrun")
                 mimetypes.add_type("text/markdown", ".md")
                 mimetypes.add_type("text/config", ".cfg")
                 mimetypes.add_type("text/plain", ".log")
                 mimetypes.add_type("text/plain", ".yaml")
+                # add mimetypes which are falsely mapped
+                mimetypes.add_type("text/javascript", ".js")
+                mimetypes.add_type("text/json", ".psyrun")
                 # try to guess data type
                 dataType = mimetypes.guess_type(self.selectedItem.abspath)[0]
 
