@@ -630,7 +630,7 @@ class FileBrowserPanel(wx.Panel, handlers.ThemeMixin):
                 #self.fileList.SetItem(index, 1, obj.fsize)
                 #self.fileList.SetItem(index, 2, obj.mod)
         # Enable/disable "go to current file" button based on current file
-        self.currentFileBtn.Enable(self.GetTopLevelParent().filename is not None)
+        self.currentFileBtn.Enable(self.coder.filename is not None)
 
     def addItem(self, name, absPath):
         """Add an item to the directory browser."""
