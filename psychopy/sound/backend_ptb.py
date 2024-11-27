@@ -19,6 +19,7 @@ from psychopy.tools import systemtools
 from psychopy.tools import filetools as ft
 from .exceptions import SoundFormatError, DependencyError
 from ._base import _SoundBase, HammingWindow
+from .audioclip import AudioClip
 from ..hardware import DeviceManager
 
 try:
@@ -315,12 +316,40 @@ class SoundPTB(_SoundBase):
             )
             self.sndArr = np.zeros(shape=(self.blockSize, self.channels))
 
-        if not self.track:  # do we have one already?
-            self.track = audio.Slave(self.stream.handle, data=self.sndArr,
-                                     volume=self.volume)
-        else:
+        # create audio clip
+        clip = AudioClip(
+            samples=self.sndArr, 
+            sampleRateHz=self.sampleRate
+        )
+        # set from clip
+        self._setSndFromClip(clip)
+    
+    def _setSndFromClip(self, clip: AudioClip):
+        """
+        Set current sound from an AudioClip object. All other setSound methods eventually lead to 
+        this - they just transform the given sound to an AudioClip.
+
+        Parameters
+        ----------
+        clip : AudioClip
+            AudioClip object to set.
+        """
+        # store clip
+        self.clip = clip
+        # resample the clip if needed and allowed
+        if self.speaker.resample:
+            if clip.sampleRateHz != self.speaker.sampleRateHz:
+                clip.resample(targetSampleRateHz=self.speaker.sampleRateHz)
+        # create/update track
+        if  self.track:
             self.track.stop()
-            self.track.fill_buffer(self.sndArr)
+            self.track.fill_buffer(clip.samples)
+        else:
+            self.track = audio.Slave(
+                self.stream.handle, 
+                data=clip.samples,
+                volume=self.volume
+            )
 
     def _channelCheck(self, array):
         """Checks whether stream has fewer channels than data. If True, ValueError"""
