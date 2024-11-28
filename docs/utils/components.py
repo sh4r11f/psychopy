@@ -44,7 +44,9 @@ def checkMissing():
 
 def createFromTemplate(cls):
     """
-    Create documentation for a given class from the jinja template.
+    Use the information contained within a given Component/Routine class to populate a template and 
+    create documentation. This won't be perfect, so please visuall inspect after! This is a 
+    time-saving tool to give you a starting point when documenting a new class.
     """
     from psychopy.experiment.components import BaseComponent
     from psychopy.experiment.routines import BaseStandaloneRoutine
