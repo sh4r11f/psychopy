@@ -45,8 +45,20 @@ def checkMissing():
 def createFromTemplate(cls):
     """
     Use the information contained within a given Component/Routine class to populate a template and 
-    create documentation. This won't be perfect, so please visuall inspect after! This is a 
+    create documentation. This won't be perfect, so please visual inspect after! This is a 
     time-saving tool to give you a starting point when documenting a new class.
+
+    Parameters
+    ----------
+    cls : BaseComponent or BaseStandaloneRoutine
+        Class to create documentation for, must be either a Component or a Standalone Routine.
+    
+    Returns
+    -------
+    pathlib.Path
+        Path to the file where content was written
+    str
+        Content which was written
     """
     from psychopy.experiment.components import BaseComponent
     from psychopy.experiment.routines import BaseStandaloneRoutine
@@ -89,5 +101,4 @@ def createFromTemplate(cls):
         f"Written Component docs for {cls.__name__} in {target.absolute()}"
     )
 
-
-    
+    return target, content
