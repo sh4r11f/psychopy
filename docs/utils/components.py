@@ -25,9 +25,9 @@ def checkMissing():
     # list in which to store classes with missing docs
     missing = []
     # iterate through Components
-    for name, cls in experiment.getAllComponents().items():
+    for name, cls in experiment.getAllElements().items():
         # skip hidden
-        if cls.hidden:
+        if cls.hidden or name in ("BaseComponent", "BaseStandaloneRoutine", "BaseValidatorRoutine"):
             continue
         # is there a docs file for it?
         if not (docsDir / f"{name}.rst").is_file():
@@ -46,9 +46,18 @@ def createFromTemplate(cls):
     """
     Create documentation for a given class from the jinja template.
     """
+    from psychopy.experiment.components import BaseComponent
+    from psychopy.experiment.routines import BaseStandaloneRoutine
     # make an instance of given comp
     exp = experiment.Experiment()
-    comp = cls(exp=exp, parentName="someRoutine")
+    if issubclass(cls, BaseComponent):
+        comp = cls(exp=exp, parentName="someRoutine")
+    elif issubclass(cls, BaseStandaloneRoutine):
+        comp = cls(exp=exp)
+    else:
+        raise TypeError(
+            "Component class must be either a Component or a StandaloneRoutine"
+        )
     # get clean component title
     cls.title = stringtools.CaseSwitcher.pascal2title(cls.__name__)
     # sort params by category
