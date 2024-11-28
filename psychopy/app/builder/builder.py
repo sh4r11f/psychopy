@@ -76,9 +76,7 @@ from psychopy.scripts.psyexpCompile import generateScript
 
 # Components which are always hidden
 alwaysHidden = [
-    'SettingsComponent', 'RoutineSettingsComponent', 'UnknownComponent', 'UnknownRoutine',
-    'UnknownStandaloneRoutine', 'UnknownPluginComponent', 'BaseComponent', 'BaseStandaloneRoutine',
-    'BaseValidatorRoutine'
+    'BaseComponent', 'BaseStandaloneRoutine', 'BaseValidatorRoutine'
 ]
 
 
@@ -3248,6 +3246,9 @@ class ComponentsPanel(scrolledpanel.ScrolledPanel, handlers.ThemeMixin):
                         shown = False
                 # Check whether button is hidden by prefs
                 if name in prefs.builder['hiddenComponents'] + alwaysHidden:
+                    shown = False
+                # check whether comp/rt indicates itsef as hidden
+                if emt.hidden:
                     shown = False
                 # Check whether button refers to a future comp/rt
                 if hasattr(emt, "version"):
