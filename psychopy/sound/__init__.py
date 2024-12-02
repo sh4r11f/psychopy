@@ -71,7 +71,7 @@ backend = None
 # These are the names that can be used in the prefs to specifiy audio libraries.
 # The available libraries are hard-coded at this point until we can overhaul
 # the sound library to be more modular.
-_audioLibs = ['PTB', 'sounddevice', 'pyo', 'pysoundcard', 'pygame']
+_audioLibs = ['ptb', 'sounddevice', 'pyo', 'pysoundcard', 'pygame']
 failed = []  # keep track of audio libs that failed to load
 
 # check if this is being imported on Travis/Github (has no audio card)
@@ -87,6 +87,7 @@ thisLibName = None  # name of the library we are trying to load
 
 # selection and fallback mechanism for audio libraries
 for thisLibName in prefs.hardware['audioLib']:
+    print(thisLibName)
     # Tell the user we are trying to load the specifeid audio library
     logging.info(f"Trying to load audio library: {thisLibName}")
 
@@ -115,7 +116,8 @@ for thisLibName in prefs.hardware['audioLib']:
                 from . import backend_ptb as backend
                 Sound = backend.SoundPTB
                 audioDriver = backend.audioDriver
-            except Exception:
+            except Exception as err:
+                print(err)
                 failed.append(thisLibName)
                 continue
             else:
