@@ -1,0 +1,1 @@
+Parameters of the physical device matching this Component
