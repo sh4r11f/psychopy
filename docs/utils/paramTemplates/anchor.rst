@@ -1,0 +1,1 @@
+Which point in this stimulus should be anchored to the point specified by :ref:`pos`? 

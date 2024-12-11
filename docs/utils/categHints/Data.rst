@@ -1,0 +1,1 @@
+How should we handle data from this Component?

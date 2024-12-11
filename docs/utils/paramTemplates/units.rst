@@ -1,0 +1,1 @@
+Spatial units for this stimulus (e.g. for its :ref:`pos` and :ref:`size`)

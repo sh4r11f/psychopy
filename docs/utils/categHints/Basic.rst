@@ -1,0 +1,1 @@
+The main attributes of the stimulus, controlling its basic function and behaviour
