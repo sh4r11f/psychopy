@@ -13,7 +13,7 @@ These are optional components that can be obtained by installing the
 """
 
 
-from psychopy.tools.pkgtools import PluginStub
+from psychopy.plugins import PluginStub
 
 
 class AudioCapture(
