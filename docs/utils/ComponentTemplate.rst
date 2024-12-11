@@ -20,10 +20,11 @@ Parameters
 {{ categs[categ] }}
 
 {% for param in params[categ] %}
-.. {{ param.ref }}
+.. {{ param.ref }}:
 {{ param.label }}
     {{ param.hint }}
     {% if param.allowedLabels %}
     Options:
-    {% for choice in param.allowedLabels %}- {{ choice }}
+    {% for choice in param.allowedLabels %}
+    * {{ choice }}
     {% endfor %}{% endif%}{% endfor %}{% endfor %}
