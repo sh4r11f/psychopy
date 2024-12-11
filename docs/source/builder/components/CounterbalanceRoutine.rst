@@ -35,7 +35,7 @@ Groups from...
     
     * Conditions file (local only): Allows maximum flexibility in setting up groups. By using an excel spreadsheet, the probability of each group occuring, slots per group and any other additional parameters can be speficied. *Note: This is currently not supported for online studies*
 
-    * Variable (local only): Similar to "Conditions file", but using a variable name rather than a file name (the variable should contain the same kind of information as would come from reading a conditions file via e.g. `pandas.read_csv <https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html>`)
+    * Variable (local only): Similar to "Conditions file", but using a variable name rather than a file name (the variable should contain the same kind of information as would come from reading a conditions file via e.g. `pandas.read_csv <https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html>_`)
     
 .. _counterbalanceroutine-conditionsFile:
 Conditions (*if :ref:`_counterbalanceroutine-specMode` is "Conditions file"*)
