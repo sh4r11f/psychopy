@@ -25,6 +25,5 @@ Parameters
     {{ param.hint }}
     {% if param.allowedLabels %}
     Options:
-    {% for choice in param.allowedLabels %}
-    * {{ choice }}
+    {% for choice in param.allowedLabels %}* {{ choice }}
     {% endfor %}{% endif%}{% endfor %}{% endfor %}
