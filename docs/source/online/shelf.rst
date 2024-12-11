@@ -235,6 +235,14 @@ To prevent the code from freezing every time it checks the shelf, this code uses
 
 As a safety measure to ensure that the unpaired player list is cleared, the code component also includes an "end routine" step that makes sure the current player ID is removed from the list. Because it does not use :code:`await`, this can happen while the experiment proceeds to the next routine.
 
+.. figure:: /images/multiplayer_images/matchmakingEnd.png
+    :name: matchmakingEnd
+    :align: center
+    :figclass: align-center
+
+
+|
+
 After a partner has been found, the participant moves on to the coordination game, where they can click either the red or green card. Two black cards on the other side of the screen represent the partner's cards. The code component in this routine does three things:
 
 1. When the current player clicks a card, add an entry to the :code:`player_clicked`: dictionary with the current player's ID as a key and the value equal to the color that the current player clicked.
@@ -247,7 +255,7 @@ After a partner has been found, the participant moves on to the coordination gam
 
 |
 
-2. Check whether the partner ID has appeared as a key in the :code:`player_clicked`: dictionary, and if so, animate one of the partner's cards (always the left one) as moving toward the center.
+2. Check whether the partner ID has appeared as a key in the :code:`player_clicked` dictionary, and if so, animate one of the partner's cards (always the left one) as moving toward the center (and record what color they actually chose in a separate variable).
 
 .. figure:: /images/multiplayer_images/coordinationCheck.png
     :name: coordinationCheck
