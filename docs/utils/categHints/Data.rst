@@ -1,1 +1,1 @@
-How should we handle data from this Component?
+What information about this Component should be saved?

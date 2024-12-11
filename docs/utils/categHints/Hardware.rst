@@ -1,1 +1,0 @@
-How should this Component interact with physical hardware?

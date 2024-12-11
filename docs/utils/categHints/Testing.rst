@@ -1,1 +1,1 @@
-Parameters for use when testing, debugging and validating your study
+Tools for testing, debugging and checking the performance of this Component.
