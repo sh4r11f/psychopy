@@ -178,11 +178,10 @@ Multiplayer experiments
 
 **Demo experiment files:** `here <https://gitlab.pavlovia.org/jfkominsky/multiplayer_demo>`_
 
-Using the shelf, you can create synrchonous multi-participant experiments, i.e., multiplayer activities. First, three important notes:
+Using the shelf, you can create synchronous multi-participant experiments, i.e., multiplayer activities. First, two important notes:
 
-* The shelf is **slow**. It can take up to 60 seconds for an update from one user to be read by another user.
+* The shelf is **slow**. It can take up to 60 seconds for an update from one participant to be received by another participant via updating and checking the shelf.
 * If you are planning to copy the demo, you will need to set up your own lists and dictionaries (described below) in your own account's shelf.
-* The code components used for this use a different kind of asynchronous code than the other examples on this page. While most of the other examples use :code:`await` to pause execution until the data from the shelf is read, this example uses :code:`.then()` to allow code to continue running while waiting for data from the shelf.
 
 Multiplayer activities first require a matchmaking routine to pair a participant with another participant (or, in principle, multiple other participants), and once the other player has been found, whatever communication is required by the task itself. This demo uses a very simple coordination game in which each player must select a red or green card, and both players win if they choose the same color.
 
@@ -205,7 +204,7 @@ The experiment starts with a matchmaking routine. This routine displays a messag
 1. Check if the current player's Pavlovia ID is already present as a key in the :code:`player_pairs` dictionary. If so, record the value of that entry as the partner ID.
 
 .. figure:: /images/multiplayer_images/matchmakingStep1.png
-    :name: multiplayerShelf
+    :name: matchmakingStep1
     :align: center
     :figclass: align-center
 
@@ -215,7 +214,7 @@ The experiment starts with a matchmaking routine. This routine displays a messag
 2. If the current player's Pavlovia ID is not a key in the :code:`player_pairs` dictionary, check the :code:`unpaired_players` list. If there is already an unpaired player listed, record them as the partner ID, remove them from the :code:`unpaired_players` list, and add two matched entries to :code:`player_pairs`, one for the current player and one for the partner.
 
 .. figure:: /images/multiplayer_images/matchmakingStep2.png
-    :name: multiplayerShelf
+    :name: matchmakingStep2
     :align: center
     :figclass: align-center
 
@@ -225,7 +224,7 @@ The experiment starts with a matchmaking routine. This routine displays a messag
 3. If the :code:`unpaired_players` list is empty, add the current player's ID to the :code:`unpaired_players` list, and repeat from step 1.
 
 .. figure:: /images/multiplayer_images/matchmakingStep3.png
-    :name: multiplayerShelf
+    :name: matchmakingStep3
     :align: center
     :figclass: align-center
 
@@ -241,7 +240,7 @@ After a partner has been found, the participant moves on to the coordination gam
 1. When the current player clicks a card, add an entry to the :code:`player_clicked`: dictionary with the current player's ID as a key and the value equal to the color that the current player clicked.
 
 .. figure:: /images/multiplayer_images/coordinationUpdate.png
-    :name: multiplayerShelf
+    :name: coordinationUpdate
     :align: center
     :figclass: align-center
 
@@ -251,7 +250,7 @@ After a partner has been found, the participant moves on to the coordination gam
 2. Check whether the partner ID has appeared as a key in the :code:`player_clicked`: dictionary, and if so, animate one of the partner's cards (always the left one) as moving toward the center.
 
 .. figure:: /images/multiplayer_images/coordinationCheck.png
-    :name: multiplayerShelf
+    :name: coordinationCheck
     :align: center
     :figclass: align-center
 
@@ -260,7 +259,7 @@ After a partner has been found, the participant moves on to the coordination gam
 
 3. When both (1) and (2) have occurred, end routine and go to the routine that presents the outcome.
 
-The logic here once again uses :code:`.then(function(result){})` to allow the players to make their choice in any order, without one having to wait for the other before making their choice.
+The logic here once again uses :code:`.then(function(result){})` to make sure each player can make their own choice without the code freezing waiting for the other player's choice.
 
 .. _leaderboardShelf:
 
