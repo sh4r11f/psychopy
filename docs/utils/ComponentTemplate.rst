@@ -20,7 +20,7 @@ Parameters
 {{ categs[categ] }}
 
 {% for param in params[categ] %}
-.. {{ param.ref }}:
+.. _{{ param.ref }}:
 {{ param.label }}
     {{ param.hint }}
     {% if param.allowedLabels %}
