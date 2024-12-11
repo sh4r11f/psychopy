@@ -1038,7 +1038,12 @@ class RunnerPanel(wx.Panel, ScriptProcess, handlers.ThemeMixin):
 
 class RunnerOutputNotebook(aui.AuiNotebook, handlers.ThemeMixin):
     def __init__(self, parent):
-        aui.AuiNotebook.__init__(self, parent, style=wx.BORDER_NONE)
+        aui.AuiNotebook.__init__(
+            self, 
+            parent, 
+            style=wx.BORDER_NONE, 
+            agwStyle=aui.AUI_NB_CLOSE_ON_ALL_TABS
+        )
 
         # store pages by non-translated names for easy access (see RunnerFrame.getOutputPanel)
         self.panels = {}
@@ -1085,6 +1090,9 @@ class RunnerOutputNotebook(aui.AuiNotebook, handlers.ThemeMixin):
             self.stdoutPnl.GetCharWidth() * 80, 
             self.stdoutPnl.GetCharHeight() * 40, 
         ))
+        # hide close buttons on tabs
+        for i in range(self.GetPageCount()):
+            self.SetCloseButton(i, False)
 
     def setRead(self, i, state):
         """
