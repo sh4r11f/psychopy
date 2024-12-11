@@ -169,7 +169,7 @@ Your resulting Shelf record should look like this:
 |
 To find out more about the Counterbalance Routine, click `here <https://www.psychopy.org/builder/components/counterbalanceStandaloneRoutine.html>`_
 
-.._multiplayerShelf:
+.. _multiplayerShelf:
 
 Multiplayer experiments
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -234,7 +234,7 @@ The experiment starts with a matchmaking routine. This routine displays a messag
 
 To prevent the code from freezing every time it checks the shelf, this code uses :code:`.then(function(result){})` asynchronous code. The difference between this and the :code:`await` keyword used with other shelf demos is that :code:`await` freezes the rest of the experiment until the communication with the shelf is complete, whereas :code:`.then(function(result){})` executes when the communication is complete while letting the frame loop continue uninterrupted in the meantime. Note that in step 3, it uses neither of these, which means that the code **does not know when the shelf has finished updating with the current player's ID added to the unpaired player list**. In this case that's fine because nothing in this code depends on that completing, and there is a boolean that makes sure that the player's ID is only added to the list once regardless of whether or not the update has finished from one frame to the next.
 
-As a safety measure to ensure that the unpaired player list is cleared, the code component also includes an "end routine" step that makes sure the current player ID is removed from the list. Because it uses  :code:`.then(function(result){})` the experiment can advance to the next routine while this cleanup happens in the background.
+As a safety measure to ensure that the unpaired player list is cleared, the code component also includes an "end routine" step that makes sure the current player ID is removed from the list. Because it does not use :code:`await`, this can happen while the experiment proceeds to the next routine.
 
 After a partner has been found, the participant moves on to the coordination game, where they can click either the red or green card. Two black cards on the other side of the screen represent the partner's cards. The code component in this routine does three things:
 
