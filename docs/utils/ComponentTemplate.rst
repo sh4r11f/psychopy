@@ -1,4 +1,4 @@
-.. {{ cls.__name__ }}:
+.. _{{ cls.__name__ | lower }}:
 
 -------------------------------
 {{ cls.title }}
@@ -10,6 +10,8 @@ Categories:
     {{ ", ".join(cls.categories) }}
 Works in:
     {{ ", ".join(cls.targets) }}
+{% if cls.beta %}
+**Note: Since this is still in beta, keep an eye out for bug fixes.**{% endif %}
 
 Parameters
 -------------------------------
@@ -20,7 +22,7 @@ Parameters
 {{ categs[categ] }}
 
 {% for param in params[categ] %}
-.. _{{ param.ref }}:
+.. _{{ cls.__name__ | lower }}-{{ param.ref }}:
 {{ param.label }}
     {{ param.hint }}
     {% if param.allowedLabels %}

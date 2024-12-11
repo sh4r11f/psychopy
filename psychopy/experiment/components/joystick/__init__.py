@@ -100,7 +100,7 @@ class JoystickComponent(BaseComponent):
                          ' one do you want (0, 1, 2...)')
 
         self.params['deviceNumber'] = Param(
-            deviceNumber, valType='int', inputType="single", allowedTypes=[], categ='Hardware',
+            deviceNumber, valType='int', inputType="single", allowedTypes=[], categ="Device",
             updates='constant', allowedUpdates=[],
             hint=msg,
             label=_translate("Device number"))
