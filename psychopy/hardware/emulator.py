@@ -24,24 +24,23 @@ from psychopy.plugins import PluginStub
 
 class SyncGenerator(
     PluginStub,
-    plugin="psychopy-mri-emulator"
+    plugin="psychopy-mri-emulator",
+    docsHome="https://github.com/psychopy/psychopy-mri-emulator"
 ):
     pass
 
 
 class ResponseEmulator(
     PluginStub,
-    plugin="psychopy-mri-emulator"
+    plugin="psychopy-mri-emulator",
+    docsHome="https://github.com/psychopy/psychopy-mri-emulator"
 ):
     pass
 
 
 class launchScan(
     PluginStub,
-    plugin="psychopy-mri-emulator"
+    plugin="psychopy-mri-emulator",
+    docsHome="https://github.com/psychopy/psychopy-mri-emulator"
 ):
-    pass
-
-
-if __name__ == "__main__":
     pass

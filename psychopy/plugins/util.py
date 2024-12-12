@@ -59,13 +59,16 @@ class PluginStub:
     ```
     """
 
-    def __init_subclass__(cls, plugin, docsHome, docsRef):
+    def __init_subclass__(cls, plugin, docsHome, docsRef="/"):
         """
         Subclassing PluginStub will create documentation pointing to the new documentation for the replacement class.
         """
         # remove trailing / 
         while docsHome.endswith("/"):
             docsHome = docsHome[:-1]
+        # if docsRef includes docsHome root, remove it
+        if docsRef.startswith(docsHome):
+            docsRef = docsRef[len(docsHome):]
         # make sure docsRef has a /
         if not docsRef.startswith("/"):
             docsRef = "/" + docsRef
@@ -76,7 +79,7 @@ class PluginStub:
         cls.plugin = plugin
         cls.docsHome = docsHome
         cls.docsRef = docsRef
-        cls.docsLink = f"{docsHome}/{docsRef}"
+        cls.docsLink = docsHome + docsRef
         # create doc string point to new location
         cls.__doc__ = (
             "`{mro} <{docsLink}>`_ is now located within the `{plugin} <{docsHome}>`_ plugin."
