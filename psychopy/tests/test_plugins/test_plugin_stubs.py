@@ -5,7 +5,7 @@ from psychopy import logging
 from psychopy.plugins import PluginStub
 
 
-def test_plugin_stub_urls():
+def test_plugin_stub_docs():
     """
     Test that links (docsHome and docsRef) are combined correctly in the docstring of PluginStub
     """
@@ -96,6 +96,9 @@ def test_plugin_stub_links():
         pytest.skip()
     # iterate through subclasses of PluginStub
     for cls in PluginStub.__subclasses__():
+        # skip PluginStubs from the test suite
+        if cls.__module__.startswith("psychopy.tests"):
+            continue
         # get pages from web
         docsHome = requests.get(cls.docsHome)
         docsLink = requests.get(cls.docsLink)
