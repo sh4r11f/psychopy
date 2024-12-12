@@ -96,6 +96,13 @@ def createFromTemplate(cls):
             param.allowedVals = []
         if not param.allowedLabels:
             param.allowedLabels = param.allowedVals
+        # add dependency information
+        param.depends = ""
+        for depend in comp.depends:
+            if depend['param'] == param.ref and depend['true'] in ("enable", "show"):
+                param.depends = f"(*if :ref:`{cls.__name__.lower()}-{depend['dependsOn'].lower()}` {depend['condition']}*)"
+            if depend['param'] == param.ref and depend['true'] in ("disable", "hide"):
+                param.depends = f"(*if :ref:`{cls.__name__.lower()}-{depend['dependsOn'].lower()}` isn't {depend['condition']}*)"
         # use templated hint if available
         for srcFile in (__folder__ / "paramTemplates").glob(param.ref + ".rst"):
             src = srcFile.read_text(encoding="utf-8")

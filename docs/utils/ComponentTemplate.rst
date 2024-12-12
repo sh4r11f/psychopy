@@ -23,7 +23,7 @@ Parameters
 
 {% for param in params[categ] %}
 .. _{{ cls.__name__ | lower }}-{{ param.ref }}:
-{{ param.label }}
+{{ param.label }} {{ param.depends }}
     {{ param.hint }}
     {% if param.allowedLabels %}
     Options:
