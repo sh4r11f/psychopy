@@ -86,7 +86,8 @@ class PluginStub:
         ).format(
             mro=cls.__module__,
             plugin=plugin,
-            docsHome=docsHome
+            docsHome=docsHome,
+            docsLink=cls.docsLink
         )
 
 
