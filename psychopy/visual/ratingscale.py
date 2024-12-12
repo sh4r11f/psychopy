@@ -13,6 +13,6 @@ class RatingScale(
     PluginStub,
     plugin="psychopy-legacy",
     docsHome="https://psychopy.github.io/psychopy-legacy",
-    docsRef="/coder/visual/RatingScale"
+    docsRef="/coder/RatingScale"
 ):
     pass

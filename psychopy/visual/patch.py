@@ -16,6 +16,6 @@ class PatchStim(
     PluginStub,
     plugin="psychopy-legacy",
     docsHome="https://psychopy.github.io/psychopy-legacy",
-    docsRef="/coder/visual/PatchStim"
+    docsRef="/coder/PatchStim"
 ):
     pass

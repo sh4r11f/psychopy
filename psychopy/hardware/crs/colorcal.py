@@ -13,6 +13,6 @@ class ColorCAL(
     PluginStub, 
     plugin="psychopy-crs", 
     docsHome="https://psychopy.github.io/psychopy-crs",
-    docsRef="/coder/ColorCAL"
+    docsRef="/coder/colorcal"
 ):
     pass

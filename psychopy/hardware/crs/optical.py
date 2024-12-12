@@ -28,6 +28,6 @@ class OptiCAL(
     PluginStub, 
     plugin="psychopy-crs", 
     docsHome="https://psychopy.github.io/psychopy-crs",
-    docsRef="/coder/OptiCAL"
+    docsRef="/coder/optical"
 ):
     pass

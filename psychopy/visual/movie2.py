@@ -16,6 +16,6 @@ class MovieStim2(
     PluginStub,
     plugin="psychopy-legacy",
     docsHome="https://psychopy.github.io/psychopy-legacy",
-    docsRef="/coder/visual/MovieStim2"
+    docsRef="/coder/MovieStim2"
 ):
     pass
