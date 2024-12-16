@@ -15,7 +15,7 @@ class FaceAPIComponent(BaseVisualComponent):
     def __init__(
             self, exp, parentName,
             # basic
-            name='',
+            name='face',
             startType='time (s)',
             startVal='0',
             stopType='duration (s)',
@@ -67,6 +67,12 @@ class FaceAPIComponent(BaseVisualComponent):
         del self.params['borderColor']
         del self.params['contrast']
         del self.params['colorSpace']
+
+        # require face api lib
+        self.exp.requireOnlineResource(
+            "https://www.jsdelivr.com/package/npm/face-api.js",
+            name="face-api.js"
+        )
 
         # --- Basic params ---
         self.order += [
