@@ -24,9 +24,9 @@ class Pump(
     pass
 
 
-volumeUnits: list[str]
-flowRateUnits: list[str]
+volumeUnits: list
+flowRateUnits: list
 configName: dict
 bus: object
-pumps: list[Pump]
-syringeTypes: list[str]
+pumps: list
+syringeTypes: list
