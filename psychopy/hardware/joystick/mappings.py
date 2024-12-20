@@ -274,7 +274,7 @@ def getInputScheme(name, backend=None):
     
     inputMapping = inputMappings[name]['mappings']
 
-    if backend not in inputMapping.keys():
+    if backend not in inputMapping.keys() or backend is None:
         logging.info(
             "Input scheme '{}' does not have specific settings for backend "
             "'{}', using generic configuration.".format(name, backend))
