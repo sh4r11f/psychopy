@@ -2,7 +2,7 @@
 """Tests for psychopy.tools.viewtools
 """
 
-from psychopy.tools.mathtools import alignTo, lookAt
+from psychopy.tools.mathtools import alignTo, lookAt, distance
 from psychopy.tools.viewtools import *
 import numpy as np
 import pytest
@@ -39,6 +39,43 @@ def test_viewMatrix():
         posOut1 = pointToNdc(target, V1, orthoProj)
 
         assert np.isclose(posOut0, posOut1).all()
+
+
+@pytest.mark.viewtools
+def test_projectFrustumToPlane():
+    """Test the projection of the frustum to a plane.
+    """
+    N = 1000
+    np.random.seed(12345)
+    nearClip = 0.025
+    scrDims = np.random.uniform(0.01, 10.0, (N, 2,))
+    viewDists = np.random.uniform(nearClip, 10.0, (N,))
+    eyeOffsets = np.random.uniform(-0.1, 0.1, (N,))
+
+    for i in range(N):
+        scrWidth = scrDims[i, 0]
+        scrAspect = scrDims[i, 0] / scrDims[i, 1]
+        scrHeight = scrWidth * (1.0 / scrAspect)
+        viewDist = viewDists[i]
+
+        farClip = viewDist
+
+        frustum = computeFrustum(
+            scrWidth,
+            scrAspect,
+            viewDist,
+            eyeOffset=eyeOffsets[i],
+            nearClip=nearClip,
+            farClip=farClip)
+
+        frustum = [v.item() for v in frustum]
+
+        topLeft, bottomLeft, _, topRight = projectFrustumToPlane(
+            frustum, viewDist)
+        
+        # should match the screen dimensions
+        assert (np.isclose(distance(topLeft, topRight), scrWidth) and 
+                np.isclose(distance(topLeft, bottomLeft), scrHeight))
 
 
 @pytest.mark.viewtools
