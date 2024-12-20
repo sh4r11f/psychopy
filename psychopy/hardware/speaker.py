@@ -1,8 +1,18 @@
+# -*- coding: utf-8 -*-
+
+"""Classes and functions managing physical speaker devices for audio playback.
+"""
+
+# Part of the PsychoPy library
+# Copyright (C) 2002-2018 Jonathan Peirce (C) 2019-2024 Open Science Tools Ltd.
+# Distributed under the terms of the GNU General Public License (GPL).
+
 import io
 import sys
 import contextlib
 from types import SimpleNamespace
 import psychtoolbox.audio as ptb
+from psychopy.hardware.exceptions import DeviceNotConnectedError
 from psychopy.preferences import prefs
 from psychopy.hardware import BaseDevice
 from psychopy import logging
@@ -14,8 +24,7 @@ __all__ = [
 
 
 class SpeakerDevice(BaseDevice):
-    """
-    
+    """Class for managing a physical speaker device for audio playback.
 
     Parameters
     ----------
@@ -25,54 +34,88 @@ class SpeakerDevice(BaseDevice):
     name : str, optional
         String name for the physical speaker device, according to your operating system. Leave as 
         None to find the speaker by numeric index.
-    resampling : str, optional
+    latencyClass : int
         One of:
-        - "play": Let your operating system handle resampling on playback. Not recommended for low 
-        latency playback.
-        - "load": Let PsychoPy resample audio clips when they're loaded. This allows low latency on 
-        playback, but can mean slower loading with large files. This is the default mode.
-        - "none": Do not resample audio clips. This is the safest option for low latency and fast 
-        loading but means you'll get errors playing audio clips with a different sample rate to the 
-        speaker / to previously played audio clips. Approach with caution.
-    exclusive : bool, optional
-        Should PsychoPy take exclusive control of the speaker, denying other applications access 
-        when in use? In most cases the answer is no, but if resampling is "none" then taking 
-        exclusive control allows you to play audio clips of a different sample rate to the speaker 
-        without having to resample them (provided they are the same sample rate as one another).
+
+        * 0: Don't take exclusive control over the speaker, so other apps can still use it. Send 
+        sounds via the system mixer so that sample rates are all handled, even though this 
+        introduces latency.
+
+        * 1: Don't take exclusive control over the speaker, so other apps can still use it. Send 
+        sounds directly to reduce latency, so sounds will need to match the sample rate of the 
+        speaker. **Recommended in most cases; if `resample` is True then sample rates are 
+        already handled on load!**
+
+        * 2: Take exclusive control over the speaker, so other apps can't use it. Send sounds 
+        directly to reduce latency, so sounds will need to be the same sample rate as one 
+        another, but this can be any sample rate supported by the speaker.
+
+        * 3: Take exclusive control over the speaker, so other apps can't use it. Send sounds 
+        directly to reduce latency, so sounds will need to be the same sample rate as one 
+        another, but this can be any sample rate supported by the speaker. Force the system to 
+        prioritise resources towards playing sounds on this speaker for absolute minimum 
+        latency, but fallback to mode 2 if the system rejects this.
+
+        * 4: Take exclusive control over the speaker, so other apps can't use it. Send sounds 
+        directly to reduce latency, so sounds will need to be the same sample rate as one 
+        another, but this can be any sample rate supported by the speaker. Force the system to 
+        prioritise resources towards playing sounds on this speaker for absolute minimum 
+        latency, and raise an error if the system rejects this.
+    resample : bool, optional
+        If the sample rate of an audio clip doesn't match the sample rate of the speaker, should 
+        PsychoPy resample the sound on load?
     """
     # dict of extant streams, by numeric index
     streams = {}
 
-    def __init__(self, index=None, name=None, resampling="load", exclusive=False):
+    def __init__(self, index=None, name=None, latencyClass=1, resample=True):
+        if index is not None and name is not None:
+            logging.warn(
+                "Both 'index' and 'name' were provided to SpeakerDevice; ignoring 'index'"
+            )
+            index = None
         # try simple integerisation of index
         if isinstance(index, str):
             try:
-                index = int(index)
+                index = float(index)
             except ValueError:
                 pass
-        # if index is default, get default
-        if index in (-1, None):
+
+        # if index is default, get default speaker device
+        if index in (-1, None) and name is None:
+            index = None  # set to none so we can find by name later
             pref = prefs.hardware['audioDevice']
-            if isinstance(pref, (list, tuple)):
-                pref = pref[0]
+            pref = pref[0] if isinstance(pref, (list, tuple)) else pref
+
             if pref in ("default", "None"):
                 # if no pref, use first device
-                pref = self.getAvailableDevices()[0]['index']
-            index = pref
+                name = self.getAvailableDevices()[0]['deviceName']
+            else:
+                # if pref is a name, use that
+                name = pref
+
         # store name and index
         self.name = name
         self.index = index
+
         # store playback prefs
-        resampling = str(resampling)
-        assert resampling in ("play", "load", "none"), (
-            "SpeakerDevice.resampling must be one of three values: 'play', 'load' or 'none'"
-        )
-        self.resampling = resampling
-        self.exclusive = exclusive
+        self.resample = resample
+        self.latencyClass = latencyClass
         # create stream
         self.createStream()
         # start off open
         self.open()
+    
+    @property
+    def exclusive(self):
+        """
+        Returns
+        -------
+        bool
+            Does PsychoPy have exclusive control of this speaker? If True then other apps will not be 
+            able to play sounds on the same speaker.
+        """
+        return self.latencyClass >= 2
     
     def createStream(self):
         """
@@ -97,35 +140,52 @@ class SpeakerDevice(BaseDevice):
             object was initialised with, as this will be the system-reported name of the actual 
             physical speaker best matching what was requested.
         """
-        # work out latency class from exclusive / resampling modes
-        if self.resampling == "play":
-            if self.exclusive:
-                logging.warn(
-                    "Cannot use speaker exclusive mode with 'play' resampling - defaulting to "
-                    "nonexclusive mode."
-                )
-            latencyClass = 0
-        elif self.exclusive:
-            latencyClass = 2
+
+        # get the devices from psychtoolbox
+        try:
+            wasapiPref = prefs.hardware['audioWASAPIOnly']
+        except KeyError:
+            wasapiPref = False
+            
+        if sys.platform == 'win32' and wasapiPref:
+            allFoundDevices = ptb.get_devices(device_type=13)
         else:
-            latencyClass = 1
+            allFoundDevices = ptb.get_devices()
+
+        if not allFoundDevices:
+            raise DeviceNotConnectedError("No audio devices found!")
+        
         # find ptb profile for this device
+        findByName = self.index is None and self.name is not None
         self.profile = None
-        for thisProfile in ptb.get_devices(device_type=13):
+        for thisProfile in allFoundDevices:
             # skip input-only devices (microphones)
             if thisProfile['NrOutputChannels'] == 0:
                 continue
-            # if profile matches device name or index, use it
-            if thisProfile['DeviceName'] in (self.name, self.index) or (
-                self.index == thisProfile['DeviceIndex'] and self.name is None
-            ):
+
+            if findByName and self.name == thisProfile['DeviceName']:
                 self.profile = thisProfile
                 break
+            else:  # use index instead
+                if self.index == thisProfile['DeviceIndex']:
+                    self.profile = thisProfile
+                    break
+
         # raise error if device not found
         if self.profile is None:
-            raise ValueError(
-                "No speaker device found with index {}".format(self.index)
-            )
+            if findByName:
+                raise DeviceNotConnectedError(
+                    "No speaker device found with name '{}'".format(self.name)
+                )
+            else:
+                raise DeviceNotConnectedError(
+                    "No speaker device found with index '{}'".format(self.index)
+                    )
+        
+        logging.debug(
+            f"Found speaker device: {self.profile['DeviceName']} ({self.profile['DeviceIndex']})"
+        )
+            
         # if physical device already has a stream, use it rather than making a new one
         if self.profile['DeviceIndex'] in SpeakerDevice.streams:
             self.stream = SpeakerDevice.streams['DeviceIndex']
@@ -134,7 +194,7 @@ class SpeakerDevice(BaseDevice):
         # try to connect using profile at various sample rates
         for sampleRateHz in (
             # start with the rate from profile (this will usually work)
-            self.profile['DefaultSampleRate'], 
+            int(self.profile['DefaultSampleRate']), 
             # if that fails, try some common sample rates
             48000,
             44100, 
@@ -156,14 +216,13 @@ class SpeakerDevice(BaseDevice):
                             device_id=self.profile['DeviceIndex'],
                             freq=sampleRateHz,
                             channels=self.profile['NrOutputChannels'],
-                            latency_class=[latencyClass],
+                            latency_class=[self.latencyClass],
                         )
                 # if it worked, set own parameters
                 self.index = self.profile['DeviceIndex']
                 self.name = self.profile['DeviceName']
                 self.sampleRateHz = sampleRateHz
                 self.channels = self.profile['NrOutputChannels']
-                self.latencyClass = latencyClass
                 # ...and log/print the stderr from psychtoolbox (only if successful!)
                 logs = errBuff.getvalue() + outBuff.getvalue()
                 for line in logs.split("\n"):
@@ -181,6 +240,11 @@ class SpeakerDevice(BaseDevice):
                 "Failed to setup a PsychToolBox audio stream for device %(DeviceName)s "
                 "(%(DeviceIndex)s)." % self.profile
             )
+
+        logging.info(
+            f"Created stream for speaker device: {self.profile['DeviceName']} "
+            f"({self.profile['DeviceIndex']})"
+        )
     
     def open(self):
         """

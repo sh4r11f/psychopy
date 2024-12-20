@@ -19,6 +19,7 @@ from psychopy.tools import systemtools
 from psychopy.tools import filetools as ft
 from .exceptions import SoundFormatError, DependencyError
 from ._base import _SoundBase, HammingWindow
+from .audioclip import AudioClip
 from ..hardware import DeviceManager
 
 try:
@@ -33,18 +34,8 @@ except Exception:
 
 import numpy as np
 
-try:
-    defaultLatencyClass = int(prefs.hardware['audioLatencyMode'][0])
-except (TypeError, IndexError):  # maybe we were given a number instead
-    defaultLatencyClass = prefs.hardware['audioLatencyMode']
-"""vals in prefs.hardware['audioLatencyMode'] are:
-     {0:_translate('Latency not important'),
-      1:_translate('Share low-latency driver'),
-      2:_translate('Exclusive low-latency'),
-      3:_translate('Aggressive low-latency'),
-      4:_translate('Latency critical')}
-Based on help at http://psychtoolbox.org/docs/PsychPortAudio-Open
-"""
+
+defaultLatencyClass = 1
 # suggestedLatency = 0.005  ## Not currently used. Keep < 1 scr refresh
 
 if prefs.hardware['audioDriver']=='auto':
@@ -59,7 +50,11 @@ else:
 
 # check if we should only use WAS host API (default is True on Windows)
 audioWASAPIOnly = False
-if sys.platform == 'win32' and prefs.hardware['audioWASAPIOnly']:
+try:
+    wasapiPref = prefs.hardware['audioWASAPIOnly']
+except KeyError:
+    wasapiPref = False
+if sys.platform == 'win32' and wasapiPref:
     audioWASAPIOnly = True
 
 # these will be used by sound.__init__.py
@@ -246,91 +241,34 @@ class SoundPTB(_SoundBase):
         self.loops = self._loopsRequested
         # start with the base class method
         _SoundBase.setSound(self, value, secs, octave, hamming, log)
-
-    def _setSndFromFile(self, filename):
-        # alias default names (so it always points to default.png)
-        if filename in ft.defaultStim:
-            filename = Path(prefs.paths['assets']) / ft.defaultStim[filename]
-        self.sndFile = f = sf.SoundFile(filename)
-        self.sourceType = 'file'
-        self.sampleRate = f.samplerate
-        if self.channels == -1:  # if channels was auto then set to file val
-            self.channels = f.channels
-        fileDuration = float(len(f)) / f.samplerate  # needed for duration?
-        # process start time
-        if self.startTime and self.startTime > 0:
-            startFrame = self.startTime * self.sampleRate
-            self.sndFile.seek(int(startFrame))
-            self.t = self.startTime
-        else:
-            self.t = 0
-        # process stop time
-        if self.stopTime and self.stopTime > 0:
-            requestedDur = self.stopTime - self.t
-            self.duration = min(requestedDur, fileDuration)
-        else:
-            self.duration = fileDuration - self.t
-        # can now calculate duration in frames
-        self.durationFrames = int(round(self.duration * self.sampleRate))
-        # are we preloading or streaming?
-        if self.preBuffer == 0:
-            # no buffer - stream from disk on each call to nextBlock
-            pass
-        elif self.preBuffer == -1:
-            # full pre-buffer. Load requested duration to memory
-            sndArr = self.sndFile.read(
-                frames=int(self.sampleRate * self.duration))
-            self.sndFile.close()
-            self._setSndFromArray(sndArr)
-        self._channelCheck(
-            self.sndArr)  # Check for fewer channels in stream vs data array
-
-    def _setSndFromArray(self, thisArray):
-
-        self.sndArr = np.asarray(thisArray).astype('float32')
-        if thisArray.ndim == 1:
-            self.sndArr.shape = [len(thisArray), 1]  # make 2D for broadcasting
-        if self.channels == 2 and self.sndArr.shape[1] == 1:  # mono -> stereo
-            self.sndArr = self.sndArr.repeat(2, axis=1)
-        elif self.sndArr.shape[1] == 1:  # if channels in [-1,1] then pass
-            pass
-        else:
-            try:
-                self.sndArr.shape = [len(thisArray), 2]
-            except ValueError:
-                raise ValueError("Failed to format sound with shape {} "
-                                 "into sound with channels={}"
-                                 .format(self.sndArr.shape, self.channels))
-
-        # is this stereo?
-        if self.stereo == -1:  # auto stereo. Try to detect
-            if self.sndArr.shape[1] == 1:
-                self.stereo = 0
-            elif self.sndArr.shape[1] == 2:
-                self.stereo = 1
-            else:
-                raise IOError("Couldn't determine whether array is "
-                              "stereo. Shape={}".format(self.sndArr.shape))
-        self._nSamples = thisArray.shape[0]
+    
+    def _setSndFromClip(self, clip: AudioClip):
+        # store clip
+        self.clip = clip
+        # resample the clip if needed and allowed
+        if self.speaker.resample:
+            if clip.sampleRateHz != self.speaker.sampleRateHz:
+                clip.resample(targetSampleRateHz=self.speaker.sampleRateHz)
+        # work out stop time
         if self.stopTime == -1:
-            self.duration = self._nSamples / float(self.sampleRate)
-        # set to run from the start:
-        self.seek(0)
-        self.sourceType = "array"
-
-        # catch when array is empty
-        if not len(self.sndArr):
-            logging.warning(
-                "Received a blank array for sound, playing nothing instead."
-            )
-            self.sndArr = np.zeros(shape=(self.blockSize, self.channels))
-
-        if not self.track:  # do we have one already?
-            self.track = audio.Slave(self.stream.handle, data=self.sndArr,
-                                     volume=self.volume)
+            self.duration = clip.samples.shape[0] / clip.sampleRateHz
+        # handle stereo/mono
+        if self.speaker.channels > 1:
+            clip = clip.asStereo()
         else:
+            clip = clip.asMono()
+        # create/update track
+        if  self.track:
             self.track.stop()
-            self.track.fill_buffer(self.sndArr)
+            self.track.fill_buffer(clip.samples)
+        else:
+            self.track = audio.Slave(
+                self.stream.handle, 
+                data=clip.samples,
+                volume=self.volume
+            )
+        # seek to start
+        self.seek(0)
 
     def _channelCheck(self, array):
         """Checks whether stream has fewer channels than data. If True, ValueError"""
