@@ -9,6 +9,30 @@ import pytest
 
 
 @pytest.mark.viewtools
+def test_visualAngle():
+    """Test visual angle calculation.
+
+    This tests the visual angle calculation for a few values. The test is
+    performed by converting the visual angle back to a distance and checking if
+    it is the same as the original distance.
+
+    """
+    N = 1000
+    np.random.seed(12345)
+    distances = np.random.uniform(0.1, 100.0, (N,))
+    sizes = np.random.uniform(0.01, 1.0, (N,))
+
+    # test input vectorization
+    _ = visualAngle(sizes, distances)
+    _ = visualAngle(sizes, 0.57)
+    _ = visualAngle(1.0, distances)
+
+    # test calculation against value computed by hand
+    # obj distance = 0.57m, obj size = 0.01m
+    assert np.isclose(visualAngle(0.01, 0.57), 1.0051633)  # ~1 degree
+
+
+@pytest.mark.viewtools
 def test_viewMatrix():
     """Test view matrix generation.
 
