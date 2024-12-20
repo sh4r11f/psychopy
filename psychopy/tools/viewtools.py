@@ -96,6 +96,9 @@ def visualAngle(size, distance, degrees=True, out=None, dtype=None):
         if degrees:
             toReturn[:] = np.degrees(toReturn, dtype=dtype)
 
+    if toReturn.size == 1:
+        return toReturn.item()  # return scalar
+
     return toReturn
 
 
