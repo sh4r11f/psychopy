@@ -17,6 +17,7 @@ __all__ = ['Frustum',
            'generalizedPerspectiveProjection',
            'orthoProjectionMatrix',
            'perspectiveProjectionMatrix',
+           'viewMatrix',
            'lookAt',
            'pointToNdc',
            'cursorToRay',
@@ -490,7 +491,13 @@ def generalizedPerspectiveProjection(posBottomLeft,
 
     # projection matrix to return
     projMat = perspectiveProjectionMatrix(
-        left, right, bottom, top, nearClip, farClip, dtype=dtype)
+        left.item(), 
+        right.item(), 
+        bottom.item(), 
+        top.item(), 
+        nearClip.item(), 
+        farClip.item(), 
+        dtype=dtype)
 
     # view matrix to return, first compute the rotation component
     rotMat = np.zeros((4, 4), dtype=dtype)
