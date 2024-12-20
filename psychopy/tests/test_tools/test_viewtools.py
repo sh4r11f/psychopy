@@ -2,9 +2,43 @@
 """Tests for psychopy.tools.viewtools
 """
 
+from psychopy.tools.mathtools import alignTo, lookAt
 from psychopy.tools.viewtools import *
 import numpy as np
 import pytest
+
+
+@pytest.mark.viewtools
+def test_viewMatrix():
+    """Test view matrix generation.
+
+    This create a view matrix using `lookAt` and `viewMatrix` and checks if
+    they look at the same point.
+
+    """
+    N = 1000
+    np.random.seed(12345)
+    targets = np.random.uniform(-100., 100., (N, 3,))
+    origin = [0, 0, 0]
+    orthoProj = orthoProjectionMatrix(-1, 1, -1, 1, 0.1, 100)
+
+    for i in range(N):
+        target = targets[i].tolist()
+
+        # View matrix generation using a quaternion will be canted, but will 
+        # center on the same point
+        V0 = viewMatrix(origin, alignTo([0, 0, -1], target))
+        
+        # Use `lookAt` to generate a view matrix, same as `gluLookAt`
+        V1 = lookAt(origin, target, [0, 1, 0])
+
+        # Check if the the matricies look at the same point if we project the 
+        # target to NDC space. They should both be near the very center of the 
+        # screen
+        posOut0 = pointToNdc(target, V0, orthoProj)
+        posOut1 = pointToNdc(target, V1, orthoProj)
+
+        assert np.isclose(posOut0, posOut1).all()
 
 
 @pytest.mark.viewtools
@@ -40,6 +74,8 @@ def test_frustumToProjectionMatrix():
             eyeOffset=eyeOffsets[i],
             nearClip=nearClip,
             farClip=farClip)
+        
+        frustum = [v.item() for v in frustum]  # ensure scalars
 
         P = perspectiveProjectionMatrix(*frustum)
 
