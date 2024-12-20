@@ -20,8 +20,9 @@ class BaseJoystickInterface:
 
     """
     _inputLib = None
+    _trackerData = None
     def __init__(self, device=0, **kwargs):
-        self._device = None
+        self._device = device
 
     def isSameDevice(self, otherDevice):
         """Check if the device is the same as another device.
@@ -65,6 +66,18 @@ class BaseJoystickInterface:
 
         """
         return False
+
+    @property
+    def trackerData(self):
+        """Get the tracker data.
+
+        Returns
+        -------
+        None
+            The tracker data.
+
+        """
+        return self._trackerData
 
     @property
     def inputLib(self):
@@ -202,6 +215,36 @@ class BaseJoystickInterface:
 
         """
         pass
+    
+    def setVibration(self, motor, strength=1.0):
+        """Set the vibration motors of the device.
+
+        Parameters
+        ----------
+        motor : int
+            Index of the motor to set the vibration strength for.
+        strength : float
+            The strength of the vibration motor. This should be a value
+            between 0.0 and 1.0.
+
+        """
+        raise NotImplementedError
+
+    def setVibrationSamples(self, motor, samples, sampleRate=None):
+        """Set the vibration motor samples.
+
+        Parameters
+        ----------
+        motor : int
+            Index of the motor to set the vibration samples for.
+        samples : list
+            A list of vibration samples to play. These will be uploaded to the
+            device's sample buffer.
+        sampleRate : int
+            The rate at which the samples should be played (if supported).
+
+        """
+        raise NotImplementedError
 
 
 if __name__ == "__main__":

@@ -19,8 +19,6 @@ except Exception:
     havePyglet = False
 
 from psychopy import logging, visual
-from psychopy.hardware.base import BaseDevice
-
 from psychopy.hardware.joystick._base import BaseJoystickInterface
 
 if havePyglet:

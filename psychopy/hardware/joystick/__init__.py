@@ -20,7 +20,6 @@ __all__ = [
     'getJoystickInterfaces']
 
 from psychopy import logging, visual
-from psychopy.hardware.base import BaseDevice
 from psychopy.hardware.joystick._base import BaseJoystickInterface
 from psychopy.hardware.joystick.backend_pyglet import JoystickInterfacePyglet
 from psychopy.hardware.joystick.backend_glfw import JoystickInterfaceGLFW
@@ -72,7 +71,7 @@ class JoysticButtonNotAvailableError(JoystickError):
     pass
 
 
-class Joystick(BaseDevice):
+class Joystick:
     """Class for interfacing with a multi-axis joystick or gamepad.
 
     Upon creating a `Joystick` object, the joystick device is opened and the 
@@ -166,7 +165,6 @@ class Joystick(BaseDevice):
 
     """
     def __init__(self, device=0, **kwargs):
-        super(Joystick, self).__init__()
         # get the joystick device interface
         try:
             joyInterface = getJoystickInterfaces()[backend]
@@ -247,7 +245,10 @@ class Joystick(BaseDevice):
             self._angularVel = self.getAngularVelocity()
             self._linearVel = self.getLinearVelocity()
 
-        self._lastUpdateTime = core.getTime()
+        if self._joy.trackerData is None:
+            self._lastUpdateTime = core.getTime()
+        else:
+            self._lastUpdateTime = self._joy.trackerData._absSampleTime
 
         return self._lastUpdateTime
         
@@ -380,6 +381,18 @@ class Joystick(BaseDevice):
         """The RZ axis value (`float`).
         """
         return self.getRZ()
+    
+    @property
+    def trackerData(self):
+        """Tracker data for the controller.
+
+        Returns
+        -------
+        `TrackerData` or `None`
+            The tracker data.
+
+        """
+        return self._joy.trackerData
 
     def getName(self):
         """Return the manufacturer-defined name describing the device (`str`).
@@ -405,7 +418,7 @@ class Joystick(BaseDevice):
 
         """
         # get the mapping scheme
-        inputMap = mappings.getInputScheme(mapping)
+        inputMap = mappings.getInputScheme(mapping, self.inputLib)
         if inputMap is None:
             raise ValueError("Invalid mapping scheme '{}'.".format(mapping))
 
@@ -488,83 +501,6 @@ class Joystick(BaseDevice):
             return inputIndex
 
         raise InvalidInputNameError("Input name '{}' is not valid.".format(name))
-
-    # --------------------------------------------------------------------------
-    # VR methods
-    #
-
-    @property
-    def pos(self):
-        """Position of the joystick in 3D space.
-
-        Returns
-        -------
-        tuple
-            The position of the joystick in 3D space as a tuple (x, y, z).
-
-        """
-        return self.getPos()
-
-    @property
-    def ori(self):
-        """Orientation of the joystick in 3D space.
-
-        Returns
-        -------
-        tuple
-            The orientation of the joystick as a quaternion (x, y, z, w).
-
-        """
-        return self.getOri()
-
-    def getPos(self):
-        """Get the position of the joystick in 3D space.
-
-        Use to get the tracked position of an input device in 3D space.
-
-        Returns
-        -------
-        tuple
-            The position of the joystick in 3D space as a tuple (x, y, z). Units
-            are typically in meters unless otherwise specified. The or
-
-        """
-        return self._pos
-
-    def getOri(self):
-        """Get the orientation of the joystick.
-
-        Use to get the tracked orientation of an input device in 3D space.
-
-        Returns
-        -------
-        tuple
-            The orientation of the joystick as a quaternion (x, y, z, w).
-
-        """
-        return self._ori
-
-    def getAngularVelocity(self):
-        """Get the angular velocity of the joystick.
-
-        Returns
-        -------
-        tuple
-            The angular velocity of the joystick as a tuple (x, y, z).
-
-        """
-        return self._angularVel
-
-    def getLinearVelocity(self):
-        """Get the linear velocity of the joystick.
-
-        Returns
-        -------
-        tuple
-            The linear velocity of the joystick as a tuple (x, y, z).
-
-        """
-        return self._linearVel
 
     # --------------------------------------------------------------------------
     # Axis filtering methods

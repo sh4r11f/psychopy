@@ -12,7 +12,6 @@
 __all__ = ['JoystickInterfaceGLFW']
 
 from psychopy import logging
-from psychopy.hardware.base import BaseDevice
 from psychopy.hardware.joystick._base import BaseJoystickInterface
 
 
