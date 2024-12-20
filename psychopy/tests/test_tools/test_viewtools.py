@@ -17,19 +17,23 @@ def test_visualAngle():
     it is the same as the original distance.
 
     """
-    N = 1000
-    np.random.seed(12345)
-    distances = np.random.uniform(0.1, 100.0, (N,))
-    sizes = np.random.uniform(0.01, 1.0, (N,))
-
-    # test input vectorization
-    _ = visualAngle(sizes, distances)
-    _ = visualAngle(sizes, 0.57)
-    _ = visualAngle(1.0, distances)
-
     # test calculation against value computed by hand
     # obj distance = 0.57m, obj size = 0.01m
     assert np.isclose(visualAngle(0.01, 0.57), 1.0051633)  # ~1 degree
+
+    # test input vectorization
+    N = 1000
+    np.random.seed(12345)
+    distances = np.random.uniform(0.1, 100.0, (N,))
+    sizes = np.random.uniform(0.01, 10.0, (N,))
+
+    a  = visualAngle(sizes, distances)
+    b = visualAngle(sizes, 0.57)
+    c = visualAngle(1.0, distances)
+
+    # make sure no values are >180 degrees or less than 0
+    assert np.all(a <= 180) and np.all(b <= 180) and np.all(c <= 180)
+    assert np.all(a >= 0) and np.all(b >= 0) and np.all(c >= 0)
 
 
 @pytest.mark.viewtools
