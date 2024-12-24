@@ -8,9 +8,10 @@ Pavlovia Survey
 You can use Pavlovia.org to create feature rich surveys, with a range of response options, which display nicely across a range of devices (i.e. laptops, smart phones, tablets). To create and launch a Pavlovia Survey, you technically do not need the PsychoPy app at all. 
 
 Useful links for creating surveys:
-* `Pavlovia surveys launch video <https://www.youtube.com/watch?v=1fs8CVKBPGk>`_. 
-* `Pavlovia Surveys information <https://pavlovia.org/docs/surveys/overview>`_.
-* `YouTube tutorial on how to use the Pavlovia Surveys component <https://www.youtube.com/watch?v=WMLel29z-oY>`_.
+
+*   `Pavlovia surveys launch video <https://www.youtube.com/watch?v=1fs8CVKBPGk>`_. 
+*   `Pavlovia Surveys information <https://pavlovia.org/docs/surveys/overview>`_.
+*   `YouTube tutorial on how to use the Pavlovia Surveys component <https://www.youtube.com/watch?v=WMLel29z-oY>`_.
 
 The Pavlovia Survey component is used to integrate a Pavlovia Survey into a behavioural task you have created in PsychoPy.
 
