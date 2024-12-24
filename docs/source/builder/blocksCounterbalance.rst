@@ -3,6 +3,8 @@
 Blocks of trials and counterbalancing
 --------------------------------------
 
+Note that for PsychoPy version 2024.1 onwards you can use a :ref:`counterbalanceroutine` for counterbalancing.
+
 Many people ask how to create blocks of trials, how to randomise them, and how to counterbalance their order. This isn't all that hard, although it does require a bit of thinking!
 
 Blocking similar conditions
@@ -45,7 +47,7 @@ Now we need to create further conditions files, to specify the exact orders we w
 The last part of the puzzle is how to assign participants to groups. For this you *could* write a Code Component that would generate a variable for you (`if.....: groupFile = "groupB.xlsx"`) but the easiest thing is probably that you, the experimenter, chooses this using the GUI we present at the start of the experiment. So, we add a field to our GUI using experiment settings:
 
 .. image:: experimentSettingsGroup.png
-        :scale: 100 %
+        :scale: 50 %
 
 Note that entering a *list* as the default input will present us with a dropdown in our GUI.
 
@@ -82,7 +84,7 @@ Where the number of times that block is repeated (or occurs at all!) is determin
 For our outer loop we will use conditions files that look something like this:
 
 .. image:: counterbalanceTasksCondFile.png
-        :scale: 100 %
+        :scale: 50 %
 
 Each row corresponds to how many times a subtask routine (or set of routines) will be repeated per iteration of the outer loop. 
 
