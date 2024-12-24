@@ -26,7 +26,7 @@ The table below shows you the current state of play of PsychoJS. Per feature we 
     :ref:`Text <textComponent>`, :darkgreen:`Built-in`, We recommend using "Text" rather than "TextBox" for static text online - since TextBox is still in beta
     :ref:`Textbox <textboxComponent>`, :darkgreen:`Built-in`, For versions preceding 2022.1 textbox needed a code component with `textbox.refresh()` in the "Begin Routine" to be used on several trials
     :ref:`Grating <grating>`, :darkgreen:`Built-in`, 
-    , :darkred:`Not supported`, Panoramic, Apertures\, Envelope Gratings\, Noise
+    , :darkred:`Not supported`, Apertures\, Envelope Gratings\, Noise
   **Responses**,,
     :ref:`Form <formComponent>`, :darkgreen:`Built-in`,
     :ref:`Pavlovia Surveys <advancedsurvey>`, :darkgreen:`Built-in`,
