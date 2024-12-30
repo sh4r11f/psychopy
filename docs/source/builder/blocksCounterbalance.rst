@@ -3,7 +3,7 @@
 Blocks of trials and counterbalancing
 --------------------------------------
 
-Note that for PsychoPy version 2024.1 onwards you can use a :ref:`counterbalanceroutine` for counterbalancing.
+Note that for PsychoPy version 2024.1 onwards you can use a :doc:`a Standalone Counterbalance Routine </builder/components/counterbalanceStandaloneRoutine>` for counterbalancing.
 
 Many people ask how to create blocks of trials, how to randomise them, and how to counterbalance their order. This isn't all that hard, although it does require a bit of thinking!
 
