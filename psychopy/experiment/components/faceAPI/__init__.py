@@ -94,7 +94,7 @@ class FaceAPIComponent(BaseVisualComponent):
             "    win: psychoJS.window,\n"
             "    name: '%(name)s',\n"
             "    faceApiUrl: 'face-api.js',\n"
-            "    modelDir: 'models',\n"
+            "    modelDir: 'https://pavlovia.org/assets/face-api-models',\n"
             "    units: %(units)s,\n"
             "    pos: %(pos)s,\n"
             "    size: %(size)s,\n"
