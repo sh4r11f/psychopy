@@ -28,9 +28,9 @@ class VoiceKeyValidator:
         Parameters
         ----------
         state : bool
-            State which the photodiode is expected to have been in
+            State which the voicekey is expected to have been in
         t : clock.Timestamp, visual.Window or None
-            Time at which the photodiode should have read the given state.
+            Time at which the voicekey should have read the given state.
         adjustment : float
             Adjustment to apply to the received timestamp - in order to account for silent periods 
             at the start/end of a particular sound. These should be positive for silence at the 

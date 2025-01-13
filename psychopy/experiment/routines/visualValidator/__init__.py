@@ -10,16 +10,16 @@ from psychopy.experiment.routines import Routine, BaseValidatorRoutine
 from psychopy.localization import _translate
 
 
-class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
+class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
     """
-    Use a photodiode to confirm that visual stimuli are presented when they should be.
+    Use a light sensor to confirm that visual stimuli are presented when they should be.
     """
     targets = ['PsychoPy']
 
     categories = ['Validation']
     iconFile = Path(__file__).parent / 'photodiode_validator.png'
     tooltip = _translate(
-        "Use a photodiode to confirm that visual stimuli are presented when they should be."
+        "Use a light sensor to confirm that visual stimuli are presented when they should be."
     )
     deviceClasses = []
     version = "2025.1.0"
@@ -38,7 +38,7 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         self.exp = exp  # so we can access the experiment if necess
         self.params = {}
         self.depends = []
-        super(PhotodiodeValidatorRoutine, self).__init__(exp, name=name)
+        super(VisualValidatorRoutine, self).__init__(exp, name=name)
         self.order += []
         self.type = 'PhotodiodeValidator'
 
@@ -61,14 +61,14 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             findThreshold, valType="bool", inputType="bool", categ="Basic",
             label=_translate("Find best threshold?"),
             hint=_translate(
-                "Run a brief Routine to find the best threshold for the photodiode at experiment start?"
+                "Run a brief Routine to find the best threshold for the light sensor at experiment start?"
             )
         )
         self.params['threshold'] = Param(
             threshold, valType="code", inputType="single", categ="Basic",
             label=_translate("Threshold"),
             hint=_translate(
-                "Light threshold at which the photodiode should register a positive, units go from 0 (least light) to "
+                "Light threshold at which the light sensor should register a positive, units go from 0 (least light) to "
                 "255 (most light)."
             )
         )
@@ -83,7 +83,7 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             findDiode, valType="code", inputType="bool", categ="Basic",
             label=_translate("Find diode?"),
             hint=_translate(
-                "Run a brief Routine to find the size and position of the photodiode at experiment start?"
+                "Run a brief Routine to find the size and position of the light sensor at experiment start?"
             )
         )
         self.params['diodePos'] = Param(
@@ -91,7 +91,7 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             updates="constant", allowedUpdates=['constant', 'set every repeat', 'set every frame'],
             label=_translate("Position [x,y]"),
             hint=_translate(
-                "Position of the photodiode on the window."
+                "Position of the light sensor on the window."
             )
         )
         self.params['diodeSize'] = Param(
@@ -99,7 +99,7 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             updates="constant", allowedUpdates=['constant', 'set every repeat', 'set every frame'],
             label=_translate("Size [x,y]"),
             hint=_translate(
-                "Size of the area covered by the photodiode on the window."
+                "Size of the area covered by the light sensor on the window."
             )
         )
         self.params['diodeUnits'] = Param(
@@ -107,7 +107,7 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             allowedVals=['from exp settings', 'deg', 'cm', 'pix', 'norm', 'height', 'degFlatPos', 'degFlat'],
             label=_translate("Spatial units"),
             hint=_translate(
-                "Spatial units in which the photodiode size and position are specified."
+                "Spatial units in which the light sensor size and position are specified."
             )
         )
         for param in ("diodePos", "diodeSize", "diodeUnits"):
@@ -140,18 +140,18 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             deviceBackend, valType="code", inputType="choice", categ="Device",
             allowedVals=self.getBackendKeys,
             allowedLabels=self.getBackendLabels,
-            label=_translate("Photodiode type"),
+            label=_translate("Light sensor type"),
             hint=_translate(
-                "Type of photodiode to use."
+                "Type of light sensor to use."
             ),
             direct=False
         )
         self.params['channel'] = Param(
             channel, valType="code", inputType="single", categ="Device",
-            label=_translate("Photodiode channel"),
+            label=_translate("Light sensor channel"),
             hint=_translate(
-                "If relevant, a channel number attached to the photodiode, to distinguish it "
-                "from other photodiodes on the same port. Leave blank to use the first photodiode "
+                "If relevant, a channel number attached to the light sensor, to distinguish it "
+                "from other light sensors on the same port. Leave blank to use the first light sensor "
                 "which can detect the Window."
             )
         )
@@ -179,7 +179,7 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         # find threshold if indicated
         if self.params['findThreshold']:
             code = (
-                "# find threshold for photodiode\n"
+                "# find threshold for light sensor\n"
                 "if %(deviceLabelCode)s.getThreshold(channel=%(channel)s) is None:\n"
                 "    %(deviceLabelCode)s.findThreshold(win, channel=%(channel)s)\n"
             )
@@ -191,7 +191,7 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         # find pos if indicated
         if self.params['findDiode']:
             code = (
-                "# find position and size of photodiode\n"
+                "# find position and size of light sensor\n"
                 "if %(deviceLabelCode)s.pos is None and %(deviceLabelCode)s.size is None and %(deviceLabelCode)s.units is None:\n"
                 "    %(deviceLabelCode)s.findPhotodiode(win, channel=%(channel)s)\n"
             )
@@ -363,15 +363,15 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
 class ScreenBufferPhotodiodeValidatorBackend(DeviceBackend):
     """
     Adds a basic screen buffer emulation backend for PhotodiodeValidator, as well as acting as an
-    example for implementing other photodiode device backends.
+    example for implementing other light sensor device backends.
     """
 
     key = "screenbuffer"
     label = _translate("Screen Buffer (Debug)")
-    component = PhotodiodeValidatorRoutine
+    component = VisualValidatorRoutine
     deviceClasses = ["psychopy.hardware.photodiode.ScreenBufferSampler"]
 
-    def getParams(self: PhotodiodeValidatorRoutine):
+    def getParams(self: VisualValidatorRoutine):
         # define order
         order = [
         ]
@@ -384,7 +384,7 @@ class ScreenBufferPhotodiodeValidatorBackend(DeviceBackend):
         # no requirements needed - so just return
         return
 
-    def writeDeviceCode(self: PhotodiodeValidatorRoutine, buff):
+    def writeDeviceCode(self: VisualValidatorRoutine, buff):
         # get inits
         inits = getInitVals(self.params)
         # make ButtonGroup object

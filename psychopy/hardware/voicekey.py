@@ -59,7 +59,7 @@ class BaseVoiceKeyGroup(base.BaseResponseDevice):
         # sound to play
         snd = sound.Sound("voicekeyThresholdStim.wav", speaker=speaker, secs=5, loops=-1)
         # keyboard to check for escape/continue
-        kb = keyboard.Keyboard(deviceName="photodiodeValidatorKeyboard")
+        kb = keyboard.Keyboard(deviceName="audioValidatorKeyboard")
         
         def _bisectThreshold(threshRange, recursionLimit=16):
             """
@@ -319,7 +319,7 @@ class MicrophoneVoiceKeyEmulator(BaseVoiceKeyGroup):
 
         Returns
         -------
-        list[PhotodiodeResponse]
+        list[VoiceKeyResponse]
             List of matching responses.
         """
         # make sure parent dispatches messages

@@ -61,7 +61,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         for cls in DeviceManager.deviceClasses:
             # get class from class str
             cls = DeviceManager._resolveClassString(cls)
-            # if class is a photodiode, add its available devices
+            # if class is a light sensor, add its available devices
             if issubclass(cls, BasePhotodiodeGroup) and cls is not BasePhotodiodeGroup:
                 devices += cls.getAvailableDevices()
 
@@ -74,9 +74,9 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         Parameters
         ----------
         state : bool or None
-            True to get photodiode "on" responses, False to get photodiode "off" responses, None to get all responses.
+            True to get light sensor "on" responses, False to get light sensor "off" responses, None to get all responses.
         channel : int
-            Which photodiode to get responses from?
+            Which light sensor to get responses from?
         clear : bool
             Whether or not to remove responses matching `state` after retrieval.
 
@@ -126,7 +126,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         rect.fillColor = "black"
         rect.draw()
         win.flip()
-        # wait 250ms for flip to happen and photodiode to catch it
+        # wait 250ms for flip to happen and light sensor to catch it
         timeoutClock.reset()
         while timeoutClock.getTime() < 0.25:
             self.dispatchMessages()
@@ -139,7 +139,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         rect.fillColor = "white"
         rect.draw()
         win.flip()
-        # wait 250ms for flip to happen and photodiode to catch it
+        # wait 250ms for flip to happen and light sensor to catch it
         timeoutClock.reset()
         while timeoutClock.getTime() < 0.25:
             self.dispatchMessages()
@@ -158,15 +158,15 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
     
     def findPhotodiode(self, win, channel=None, retryLimit=5):
         """
-        Draws rectangles on the screen and records photodiode responses to recursively find the location of the diode.
+        Draws rectangles on the screen and records light sensor responses to recursively find the location of the diode.
 
         Returns
         -------
         psychopy.layout.Position
-            Position of the diode on the window. Essentially, the center of the last rectangle which the photodiode
+            Position of the diode on the window. Essentially, the center of the last rectangle which the light sensor
             was able to detect.
         psychopy.layout.Size
-            Size of the area of certainty. Essentially, the size of the last (smallest) rectangle which the photodiode
+            Size of the area of certainty. Essentially, the size of the last (smallest) rectangle which the light sensor
             was able to detect.
         """
         # timeout clock
@@ -187,7 +187,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         # add low opacity label
         label = visual.TextBox2(
             win,
-            text=f"Finding photodiode...",
+            text=f"Finding light sensor...",
             fillColor=(0, 0, 0), color=(80, 80, 80), colorSpace="rgb255",
             pos=(0, 0), size=(2, 2), units="norm",
             alignment="center",
@@ -212,18 +212,18 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
                 # if no channels are responsive, use 0th channel and let scanQuadrants fail cleanly
                 channel = 0
         # update label text once we have a channel
-        label.text = f"Finding photodiode {channel}..."
+        label.text = f"Finding light sensor {channel}..."
 
         def scanQuadrants(responsive=False):
             """
-            Recursively shrink the rectangle around the position of the photodiode until it's too 
+            Recursively shrink the rectangle around the position of the light sensor until it's too 
             small to detect.
 
             Parameters
             ----------
             responsive : bool
                 When calling manually, this should always be left as False! Will be set to True if 
-                any response was received from the photodiode.
+                any response was received from the light sensor.
             """
             # work out width and height of area
             w, h = rect.size
@@ -252,7 +252,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
                 label.draw()
                 rect.draw()
                 win.flip()
-                # wait for flip to happen and photodiode to catch it (max 250ms)
+                # wait for flip to happen and light sensor to catch it (max 250ms)
                 timeoutClock.reset()
                 self.clearResponses()
                 while not self.responses and timeoutClock.getTime() < 0.25:
@@ -263,18 +263,18 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
                 # check for escape before entering recursion
                 if kb.getKeys(['escape']):
                     return None
-                # poll photodiode
+                # poll light sensor
                 if self.getState(channel):
                     # mark that we've got a response
                     responsive = True
                     # if it detected this rectangle, recur
                     return scanQuadrants(responsive=responsive)
-            # if none of these have returned, rect is too small to cover the whole photodiode, so return
+            # if none of these have returned, rect is too small to cover the whole light sensor, so return
             return responsive
 
         def handleNonResponse(label, rect, timeout=5):
             # log error
-            logging.error("Failed to find Photodiode")
+            logging.error("Failed to find light sensor")
             # skip if retry limit hit
             if retryLimit <= 0:
                 return None
@@ -282,10 +282,10 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
             timer = core.CountdownTimer(start=timeout)
             # set label text to alert user
             msg = (
-                "Received no responses from photodiode during `findPhotodiode`. Photodiode may not "
+                "Received no responses from light sensor during `findPhotodiode`. Light sensor may not "
                 "be connected or may be configured incorrectly.\n"
                 "\n"
-                "To manually specify the photodiode's position, press ENTER. To quit, press "
+                "To manually specify the light sensor's position, press ENTER. To quit, press "
                 "ESCAPE. Otherwise, will retry in {:.0f}s\n"
             )
             label.foreColor = "red"
@@ -307,16 +307,16 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
                 # flip
                 win.flip()
             # if we timed out...
-            logging.error("Trying to find photodiode again after failing")
+            logging.error("Trying to find light sensor again after failing")
             # re-detect threshold
             self.findThreshold(win, channel=channel)
-            # re-find photodiode
+            # re-find light sensor
             return self.findPhotodiode(win, channel=channel, retryLimit=retryLimit-1)
         
         def specifyManually(label, rect):
             # set label text to alert user
             label.text = (
-                "Use the arrow keys to move the photodiode patch and use the plus/minus keys to "
+                "Use the arrow keys to move the light sensor patch and use the plus/minus keys to "
                 "resize it. Press ENTER when finished, or press ESCAPE to quit.\n"
             )
             label.foreColor = "red"
@@ -367,7 +367,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         self.state = [None] * self.channels
         self.dispatchMessages()
         self.clearResponses()
-        # recursively shrink rect around the photodiode
+        # recursively shrink rect around the light sensor
         responsive = scanQuadrants()
         # if cancelled, warn and continue
         if responsive is None:
@@ -426,7 +426,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         # add low opacity label
         label = visual.TextBox2(
             win,
-            text=f"Finding best threshold for photodiode {channel}...",
+            text=f"Finding best threshold for light sensor {channel}...",
             fillColor=None, color=(0, 0, 0), colorSpace="rgb",
             pos=(0, 0), size=(2, 2), units="norm",
             alignment="center",
@@ -691,7 +691,7 @@ class ScreenBufferSampler(BasePhotodiodeGroup):
         # handle None
         if channel is None:
             channel = 0
-        # there's no physical photodiode, so just pick a reasonable place for it
+        # there's no physical light sensor, so just pick a reasonable place for it
         self._pos = layout.Position((0.95, -0.95), units="norm", win=win)
         self._size = layout.Size((0.05, 0.05), units="norm", win=win)
         self.units = "norm"
@@ -706,7 +706,7 @@ class ScreenBufferSampler(BasePhotodiodeGroup):
         # handle None
         if channel is None:
             channel = 0
-        # there's no physical photodiode, so just pick a reasonable threshold
+        # there's no physical light sensor, so just pick a reasonable threshold
         self.setThreshold(127, channel=channel)
 
         return self.getThreshold(channel=channel)

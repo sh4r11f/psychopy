@@ -70,9 +70,9 @@ class PhotodiodeValidator:
         Parameters
         ----------
         state : bool
-            State which the photodiode is expected to have been in
+            State which the light sensor is expected to have been in
         t : clock.Timestamp, visual.Window or None
-            Time at which the photodiode should have read the given state.
+            Time at which the light sensor should have read the given state.
         adjustment : float
             Adjustment to apply to the received timestamp - in order to account for e.g. an 
             expected flip time
@@ -80,7 +80,7 @@ class PhotodiodeValidator:
         Returns
         -------
         float
-            Start/stop time according to the photodiode
+            Start/stop time according to the light sensor
         float
             Delay between requested start/stop time and measured start/stop time
         """

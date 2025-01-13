@@ -39,7 +39,7 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         self.depends = []
         super(AudioValidatorRoutine, self).__init__(exp, name=name)
         self.order += []
-        self.type = 'PhotodiodeValidator'
+        self.type = 'AudioValidator'
 
         exp.requireImport(
             importName="validation",
@@ -55,15 +55,14 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             findThreshold, valType="bool", inputType="bool", categ="Basic",
             label=_translate("Find best threshold?"),
             hint=_translate(
-                "Run a brief Routine to find the best threshold for the photodiode at experiment start?"
+                "Run a brief Routine to find the best threshold for the voicekey at experiment start?"
             )
         )
         self.params['threshold'] = Param(
             threshold, valType="code", inputType="single", categ="Basic",
             label=_translate("Threshold"),
             hint=_translate(
-                "Light threshold at which the photodiode should register a positive, units go from 0 (least light) to "
-                "255 (most light)."
+                "Volume threshold at which the voicekey should register a positive, units go from 0 (least volume) to 255 (most volume)."
             )
         )
         self.depends.append({
@@ -94,9 +93,9 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             deviceBackend, valType="code", inputType="choice", categ="Device",
             allowedVals=self.getBackendKeys,
             allowedLabels=self.getBackendLabels,
-            label=_translate("Photodiode type"),
+            label=_translate("Voicekey type"),
             hint=_translate(
-                "Type of photodiode to use."
+                "Type of voicekey to use."
             ),
             direct=False
         )
@@ -104,8 +103,8 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             channel, valType="code", inputType="single", categ="Device",
             label=_translate("Voicekey channel"),
             hint=_translate(
-                "If relevant, a channel number attached to the photodiode, to distinguish it "
-                "from other photodiodes on the same port. Leave blank to use the first photodiode "
+                "If relevant, a channel number attached to the voicekey, to distinguish it "
+                "from other voicekey on the same port. Leave blank to use the first voicekey "
                 "which can detect the Window."
             )
         )
@@ -133,7 +132,7 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         # find threshold if indicated
         if self.params['findThreshold']:
             code = (
-                "# find threshold for photodiode\n"
+                "# find threshold for voicekey\n"
                 "if %(deviceLabelCode)s.getThreshold(channel=%(channel)s) is None:\n"
                 "    %(deviceLabelCode)s.findThreshold(win, channel=%(channel)s)\n"
             )
