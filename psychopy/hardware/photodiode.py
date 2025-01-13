@@ -513,6 +513,17 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
             win.flip()
             # get threshold
             thresholds[col] = _bisectThreshold([0, 255], recursionLimit=16)
+        # report thresholds
+        logging.debug(f"Channel {channel} responded 'on' for a black screen at threshold {thresholds['black']}")
+        logging.debug(f"Channel {channel} responded 'on' for a white screen at threshold {thresholds['white']}")
+        # if black is detected at the same or lower threshold as white, the photodiode isn't working
+        if thresholds['black'] <= thresholds['white']:
+            logging.debug(
+                f"Could not detect a reasonable threshold for channel {channel}, photodiode may be "
+                f"unplugged."
+            )
+            self._setThreshold(0, channel=channel)
+            return None
         # pick a threshold between white and black (i.e. one that's safe)
         threshold = (thresholds['white'] + thresholds['black']) / 2
         # clear bg rect
