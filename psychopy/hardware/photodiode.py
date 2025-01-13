@@ -152,9 +152,14 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         channelsOn = set()
         # iterate through potential channels
         for i, state in enumerate(self.state):
+            # skip if we got more than 1 message
+            if len(self.getResponses(channel=i, clear=False)) > 1:
+                continue
             # if any detected the flash, append it (test for false negative)
             if state:
                 channelsOn.add(i)
+        # clear caught messages so we're starting afresh
+        self.clearResponses()
         # show black
         rect.fillColor = "black"
         rect.draw()
@@ -170,6 +175,9 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         channelsOff = set()
         # iterate through potential channels
         for i, state in enumerate(self.state):
+            # skip if we got more than 1 message
+            if len(self.getResponses(channel=i, clear=False)) > 1:
+                continue
             # if any detected the lack of flash, append it (test for false positive)
             if not state:
                 channelsOff.add(i)
@@ -556,7 +564,6 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
             for rep in range(reps):
                 # run findChannels
                 found = self.findChannels(win)
-                print(rep, channel, found)
                 # if the given channel isn't found, test fails
                 if channel not in found:
                     return False
