@@ -470,6 +470,13 @@ class BuilderFrame(BaseAuiFrame, handlers.ThemeMixin):
         self.expMenu = wx.Menu()
         menuBar.Append(self.expMenu, _translate('E&xperiment'))
         menu = self.expMenu
+
+        item = menu.Append(wx.ID_ANY,
+                           _translate("Experiment &Settings\t%s") % keys['expSettings'],
+                           _translate("Edit experiment settings"))
+        self.Bind(wx.EVT_MENU, self.setExperimentSettings, item)
+        menu.AppendSeparator()
+        
         item = menu.Append(wx.ID_ANY,
                            _translate("&New Routine\t%s") % keys['newRoutine'],
                            _translate("Create a new routine (e.g. the trial "
