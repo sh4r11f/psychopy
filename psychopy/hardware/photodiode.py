@@ -149,14 +149,32 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         while self.hasUnfinishedMessage():
             self.dispatchMessages()
         # start off with no channels
-        channels = []
+        channelsOn = set()
         # iterate through potential channels
         for i, state in enumerate(self.state):
-            # if any detected the flash, append it
+            # if any detected the flash, append it (test for false negative)
             if state:
-                channels.append(i)
+                channelsOn.add(i)
+        # show black
+        rect.fillColor = "black"
+        rect.draw()
+        win.flip()
+        # wait 250ms for flip to happen and photodiode to catch it
+        timeoutClock.reset()
+        while timeoutClock.getTime() < 0.25:
+            self.dispatchMessages()
+        # finish dispatching any messages which are only partially received               
+        while self.hasUnfinishedMessage():
+            self.dispatchMessages()
+        # start off with no channels
+        channelsOff = set()
+        # iterate through potential channels
+        for i, state in enumerate(self.state):
+            # if any detected the lack of flash, append it (test for false positive)
+            if not state:
+                channelsOff.add(i)
         
-        return channels
+        return tuple(channelsOn & channelsOff)
     
     def findPhotodiode(self, win, channel=None, retryLimit=5):
         """
