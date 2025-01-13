@@ -522,6 +522,47 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
 
         return int(threshold)
 
+    def checkPhotodiode(self, win, channels=None, reps=1):
+        """
+        Check that the photodiode is responsive on a given channel by alternating the full window 
+        between white and black, then checking that the channel state is True when white and False 
+        when black.
+
+        Parameters
+        ----------
+        win : psychopy.visual.Window
+            Window to use for checking.
+        channels : list[int] or tuple[int] or int or None, optional
+            Channel or channels to check, use None (default) to check all channels.
+        reps : int, optional
+            How many times to repeat the test - if the photodiode has a habit of randomly 
+            flickering, there's a chance of it passing tests by random chance, so you may wish to 
+            repeat it several times. Default is 1 (aka do not repeat)
+
+        Returns
+        -------
+        bool
+            True
+        """
+        # if given just one channel, wrap it in a list
+        if isinstance(channels, int):
+            channels = [channels]
+        # if None, check all channels
+        if channels is None:
+            channels = list(range(self.channels))
+        # for each specified channel...
+        for channel in channels:
+            # the following is repeated for good measure, as many times as specified
+            for rep in range(reps):
+                # run findChannels
+                found = self.findChannels(win)
+                print(rep, channel, found)
+                # if the given channel isn't found, test fails
+                if channel not in found:
+                    return False
+        
+        return True
+
     def setThreshold(self, threshold, channel):
         if isinstance(channel, (list, tuple)):
             # if given a list of channels, iterate
