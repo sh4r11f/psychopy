@@ -30,7 +30,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         # set initial threshold
         self.threshold = [None] * channels
         if threshold is None:
-            threshold = [125] * channels
+            threshold = 125
         self.setThreshold(threshold, channel=list(range(channels)))
         # store position params
         self.units = units
