@@ -4,7 +4,7 @@
 Audio Validator Routine
 -------------------------------
 
-Use a voicekey or microphone to confirm that audio stimuli are presented when they should be.
+Use a sound sensor to confirm that audio stimuli are presented when they should be.
 
 Categories:
     Validation
@@ -27,11 +27,11 @@ Name
     
 .. _audiovalidatorroutine-findThreshold:
 Find best threshold? 
-    Run a brief Routine to find the best threshold for the voicekey at experiment start?
+    Run a brief Routine to find the best threshold for the sound sensor at experiment start?
     
 .. _audiovalidatorroutine-threshold:
 Threshold (*if :ref:`audiovalidatorroutine-findthreshold` isn't ==True*)
-    Volume threshold at which the voicekey should register a positive, units go from 0 (least volume) to 255 (most volume).
+    Volume threshold at which the sound sensor should register a positive, units go from 0 (least volume) to 255 (most volume).
     
 Device
 ===============================
@@ -44,12 +44,12 @@ Device name
     A name to refer to this Component's associated hardware device by. If using the same device for multiple components, be sure to use the same name here.
     
 .. _audiovalidatorroutine-deviceBackend:
-Voicekey type 
-    Type of voicekey to use.
+Sound sensor type 
+    Type of sound sensor to use.
     
 .. _audiovalidatorroutine-channel:
-Voicekey channel 
-    If relevant, a channel number attached to the voicekey, to distinguish it from other voicekey on the same port. Leave blank to use the first voicekey which can detect the Window.
+Sound sensor channel 
+    If relevant, a channel number attached to the sound sensor, to distinguish it from other sound sensors on the same port. Leave blank to use the first sound sensor which can detect the Window.
     
 .. _audiovalidatorroutine-microphone:
 Microphone 

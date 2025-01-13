@@ -4,7 +4,7 @@ from psychopy.experiment.plugins import PluginDevicesMixin, DeviceBackend
 from psychopy.localization import _translate
 
 
-class VoiceKeyComponent(BaseDeviceComponent, PluginDevicesMixin):
+class SoundSensorComponent(BaseDeviceComponent, PluginDevicesMixin):
     """
     Component for getting button presses from a button box device.
     """
@@ -43,7 +43,7 @@ class VoiceKeyComponent(BaseDeviceComponent, PluginDevicesMixin):
             deviceLabel=deviceLabel,
             disabled=disabled
         )
-        self.type = "VoiceKey"
+        self.type = "SoundSensor"
 
         self.exp.requireImport(
             importName="VoiceKey",
@@ -123,7 +123,7 @@ class VoiceKeyComponent(BaseDeviceComponent, PluginDevicesMixin):
             allowedLabels=self.getBackendLabels,
             label=_translate("Device backend"),
             hint=_translate(
-                "What kind of voicekey is it? What package/plugin should be used to talk to it?"
+                "What kind of sound sensor is it? What package/plugin should be used to talk to it?"
             ),
             direct=False
         )
@@ -266,18 +266,18 @@ class VoiceKeyComponent(BaseDeviceComponent, PluginDevicesMixin):
         buff.writeIndentedLines(code % params)
         
 
-class MicrophoneVoiceKeyBackend(DeviceBackend):
+class SoundSensorBackend(DeviceBackend):
     """
-    Adds a basic microphone emulation backend for VoiceKeyComponent, as well as acting as an example
-    for implementing other VoiceKeyBackends.
+    Adds a basic microphone emulation backend for SoundSensorComponent, as well as acting as an example
+    for implementing other SoundSensorBackends.
     """
 
     key = "microphone"
     label = _translate("Microphone emulator")
-    component = VoiceKeyComponent
+    component = SoundSensorComponent
     deviceClasses = ['psychopy.hardware.voicekey.MicrophoneVoiceKeyEmulator']
 
-    def getParams(self: VoiceKeyComponent):
+    def getParams(self: SoundSensorComponent):
         # define order
         order = [
             "meMicrophone",
@@ -315,7 +315,7 @@ class MicrophoneVoiceKeyBackend(DeviceBackend):
             label=_translate("Threshold (0-255)"),
             hint=_translate(
                 "Threshold volume (0 for min value in dB range, 255 for max value) above which to "
-                "register a voicekey response"
+                "register a sound sensor response"
             )
         )
         params['meRange'] = Param(
@@ -339,12 +339,12 @@ class MicrophoneVoiceKeyBackend(DeviceBackend):
 
         return params, order
 
-    def addRequirements(self: VoiceKeyComponent):
+    def addRequirements(self: SoundSensorComponent):
         self.exp.requireImport(
             importName="microphone", importFrom="psychopy.hardware"
         )
 
-    def writeDeviceCode(self: VoiceKeyComponent, buff):
+    def writeDeviceCode(self: SoundSensorComponent, buff):
         # get inits
         inits = getInitVals(self.params)
         # make ButtonGroup object

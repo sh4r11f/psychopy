@@ -12,14 +12,14 @@ from psychopy.localization import _translate
 
 class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
     """
-    Use a voicekey or microphone to confirm that audio stimuli are presented when they should be.
+    Use a sound sensor (voicekey or microphone) to confirm that audio stimuli are presented when they should be.
     """
     targets = ['PsychoPy']
 
     categories = ['Validation']
     iconFile = Path(__file__).parent / 'audio_validator.png'
     tooltip = _translate(
-        "Use a voicekey or microphone to confirm that audio stimuli are presented when they should "
+        "Use a sound sensor to confirm that audio stimuli are presented when they should "
         "be."
     )
     deviceClasses = ["psychopy.validation.voicekey.VoiceKeyValidator"]
@@ -55,14 +55,14 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             findThreshold, valType="bool", inputType="bool", categ="Basic",
             label=_translate("Find best threshold?"),
             hint=_translate(
-                "Run a brief Routine to find the best threshold for the voicekey at experiment start?"
+                "Run a brief Routine to find the best threshold for the sound sensor at experiment start?"
             )
         )
         self.params['threshold'] = Param(
             threshold, valType="code", inputType="single", categ="Basic",
             label=_translate("Threshold"),
             hint=_translate(
-                "Volume threshold at which the voicekey should register a positive, units go from 0 (least volume) to 255 (most volume)."
+                "Volume threshold at which the sound sensor should register a positive, units go from 0 (least volume) to 255 (most volume)."
             )
         )
         self.depends.append({
@@ -93,18 +93,18 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             deviceBackend, valType="code", inputType="choice", categ="Device",
             allowedVals=self.getBackendKeys,
             allowedLabels=self.getBackendLabels,
-            label=_translate("Voicekey type"),
+            label=_translate("Sound sensor type"),
             hint=_translate(
-                "Type of voicekey to use."
+                "Type of sound sensor to use."
             ),
             direct=False
         )
         self.params['channel'] = Param(
             channel, valType="code", inputType="single", categ="Device",
-            label=_translate("Voicekey channel"),
+            label=_translate("Sound sensor channel"),
             hint=_translate(
-                "If relevant, a channel number attached to the voicekey, to distinguish it "
-                "from other voicekey on the same port. Leave blank to use the first voicekey "
+                "If relevant, a channel number attached to the sound sensor, to distinguish it "
+                "from other sound sensors on the same port. Leave blank to use the first sound sensor "
                 "which can detect the Window."
             )
         )
@@ -132,7 +132,7 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         # find threshold if indicated
         if self.params['findThreshold']:
             code = (
-                "# find threshold for voicekey\n"
+                "# find threshold for sound sensor\n"
                 "if %(deviceLabelCode)s.getThreshold(channel=%(channel)s) is None:\n"
                 "    %(deviceLabelCode)s.findThreshold(win, channel=%(channel)s)\n"
             )
@@ -287,14 +287,14 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         return stims
 
 
-class MicrophoneVoiceKeyValidatorBackend(DeviceBackend):
+class MicrophoneSoundSensorValidatorBackend(DeviceBackend):
     """
-    Adds a microphone voicekey emulation backend for AudioValidator, as well as acting as an
-    example for implementing other voicekey device backends.
+    Adds a microphone sound sensor emulation backend for AudioValidator, as well as acting as an
+    example for implementing other sound sensor device backends.
     """
 
     key = "microphone"
-    label = _translate("Microphone VoiceKey Emulator")
+    label = _translate("Microphone")
     component = AudioValidatorRoutine
     deviceClasses = ["psychopy.hardware.voicekey.MicrophoneVoiceKeyEmulator"]
 
