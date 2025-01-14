@@ -120,7 +120,7 @@ class SettingsComponent:
             plCompanionPort=8080,
             plCompanionRecordingEnabled=True,
             ecSampleRate='default',
-            keyboardBackend="ioHub",
+            keyboardBackend="PsychToolbox",
             filename=None, exportHTML='on Sync',
             endMessage=_translate("Thank you for your patience.")
     ):
