@@ -137,7 +137,7 @@
     # audio driver to use
     audioDriver = list(default=list('portaudio'))
     # audio device to use (if audioLib allows control)
-    audioDevice = list()
+    audioDevice = list(default=list('default'))
     # a list of parallel ports
     parallelPorts = list(default=list('/dev/parport0', '/dev/parport1'))
     # The name of the Qmix pump configuration to use
