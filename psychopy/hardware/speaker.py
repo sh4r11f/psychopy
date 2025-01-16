@@ -94,7 +94,7 @@ class SpeakerDevice(BaseDevice):
                 # warn the user, this speaker might be a virtual device with no audio or something
                 logging.warn(
                     _translate(
-                        "No default speaker specified in prefs, using first speaker found: {}"
+                        "No default speaker specified in Preferences / Hardware, using first speaker found: {}"
                     ).format(name)
                 )
             else:
