@@ -430,10 +430,6 @@ class PreferencesDlg(wx.Dialog):
         # get sound devices for "audioDevice" property
         try:
             devnames = sorted(sound.getDevices('output'))
-
-            if 'default' not in devnames:
-                devnames.insert(0, 'default')
-
         except (ValueError, OSError, ImportError, AttributeError):
             devnames = []
 
