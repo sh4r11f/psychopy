@@ -2017,9 +2017,6 @@ class SettingsComponent:
             '        List of timers to reset once pausing is finished.\n'
             '    currentRoutine : psychopy.data.Routine\n'
             '        Current Routine we are in at time of pausing, if any. This object tells PsychoPy what Components to pause/play/dispatch.\n'
-            '    dispatchComponents : list, tuple\n'
-            '        List of any components with a `dispatchMessages` method which needs to be called while \n'
-            '        paused.\n'
             '    """\n'
         )
         buff.writeIndentedLines(code)
