@@ -123,7 +123,7 @@ class SettingsComponent:
             plCompanionAddress="neon.local",
             plCompanionPort=8080,
             ecSampleRate='default',
-            keyboardBackend="ioHub",
+            keyboardBackend="ptb",
             filename=None, exportHTML='on Sync',
             endMessage=_translate("Thank you for your patience.")
     ):
