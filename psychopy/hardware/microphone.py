@@ -1190,10 +1190,10 @@ class RecordingBuffer:
 
     """
     def __init__(self, sampleRateHz=SAMPLE_RATE_48kHz, channels=2,
-                 maxRecordingSize=24000, policyWhenFull='ignore'):
+                 maxRecordingSize=None, policyWhenFull='ignore'):
         self._channels = channels
         self._sampleRateHz = sampleRateHz
-        self._maxRecordingSize = maxRecordingSize or 24000
+        self._maxRecordingSize = maxRecordingSize or 64000
         self._samples = None  # `ndarray` created in _allocRecBuffer`
         self._offset = 0  # recording offset
         self._lastSample = 0  # offset of the last sample from stream
