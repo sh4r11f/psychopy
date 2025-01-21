@@ -562,9 +562,7 @@ class MicrophoneDevice(BaseDevice, aliases=["mic", "microphone"]):
         lost.
 
         """
-        if isinstance(self._recording, list):
-            return False
-        return self._recording.isFull
+        return self._totalSamples >= self._maxRecordingSize
 
     @property
     def isStarted(self):
@@ -969,16 +967,31 @@ class MicrophoneDevice(BaseDevice, aliases=["mic", "microphone"]):
         if len(self._recording) < 2:
             return False
         
-        fullSegment = self._recording[0]
-        for segment in self._recording[1:]:
-            fullSegment += segment
+        # get the sum of all audio samples in the recording buffer
+        totalSamples = sum(
+            [segment.samples.shape[0] for segment in self._recording])
 
-        self._recording = [fullSegment]  # collapse to a single segment
+        # create a new array to hold all samples
+        fullSegment = np.zeros(
+            (totalSamples, self._recording[0].channels), 
+            dtype=np.float32, 
+            order='C')
+        
+        # copy samples from each segment into the full segment
+        idx = 0
+        for segment in self._recording:
+            nSamples = segment.samples.shape[0]
+            fullSegment[idx:idx + nSamples, :] = segment.samples
+            idx += nSamples
+
+        # set the recording
+        self._recording = [
+            AudioClip(fullSegment, sampleRateHz=self._sampleRateHz)]  
 
         return True
     
     def _getSegment(self, start=0, end=None):
-        """Get a segment of the recording buffer.
+        """Get a segment of audio samples from the recording buffer.
 
         Parameters
         ----------
@@ -1064,9 +1077,25 @@ class MicrophoneDevice(BaseDevice, aliases=["mic", "microphone"]):
         # poll most recent samples
         self.poll()
 
-        # get last 0.1s as a clip
-        clip = self._getSegment(
-            max(self._totalSamples / self._sampleRateHz - timeframe, 0))
+        if self.recordingEmpty:
+            return 0.0
+
+        # merge last few recording fragments into a single segment
+        requiredSamples = int(timeframe * self._sampleRateHz)
+        sampleBuffers = []
+        for segment in reversed(self._recording):
+            nSamples = segment.samples.shape[0]
+            requiredSamples -= nSamples
+            if requiredSamples < 0:
+                sampleBuffers.insert(0, segment.samples[requiredSamples:, :])
+                break
+            sampleBuffers.insert(0, segment.samples)
+
+        # merge the samples
+        sampleBuffer = np.concatenate(
+            sampleBuffers, axis=0, dtype=np.float32)
+
+        clip = AudioClip(sampleBuffer, sampleRateHz=self._sampleRateHz)
 
         # get average volume
         rms = clip.rms() * 10
