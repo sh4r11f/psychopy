@@ -61,7 +61,14 @@ class MicrophoneDevice(BaseDevice, aliases=["mic", "microphone"]):
         size of the recording buffer to ensure that the application does not run
         out of memory. By default, the recording buffer is set to 24000 KB (or
         24 MB). At a sample rate of 48kHz, this will result in 62.5 seconds of
-        continuous audio being recorded before the buffer is full.
+        continuous audio being recorded before the buffer is full. You may 
+        specify how to handle the buffer when it is full using the 
+        `policyWhenFull` parameter.
+    policyWhenFull : str
+        Policy to use when the recording buffer is full. Options are:
+        - "ignore": When full, just don't record any new samples
+        - "warn"/"warning": Same as ignore, but will log a warning
+        - "error": When full, will raise an error
     audioLatencyMode : int or None
         Audio latency mode to use, values range between 0-4. If `None`, the
         setting from preferences will be used. Using `3` (exclusive mode) is
@@ -122,7 +129,7 @@ class MicrophoneDevice(BaseDevice, aliases=["mic", "microphone"]):
             channels=None,
             streamBufferSecs=2.0,
             maxRecordingSize=-1,
-            policyWhenFull='roll',
+            policyWhenFull='warn',
             exclusive=False,
             audioRunMode=0,
             # legacy
@@ -268,21 +275,13 @@ class MicrophoneDevice(BaseDevice, aliases=["mic", "microphone"]):
         # recording buffer information
         self._recording = []  # use a list
         self._totalSamples = 0
-        self._maxRecordingSize = maxRecordingSize
+        self._maxRecordingSize = (
+            -1 if maxRecordingSize is None else int(maxRecordingSize))
         self._policyWhenFull = policyWhenFull
 
-            # # setup recording buffer
-            # self._recording = RecordingBuffer(
-            #     sampleRateHz=self._sampleRateHz,
-            #     channels=self._channels,
-            #     maxRecordingSize=maxRecordingSize,
-            #     policyWhenFull=policyWhenFull
-            # )
-        
+        # internal state
         self._possiblyAsleep = False
         self._isStarted = False  # internal state
-
-        # recording buffer
 
         logging.debug('Audio capture device #{} ready'.format(
             self._device.deviceIndex))
@@ -486,6 +485,24 @@ class MicrophoneDevice(BaseDevice, aliases=["mic", "microphone"]):
     #     # multiple invocations of this function.
     #     self._stream.start()
     #     self._stream.stop()
+
+    @property
+    def channels(self):
+        """Number of audio channels to record samples to (`int`).
+        """
+        return self._channels
+    
+    @property
+    def sampleRateHz(self):
+        """Sampling rate for audio recording in Hertz (`int`).
+        """
+        return self._sampleRateHz
+    
+    @property
+    def device(self):
+        """Audio device descriptor (`AudioDeviceInfo`).
+        """
+        return self._device
 
     @property
     def recording(self):
@@ -872,6 +889,8 @@ class MicrophoneDevice(BaseDevice, aliases=["mic", "microphone"]):
     def recordingFull(self):
         """`True` if the recording buffer is full (`bool`).
         """
+        if self._maxRecordingSize < 0:
+            return False
         return self._totalSamples >= self._maxRecordingSize
 
     def poll(self):
@@ -947,6 +966,14 @@ class MicrophoneDevice(BaseDevice, aliases=["mic", "microphone"]):
             self._recording.append(
                 AudioClip(audioData, sampleRateHz=self._sampleRateHz))
             self._totalSamples += audioData.shape[0]
+
+        if self.recordingFull and not self._policyWhenFull == 'ignore':
+            if self._policyWhenFull == 'warn':
+                logging.warning(
+                    "Recording buffer is full, no more samples will be added.")
+            elif self._policyWhenFull == 'error':
+                raise AudioStreamError(
+                    "Recording buffer is full, no more samples will be added.")
 
         return 0
     
