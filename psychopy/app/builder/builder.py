@@ -2505,6 +2505,8 @@ class RoutineCanvas(wx.ScrolledWindow, handlers.ThemeMixin):
             maxDur, useMax = self.routine.settings.getDuration()
             overspill = 0
             if useMax:
+                if maxDur is None:
+                    maxDur = duration
                 overspill = max(duration - maxDur, 0)
                 duration = min(maxDur, duration)
             # If there's a fixed end time and no start time, start 20px before 0
