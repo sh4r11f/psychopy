@@ -291,7 +291,7 @@ elif hasattr(backend, 'defaultOutput'):
             deviceNames = sorted(devices.keys())
         else:
             deviceNames = sorted(devices)
-        if dev not in getDevices(kind='output'):
+        if dev not in devices:
             logging.warn(
                 u"Requested audio device '{}' that is not available on "
                 "this hardware. The 'audioDevice' preference should be one of "
