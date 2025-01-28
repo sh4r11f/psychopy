@@ -31,10 +31,6 @@ except ModuleNotFoundError as err:
 	)
 
 
-# global variable to store future in
-global loopFuture
-
-
 class LiaisonJSONEncoder(json.JSONEncoder):
 	"""
 	JSON encoder which calls the `getJSON` method of an object (if it has one) to convert to a
