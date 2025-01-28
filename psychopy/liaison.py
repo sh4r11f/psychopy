@@ -252,6 +252,35 @@ class WebSocketServer:
 			the port number, e.g. 8001
 		"""
 		asyncio.run(self.run(host, port))
+	
+	def getEventLoop(self):
+		"""
+		Get the current loop, or create one if none is running.
+
+		Returns
+		-------
+		asyncio.EventLoop
+			Currently running event loop
+		
+		Sets
+		----
+		psychopy.liaison.loopFuture : asyncio.Future
+			If a new loop is created, this will update the global variable `loopFuture` to the 
+			future associated with that loop.
+		"""
+		try:
+			# use existing if there's already a loop
+			loop = asyncio.get_event_loop()
+		except RuntimeError:
+			# create a new loop otherwise
+			loop = asyncio.new_event_loop()
+			# create future
+			loopFuture = loop.create_future()
+			# set the loop future on SIGTERM or SIGINT for clean interruptions:
+			if sys.platform in ("linux", "linux2"):
+				loop.add_signal_handler(signal.SIGINT, loopFuture.set_result, None)
+		
+		return loop
 
 	def pingPong(self):
 		"""
@@ -271,16 +300,13 @@ class WebSocketServer:
 		port : int
 			the port number, e.g. 8001
 		"""
-		# set the loop future on SIGTERM or SIGINT for clean interruptions:
-		loop = asyncio.get_running_loop()
-		loopFuture = loop.create_future()
-		if sys.platform in ("linux", "linux2"):
-			loop.add_signal_handler(signal.SIGINT, loopFuture.set_result, None)
-
+		# get/create a loop
+		loop = self.getEventLoop()
+		# await said loop's future
 		async with websockets.serve(self._connectionHandler, host, port, compression=None):
 			self._logger.info(f"Liaison Server started on: {host}:{port}")
-			await loopFuture
-			# await asyncio.Future()  # run forever
+			# run forever
+			await asyncio.Future()
 
 		self._logger.info('Liaison Server terminated.')
 
@@ -308,13 +334,14 @@ class WebSocketServer:
 		message : string
 			the message to be sent to all clients
 		"""
-		try:
-			# try to run in new loop
-			asyncio.run(self.broadcast(message))
-		except RuntimeError:
-			# use existing if there's already a loop
-			loop = asyncio.get_event_loop()
-			loop.create_task(self.broadcast(message))
+		# get/make event loop
+		loop = self.getEventLoop()
+		# create task
+		task = loop.create_task(
+			self.broadcast(message)
+		)
+		# run task
+		loop.run_until_complete(task)
 
 	async def _connectionHandler(self, websocket):
 		"""
