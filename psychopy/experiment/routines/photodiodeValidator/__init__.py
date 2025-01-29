@@ -313,6 +313,7 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             "        thisExp.addData('{name}.%(name)s.started', %(name)s.tStart)\n"
             "        thisExp.addData('%(name)s.startDelay', %(name)s.tStartDelay)\n"
             )
+        buff.writeIndentedLines(code.format(**stim.params) % self.params)
 
         # validate stop time
         code = (
