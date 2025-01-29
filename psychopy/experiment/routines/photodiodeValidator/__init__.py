@@ -267,7 +267,7 @@ class PhotodiodeValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
 
         # choose a clock to sync to according to component's params
         if "syncScreenRefresh" in stim.params and stim.params['syncScreenRefresh']:
-            clockStr = ""
+            clockStr = "clock=globalClock"
         else:
             clockStr = "clock=routineTimer"
         # sync component start/stop timers with validator clocks
