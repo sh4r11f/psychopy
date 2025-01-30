@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PsychoPy 2024.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-29 22:20+0900\n"
-"PO-Revision-Date: 2025-01-30 21:24+0900\n"
+"POT-Creation-Date: 2025-01-30 22:03+0900\n"
+"PO-Revision-Date: 2025-01-30 22:08+0900\n"
 "Last-Translator: Hiroyuki Sogo <hsogo12600@gmail.com>\n"
 "Language-Team: Hiroyuki Sogo <hsogo12600@gmail.com>\n"
 "Language: ja\n"
@@ -1060,7 +1060,7 @@ msgstr "開く"
 msgid "Open an existing experiment file"
 msgstr "実験ファイルを開きます"
 
-#: app/builder/builder.py:4500 app/builder/localizedStrings.py:37
+#: app/builder/builder.py:4500 app/builder/localizedStrings.py:38
 #: app/coder/coder.py:2933 app/pavlovia_ui/project.py:395
 #: app/runner/runner.py:1181 app/utils.py:501 monitors/MonitorCenter.py:259
 msgid "Save"
@@ -1084,7 +1084,7 @@ msgstr "繰り返す"
 msgid "Find"
 msgstr "検索"
 
-#: app/builder/builder.py:4540 app/builder/localizedStrings.py:81
+#: app/builder/builder.py:4540 app/builder/localizedStrings.py:82
 #: app/coder/coder.py:2973 app/runner/runner.py:1196
 msgid "Experiment"
 msgstr "実験"
@@ -1224,15 +1224,15 @@ msgstr "Runnerを表示"
 msgid "Switch to Runner view"
 msgstr "Runnerへ切り替え"
 
-#: app/builder/dialogs/__init__.py:279 app/builder/localizedStrings.py:113
+#: app/builder/dialogs/__init__.py:279 app/builder/localizedStrings.py:114
 msgid "constant"
 msgstr "更新しない"
 
-#: app/builder/dialogs/__init__.py:280 app/builder/localizedStrings.py:114
+#: app/builder/dialogs/__init__.py:280 app/builder/localizedStrings.py:115
 msgid "set every repeat"
 msgstr "繰り返し毎に更新"
 
-#: app/builder/dialogs/__init__.py:281 app/builder/localizedStrings.py:115
+#: app/builder/dialogs/__init__.py:281 app/builder/localizedStrings.py:116
 msgid "set every frame"
 msgstr "フレーム毎に更新"
 
@@ -1492,7 +1492,7 @@ msgstr "移動"
 msgid "Component"
 msgstr "Component"
 
-#: app/builder/dialogs/findDlg.py:94 app/builder/localizedStrings.py:152
+#: app/builder/dialogs/findDlg.py:94 app/builder/localizedStrings.py:153
 msgid "Routine"
 msgstr "Routine開始時"
 
@@ -1587,12 +1587,12 @@ msgstr "リマインダ"
 msgid "Specify color ..."
 msgstr "色を選択..."
 
-#: app/builder/dialogs/paramCtrls.py:1113 app/builder/localizedStrings.py:141
+#: app/builder/dialogs/paramCtrls.py:1113 app/builder/localizedStrings.py:142
 #: experiment/components/settings/__init__.py:239
 msgid "Field"
 msgstr "フィールド"
 
-#: app/builder/dialogs/paramCtrls.py:1113 app/builder/localizedStrings.py:142
+#: app/builder/dialogs/paramCtrls.py:1113 app/builder/localizedStrings.py:143
 #: experiment/components/settings/__init__.py:239
 msgid "Default"
 msgstr "既定値"
@@ -1658,544 +1658,548 @@ msgstr "反応"
 msgid "I/O"
 msgstr "I/O"
 
-#: app/builder/localizedStrings.py:33 app/builder/localizedStrings.py:213
+#: app/builder/localizedStrings.py:33 app/builder/localizedStrings.py:214
 msgid "Custom"
 msgstr "カスタム"
 
 #: app/builder/localizedStrings.py:34
+msgid "Validation"
+msgstr "バリデーション"
+
+#: app/builder/localizedStrings.py:35
 msgid "Carrier"
 msgstr "キャリア"
 
-#: app/builder/localizedStrings.py:35
+#: app/builder/localizedStrings.py:36
 msgid "Envelope"
 msgstr "エンベロープ"
 
-#: app/builder/localizedStrings.py:36
+#: app/builder/localizedStrings.py:37
 msgid "Appearance"
 msgstr "外観"
 
-#: app/builder/localizedStrings.py:38
+#: app/builder/localizedStrings.py:39
 msgid "Online"
 msgstr "オンライン"
 
-#: app/builder/localizedStrings.py:39
+#: app/builder/localizedStrings.py:40
 msgid "Testing"
 msgstr "テスト"
 
-#: app/builder/localizedStrings.py:40
+#: app/builder/localizedStrings.py:41
 msgid "Audio"
 msgstr "オーディオ"
 
-#: app/builder/localizedStrings.py:41
+#: app/builder/localizedStrings.py:42
 msgid "Format"
 msgstr "フォーマット"
 
-#: app/builder/localizedStrings.py:42
+#: app/builder/localizedStrings.py:43
 msgid "Formatting"
 msgstr "書式"
 
-#: app/builder/localizedStrings.py:43
+#: app/builder/localizedStrings.py:44
 msgid "Eyetracking"
 msgstr "アイトラッキング"
 
-#: app/builder/localizedStrings.py:44
+#: app/builder/localizedStrings.py:45
 msgid "Target"
 msgstr "ターゲット"
 
-#: app/builder/localizedStrings.py:45
+#: app/builder/localizedStrings.py:46
 msgid "Animation"
 msgstr "アニメーション"
 
-#: app/builder/localizedStrings.py:46
+#: app/builder/localizedStrings.py:47
 msgid "Transcription"
 msgstr "音声文字変換"
 
-#: app/builder/localizedStrings.py:47
+#: app/builder/localizedStrings.py:48
 msgid "Timing"
 msgstr "タイミング"
 
-#: app/builder/localizedStrings.py:48
+#: app/builder/localizedStrings.py:49
 msgid "Playback"
 msgstr "再生"
 
-#: app/builder/localizedStrings.py:49
+#: app/builder/localizedStrings.py:50
 msgid "Window"
 msgstr "ウィンドウ"
 
-#: app/builder/localizedStrings.py:55
+#: app/builder/localizedStrings.py:56
 msgid "linear"
 msgstr "一次"
 
-#: app/builder/localizedStrings.py:56
+#: app/builder/localizedStrings.py:57
 msgid "nearest"
 msgstr "最近傍"
 
-#: app/builder/localizedStrings.py:58
+#: app/builder/localizedStrings.py:59
 msgid "named"
 msgstr "名前"
 
-#: app/builder/localizedStrings.py:60
+#: app/builder/localizedStrings.py:61
 msgid "last key"
 msgstr "最後のキー"
 
-#: app/builder/localizedStrings.py:61
+#: app/builder/localizedStrings.py:62
 msgid "first key"
 msgstr "最初のキー"
 
-#: app/builder/localizedStrings.py:62
+#: app/builder/localizedStrings.py:63
 msgid "all keys"
 msgstr "全てのキー"
 
-#: app/builder/localizedStrings.py:63
+#: app/builder/localizedStrings.py:64
 msgid "nothing"
 msgstr "なし"
 
-#: app/builder/localizedStrings.py:64
+#: app/builder/localizedStrings.py:65
 msgid "last button"
 msgstr "最後のボタン"
 
-#: app/builder/localizedStrings.py:65
+#: app/builder/localizedStrings.py:66
 msgid "first button"
 msgstr "最初のボタン"
 
-#: app/builder/localizedStrings.py:66
+#: app/builder/localizedStrings.py:67
 msgid "all buttons"
 msgstr "全てのボタン"
 
-#: app/builder/localizedStrings.py:67
+#: app/builder/localizedStrings.py:68
 msgid "final"
 msgstr "最終"
 
-#: app/builder/localizedStrings.py:68
+#: app/builder/localizedStrings.py:69
 msgid "on click"
 msgstr "クリック時"
 
-#: app/builder/localizedStrings.py:69
+#: app/builder/localizedStrings.py:70
 msgid "every frame"
 msgstr "フレーム毎"
 
-#: app/builder/localizedStrings.py:70
+#: app/builder/localizedStrings.py:71
 msgid "never"
 msgstr "なし"
 
-#: app/builder/localizedStrings.py:71
+#: app/builder/localizedStrings.py:72
 msgid "from exp settings"
 msgstr "実験の設定に従う"
 
-#: app/builder/localizedStrings.py:72
+#: app/builder/localizedStrings.py:73
 msgid "from preferences"
 msgstr "PsychoPyの設定に従う"
 
-#: app/builder/localizedStrings.py:73
+#: app/builder/localizedStrings.py:74
 msgid "circle"
 msgstr "円"
 
-#: app/builder/localizedStrings.py:74
+#: app/builder/localizedStrings.py:75
 msgid "square"
 msgstr "長方形"
 
-#: app/builder/localizedStrings.py:76
+#: app/builder/localizedStrings.py:77
 msgid "direction"
 msgstr "一定方向"
 
-#: app/builder/localizedStrings.py:77
+#: app/builder/localizedStrings.py:78
 msgid "position"
 msgstr "ランダム位置"
 
-#: app/builder/localizedStrings.py:78
+#: app/builder/localizedStrings.py:79
 msgid "walk"
 msgstr "ランダムウォーク"
 
-#: app/builder/localizedStrings.py:79
+#: app/builder/localizedStrings.py:80
 msgid "same"
 msgstr "同じ"
 
-#: app/builder/localizedStrings.py:80
+#: app/builder/localizedStrings.py:81
 msgid "different"
 msgstr "異なる"
 
-#: app/builder/localizedStrings.py:82
+#: app/builder/localizedStrings.py:83
 msgid "repeat"
 msgstr "繰り返し"
 
-#: app/builder/localizedStrings.py:83
+#: app/builder/localizedStrings.py:84
 msgid "none"
 msgstr "なし"
 
-#: app/builder/localizedStrings.py:85
+#: app/builder/localizedStrings.py:86
 msgid "time (s)"
 msgstr "時刻 (秒)"
 
-#: app/builder/localizedStrings.py:86
+#: app/builder/localizedStrings.py:87
 msgid "frame N"
 msgstr "フレーム数"
 
-#: app/builder/localizedStrings.py:87
+#: app/builder/localizedStrings.py:88
 msgid "condition"
 msgstr "条件式"
 
-#: app/builder/localizedStrings.py:88
+#: app/builder/localizedStrings.py:89
 msgid "duration (s)"
 msgstr "実行時間 (秒)"
 
-#: app/builder/localizedStrings.py:89
+#: app/builder/localizedStrings.py:90
 msgid "duration (frames)"
 msgstr "実行時間 (フレーム数)"
 
-#: app/builder/localizedStrings.py:95
+#: app/builder/localizedStrings.py:96
 msgid "cover"
 msgstr "cover: 縦横比を保ったまま画面を覆うように拡大縮小"
 
-#: app/builder/localizedStrings.py:96
+#: app/builder/localizedStrings.py:97
 msgid "contain"
 msgstr "contain: 縦横比を保ったまま画面にぴったり収まるように拡大縮小"
 
-#: app/builder/localizedStrings.py:97
+#: app/builder/localizedStrings.py:98
 msgid "fill"
 msgstr "fill: 画面に合わせて伸縮(縦横比が変化する可能性あり)"
 
-#: app/builder/localizedStrings.py:98
+#: app/builder/localizedStrings.py:99
 msgid "scale-down"
 msgstr "scale-down: 画像が画面より大きい場合のみ縦横比を保ったまま縮小"
 
-#: app/builder/localizedStrings.py:100
+#: app/builder/localizedStrings.py:101
 msgid "center"
 msgstr "中央"
 
-#: app/builder/localizedStrings.py:101
+#: app/builder/localizedStrings.py:102
 msgid "top-center"
 msgstr "中央上"
 
-#: app/builder/localizedStrings.py:102
+#: app/builder/localizedStrings.py:103
 msgid "bottom-center"
 msgstr "中央下"
 
-#: app/builder/localizedStrings.py:103
+#: app/builder/localizedStrings.py:104
 msgid "center-left"
 msgstr "中央左"
 
-#: app/builder/localizedStrings.py:104
+#: app/builder/localizedStrings.py:105
 msgid "center-right"
 msgstr "中央右"
 
-#: app/builder/localizedStrings.py:105
+#: app/builder/localizedStrings.py:106
 msgid "top-left"
 msgstr "左上"
 
-#: app/builder/localizedStrings.py:106
+#: app/builder/localizedStrings.py:107
 msgid "top-right"
 msgstr "右上"
 
-#: app/builder/localizedStrings.py:107
+#: app/builder/localizedStrings.py:108
 msgid "bottom-left"
 msgstr "左下"
 
-#: app/builder/localizedStrings.py:108
+#: app/builder/localizedStrings.py:109
 msgid "bottom-right"
 msgstr "右下"
 
-#: app/builder/localizedStrings.py:117
+#: app/builder/localizedStrings.py:118
 msgid "add"
 msgstr "加算"
 
-#: app/builder/localizedStrings.py:118 app/builder/localizedStrings.py:178
+#: app/builder/localizedStrings.py:119 app/builder/localizedStrings.py:179
 msgid "average"
 msgstr "平均"
 
-#: app/builder/localizedStrings.py:119
+#: app/builder/localizedStrings.py:120
 msgid "avg"
 msgstr "平均"
 
-#: app/builder/localizedStrings.py:120
+#: app/builder/localizedStrings.py:121
 msgid "average (no FBO)"
 msgstr "平均 (FBO(フレームバッファオブジェクト)なし)"
 
-#: app/builder/localizedStrings.py:121
+#: app/builder/localizedStrings.py:122
 msgid "use prefs"
 msgstr "PsychoPyの設定を用いる"
 
-#: app/builder/localizedStrings.py:122
+#: app/builder/localizedStrings.py:123
 msgid "on Sync"
 msgstr "同期時"
 
-#: app/builder/localizedStrings.py:123
+#: app/builder/localizedStrings.py:124
 msgid "on Save"
 msgstr "保存時"
 
-#: app/builder/localizedStrings.py:124
+#: app/builder/localizedStrings.py:125
 msgid "manually"
 msgstr "手作業で"
 
-#: app/builder/localizedStrings.py:126
+#: app/builder/localizedStrings.py:127
 msgid "auto"
 msgstr "自動"
 
-#: app/builder/localizedStrings.py:127
+#: app/builder/localizedStrings.py:128
 msgid "comma"
 msgstr "カンマ( , )"
 
-#: app/builder/localizedStrings.py:128
+#: app/builder/localizedStrings.py:129
 msgid "semicolon"
 msgstr "セミコロン( ; )"
 
-#: app/builder/localizedStrings.py:129
+#: app/builder/localizedStrings.py:130
 msgid "tab"
 msgstr "タブ(TAB)"
 
-#: app/builder/localizedStrings.py:131
+#: app/builder/localizedStrings.py:132
 msgid "debug"
 msgstr "debug"
 
-#: app/builder/localizedStrings.py:132
+#: app/builder/localizedStrings.py:133
 msgid "info"
 msgstr "info"
 
-#: app/builder/localizedStrings.py:133
+#: app/builder/localizedStrings.py:134
 msgid "exp"
 msgstr "exp"
 
-#: app/builder/localizedStrings.py:134
+#: app/builder/localizedStrings.py:135
 msgid "data"
 msgstr "data"
 
-#: app/builder/localizedStrings.py:135
+#: app/builder/localizedStrings.py:136
 msgid "warning"
 msgstr "warning"
 
-#: app/builder/localizedStrings.py:136
+#: app/builder/localizedStrings.py:137
 msgid "error"
 msgstr "error"
 
-#: app/builder/localizedStrings.py:138
+#: app/builder/localizedStrings.py:139
 msgid "Experiment start"
 msgstr "実験開始時から"
 
-#: app/builder/localizedStrings.py:139
+#: app/builder/localizedStrings.py:140
 msgid "Wall clock"
 msgstr "実時間"
 
-#: app/builder/localizedStrings.py:144
+#: app/builder/localizedStrings.py:145
 msgid "press"
 msgstr "押した時"
 
-#: app/builder/localizedStrings.py:145
+#: app/builder/localizedStrings.py:146
 msgid "release"
 msgstr "放した時"
 
-#: app/builder/localizedStrings.py:147
+#: app/builder/localizedStrings.py:148
 msgid "any click"
 msgstr "全てのクリック"
 
-#: app/builder/localizedStrings.py:148
+#: app/builder/localizedStrings.py:149
 msgid "valid click"
 msgstr "有効なクリック"
 
-#: app/builder/localizedStrings.py:149
+#: app/builder/localizedStrings.py:150
 msgid "on valid click"
 msgstr "有効なクリック時"
 
-#: app/builder/localizedStrings.py:150
+#: app/builder/localizedStrings.py:151
 msgid "correct click"
 msgstr "正しいクリック"
 
-#: app/builder/localizedStrings.py:151
+#: app/builder/localizedStrings.py:152
 msgid "mouse onset"
 msgstr "Mouseコンポーネント開始時"
 
-#: app/builder/localizedStrings.py:154
+#: app/builder/localizedStrings.py:155
 msgid "joystick onset"
 msgstr "Joystickコンポーネント開始時"
 
-#: app/builder/localizedStrings.py:156
+#: app/builder/localizedStrings.py:157
 msgid "every click"
 msgstr "全てのクリック"
 
-#: app/builder/localizedStrings.py:157
+#: app/builder/localizedStrings.py:158
 msgid "first click"
 msgstr "最初のクリック"
 
-#: app/builder/localizedStrings.py:158
+#: app/builder/localizedStrings.py:159
 msgid "last click"
 msgstr "最後のクリック"
 
-#: app/builder/localizedStrings.py:159
+#: app/builder/localizedStrings.py:160
 msgid "button onset"
 msgstr "ボタンの開始時"
 
-#: app/builder/localizedStrings.py:161
+#: app/builder/localizedStrings.py:162
 msgid "Line"
 msgstr "直線"
 
-#: app/builder/localizedStrings.py:162
+#: app/builder/localizedStrings.py:163
 msgid "Triangle"
 msgstr "三角形"
 
-#: app/builder/localizedStrings.py:163
+#: app/builder/localizedStrings.py:164
 msgid "Rectangle"
 msgstr "長方形"
 
-#: app/builder/localizedStrings.py:164
+#: app/builder/localizedStrings.py:165
 msgid "Circle"
 msgstr "円"
 
-#: app/builder/localizedStrings.py:165
+#: app/builder/localizedStrings.py:166
 msgid "Cross"
 msgstr "十字"
 
-#: app/builder/localizedStrings.py:166 app/pavlovia_ui/project.py:194
+#: app/builder/localizedStrings.py:167 app/pavlovia_ui/project.py:194
 msgid "Star"
 msgstr "スター"
 
-#: app/builder/localizedStrings.py:167
+#: app/builder/localizedStrings.py:168
 msgid "Arrow"
 msgstr "矢印"
 
-#: app/builder/localizedStrings.py:168
+#: app/builder/localizedStrings.py:169
 msgid "Regular polygon..."
 msgstr "正多角形..."
 
-#: app/builder/localizedStrings.py:169
+#: app/builder/localizedStrings.py:170
 msgid "Custom polygon..."
 msgstr "カスタムポリゴン..."
 
-#: app/builder/localizedStrings.py:171
+#: app/builder/localizedStrings.py:172
 msgid "rows"
 msgstr "行"
 
-#: app/builder/localizedStrings.py:172
+#: app/builder/localizedStrings.py:173
 msgid "columns"
 msgstr "列"
 
-#: app/builder/localizedStrings.py:173
+#: app/builder/localizedStrings.py:174
 msgid "custom..."
 msgstr "カスタム..."
 
-#: app/builder/localizedStrings.py:175
+#: app/builder/localizedStrings.py:176
 msgid "first"
 msgstr "最初"
 
-#: app/builder/localizedStrings.py:176
+#: app/builder/localizedStrings.py:177
 msgid "last"
 msgstr "最後"
 
-#: app/builder/localizedStrings.py:177
+#: app/builder/localizedStrings.py:178
 msgid "all"
 msgstr "すべて"
 
-#: app/builder/localizedStrings.py:181
+#: app/builder/localizedStrings.py:182
 msgid "one of your Components, Routines, or condition parameters"
 msgstr "他のコンポーネントやルーチン，パラメータ"
 
-#: app/builder/localizedStrings.py:183
+#: app/builder/localizedStrings.py:184
 msgid " Avoid `this`, `these`, `continue`, `Clock`, or `component` in name"
 msgstr ""
 " this, these, continue, Clock, componentを名前に含まないようにしてください"
 
-#: app/builder/localizedStrings.py:184
+#: app/builder/localizedStrings.py:185
 msgid "Builder variable"
 msgstr "Builderの変数"
 
-#: app/builder/localizedStrings.py:185
+#: app/builder/localizedStrings.py:186
 msgid "Psychopy module"
 msgstr "PsychoPyのモジュール名"
 
-#: app/builder/localizedStrings.py:186
+#: app/builder/localizedStrings.py:187
 msgid "numpy function"
 msgstr "numpyの関数"
 
-#: app/builder/localizedStrings.py:187
+#: app/builder/localizedStrings.py:188
 msgid "python keyword"
 msgstr "Pythonのキーワード"
 
-#: app/builder/localizedStrings.py:189
+#: app/builder/localizedStrings.py:190
 msgid "look at"
 msgstr "ROI内に視線が入ったとき"
 
-#: app/builder/localizedStrings.py:190
+#: app/builder/localizedStrings.py:191
 msgid "look away"
 msgstr "ROI外へ視線が出たとき"
 
-#: app/builder/localizedStrings.py:191
+#: app/builder/localizedStrings.py:192
 msgid "every look"
 msgstr "全ての停留"
 
-#: app/builder/localizedStrings.py:192
+#: app/builder/localizedStrings.py:193
 msgid "first look"
 msgstr "最初の停留"
 
-#: app/builder/localizedStrings.py:193
+#: app/builder/localizedStrings.py:194
 msgid "last look"
 msgstr "最後の停留"
 
-#: app/builder/localizedStrings.py:194
+#: app/builder/localizedStrings.py:195
 msgid "roi onset"
 msgstr "ROI開始時"
 
-#: app/builder/localizedStrings.py:196
+#: app/builder/localizedStrings.py:197
 msgid "Start and Stop"
 msgstr "開始と終了"
 
-#: app/builder/localizedStrings.py:197
+#: app/builder/localizedStrings.py:198
 msgid "Start Only"
 msgstr "開始のみ"
 
-#: app/builder/localizedStrings.py:198
+#: app/builder/localizedStrings.py:199
 msgid "Stop Only"
 msgstr "終了のみ"
 
-#: app/builder/localizedStrings.py:199
+#: app/builder/localizedStrings.py:200
 msgid "None"
 msgstr "なし"
 
-#: app/builder/localizedStrings.py:201
+#: app/builder/localizedStrings.py:202
 msgid "Start and Check"
 msgstr "開始と確認"
 
-#: app/builder/localizedStrings.py:203
+#: app/builder/localizedStrings.py:204
 msgid "Check Only"
 msgstr "確認のみ"
 
-#: app/builder/localizedStrings.py:205
+#: app/builder/localizedStrings.py:206
 msgid "Mouse"
 msgstr "マウス"
 
-#: app/builder/localizedStrings.py:206
+#: app/builder/localizedStrings.py:207
 msgid "Drag"
 msgstr "ドラッグ"
 
-#: app/builder/localizedStrings.py:207
+#: app/builder/localizedStrings.py:208
 msgid "Keyboard (Arrow Keys)"
 msgstr "キーボード (カーソルキー)"
 
-#: app/builder/localizedStrings.py:208
+#: app/builder/localizedStrings.py:209
 msgid "Keyboard (WASD)"
 msgstr "キーボード (W,A,S,Dキー)"
 
-#: app/builder/localizedStrings.py:209
+#: app/builder/localizedStrings.py:210
 msgid "Keyboard (Custom keys)"
 msgstr "キーボード (カスタムキー)"
 
-#: app/builder/localizedStrings.py:210
+#: app/builder/localizedStrings.py:211
 msgid "Mouse Wheel"
 msgstr "マウスホイール"
 
-#: app/builder/localizedStrings.py:211
+#: app/builder/localizedStrings.py:212
 msgid "Mouse Wheel (Inverted)"
 msgstr "マウスホイール (逆回転)"
 
-#: app/builder/localizedStrings.py:212
+#: app/builder/localizedStrings.py:213
 msgid "Keyboard (+-)"
 msgstr "キーボード (＋ーキー)"
 
-#: app/builder/localizedStrings.py:215
+#: app/builder/localizedStrings.py:216
 msgid "visible"
 msgstr "表示"
 
-#: app/builder/localizedStrings.py:216
+#: app/builder/localizedStrings.py:217
 msgid "scroll"
 msgstr "スクロール"
 
-#: app/builder/localizedStrings.py:217
+#: app/builder/localizedStrings.py:218
 msgid "hidden"
 msgstr "隠す"
 
@@ -8490,7 +8494,7 @@ msgstr ""
 "オードを区別するためのチャネル番号を指定します. ウィンドウによって最初に検出"
 "されたフォトダイオードを使用する場合は空白にしてください."
 
-#: experiment/routines/photodiodeValidator/__init__.py:370
+#: experiment/routines/photodiodeValidator/__init__.py:368
 msgid "Screen Buffer (Debug)"
 msgstr "スクリーンバッファ (デバッグ)"
 
