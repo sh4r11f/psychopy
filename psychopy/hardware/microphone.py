@@ -1036,14 +1036,7 @@ class MicrophoneDevice(BaseDevice, aliases=["mic", "microphone"]):
 
         """
         if self.recordingEmpty:
-            return AudioClip(
-                np.zeros(
-                    (self._sampleRateHz, self.channels),
-                    dtype=np.float32, 
-                    order='C'
-                ),
-                sampleRateHz=self._sampleRateHz
-            )
+            return None
         
         self._mergeAudioFragments()  # merge audio fragments
 
