@@ -122,6 +122,8 @@ class Preferences:
         userPrefsDir = str(path)
         # refresh paths
         self.getPaths()
+        # re-load from file
+        self.loadUserPrefs()
 
     def getPaths(self):
         """Get the paths to various directories and files used by PsychoPy.
