@@ -83,7 +83,7 @@ class MicrophoneComponent(BaseDeviceComponent):
             from psychopy.hardware.microphone import MicrophoneDevice
             profiles = MicrophoneDevice.getAvailableDevices()
 
-            return [None] + [profile['index'] for profile in profiles]
+            return ["$None"] + [profile['index'] for profile in profiles]
 
         def getDeviceNames():
             from psychopy.hardware.microphone import MicrophoneDevice
@@ -105,7 +105,7 @@ class MicrophoneComponent(BaseDeviceComponent):
         for depParam in ("channels", "sampleRate"):
             self.depends.append({
                 "dependsOn": "device",  # if...
-                "condition": "== 'None'",  # is...
+                "condition": "== '$None'",  # is...
                 "param": depParam,  # then...
                 "true": "hide",  # should...
                 "false": "show",  # otherwise...
@@ -331,7 +331,7 @@ class MicrophoneComponent(BaseDeviceComponent):
             "    index=%(device)s,\n"
             "    exclusive=%(exclusive)s,\n"
         )
-        if self.params['device'].val not in ("None", "", None):
+        if self.params['device'].val not in ("$None", "None", "", None):
             code += (
             "    channels=%(channels)s, \n"
             "    sampleRateHz=%(sampleRate)s, \n"
@@ -416,7 +416,7 @@ class MicrophoneComponent(BaseDeviceComponent):
         if inits['sampleRate'].val in at.sampleRateLabels:
             inits['sampleRate'].val = at.sampleRateLabels[inits['sampleRate'].val]
         # Alert user if non-default value is selected for device
-        if inits['device'].val != 'default':
+        if inits['device'].val != '$None':
             alert(5055, strFields={'name': inits['name'].val})
         # Write code
         code = (
