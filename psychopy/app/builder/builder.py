@@ -323,7 +323,7 @@ class BuilderFrame(BaseAuiFrame, handlers.ThemeMixin):
         self.menuIDs.ID_REVEAL = wx.NewIdRef(count=1)
         menu.Append(
             self.menuIDs.ID_REVEAL,
-            _translate("Reveal in file explorer..."),
+            _translate("Reveal in file explorer...\t%s") % keys['revealFolder'],
             _translate("Open the folder containing this experiment in your system's file explorer")
         )
         self.Bind(wx.EVT_MENU, self.fileReveal, id=self.menuIDs.ID_REVEAL)
