@@ -967,6 +967,7 @@ class TrialHandler2(_BaseTrialHandler):
         self.elapsedTrials = []
         self.upcomingTrials = None
         self.thisTrial = None
+        self._recentlyRewound = False
 
         self.originPath, self.origin = self.getOriginPathAndFile(originPath)
         self._exp = None  # the experiment handler that owns me!
@@ -1062,6 +1063,10 @@ class TrialHandler2(_BaseTrialHandler):
                     break  # break out of the forever loop
                 # do stuff here for the trial
         """
+        # if we've just rewound trials, skip just this time
+        if self._recentlyRewound:
+            self._recentlyRewound = False
+            return self.thisTrial
         # mark previous trial as elapsed
         if self.thisTrial is not None:
             self.elapsedTrials.append(self.thisTrial)
@@ -1317,6 +1322,8 @@ class TrialHandler2(_BaseTrialHandler):
         self.upcomingTrials = rewound + self.upcomingTrials
         # progress so we get the first upcoming trial
         self.__next__()
+        # mark as recently rewound so the next iteration is skipped
+        self._recentlyRewound = True
 
         return self.thisTrial
     
