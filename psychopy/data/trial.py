@@ -1313,6 +1313,8 @@ class TrialHandler2(_BaseTrialHandler):
             rewound = []
         else:
             rewound = [self.thisTrial]
+            # mark as skipping so routines end
+            self.thisTrial.status = constants.STOPPING
         # pop the last n values from elapsed trials
         for i in range(n):
             rewound = [self.elapsedTrials.pop(-1)] + rewound
