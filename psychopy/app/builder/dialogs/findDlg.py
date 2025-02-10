@@ -82,7 +82,7 @@ class BuilderFindDlg(wx.Dialog):
         self.resultsCtrl.SetImageList(self.imageList, wx.IMAGE_LIST_SMALL)
 
         # add buttons
-        btnSzr = self.CreateButtonSizer(wx.OK | wx.CLOSE)
+        btnSzr = self.CreateButtonSizer(wx.OK | wx.CANCEL)
         self.border.Add(btnSzr, border=12, flag=wx.EXPAND | wx.ALL)
         # relabel OK to Go
         for child in btnSzr.GetChildren():
