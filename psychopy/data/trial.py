@@ -967,7 +967,7 @@ class TrialHandler2(_BaseTrialHandler):
         self.elapsedTrials = []
         self.upcomingTrials = None
         self.thisTrial = None
-        self._recentlyRewound = False
+        self._cancelNextIteration = False
 
         self.originPath, self.origin = self.getOriginPathAndFile(originPath)
         self._exp = None  # the experiment handler that owns me!
@@ -1063,9 +1063,9 @@ class TrialHandler2(_BaseTrialHandler):
                     break  # break out of the forever loop
                 # do stuff here for the trial
         """
-        # if we've just rewound trials, skip just this time
-        if self._recentlyRewound:
-            self._recentlyRewound = False
+        # if we've just rewound/skipped trials, skip just this time
+        if self._cancelNextIteration:
+            self._cancelNextIteration = False
             return self.thisTrial
         # mark previous trial as elapsed
         if self.thisTrial is not None:
@@ -1265,8 +1265,6 @@ class TrialHandler2(_BaseTrialHandler):
         n : int
             Number of trials to skip ahead
         """
-        # account for the fact current trial will end once skipped
-        n -= 1
         # if skipping past last trial, print warning and skip to last trial
         if n > len(self.upcomingTrials):
             logging.warn(
@@ -1286,6 +1284,8 @@ class TrialHandler2(_BaseTrialHandler):
             # advance row in data file
             if self.getExp() is not None:
                 self.getExp().nextEntry()
+        # mark as recently skipped so the next iteration is cancelled
+        self._cancelNextIteration = True
 
         return self.thisTrial   
 
@@ -1322,8 +1322,8 @@ class TrialHandler2(_BaseTrialHandler):
         self.upcomingTrials = rewound + self.upcomingTrials
         # progress so we get the first upcoming trial
         self.__next__()
-        # mark as recently rewound so the next iteration is skipped
-        self._recentlyRewound = True
+        # mark as recently rewound so the next iteration is cancelled
+        self._cancelNextIteration = True
 
         return self.thisTrial
     
