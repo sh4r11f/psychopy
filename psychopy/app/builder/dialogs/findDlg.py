@@ -251,10 +251,12 @@ def getParamLocations(exp, term, caseSensitive=False, regex=False):
                     if compareStrings(str(param.val), term, caseSensitive, regex):
                         # treat RoutineSettings as synonymous with the Routine
                         if isinstance(comp, RoutineSettingsComponent):
-                            rt = None
+                            parent = None
+                        else:
+                            parent = rt
                         # append path (routine -> component -> param)
                         found.append(
-                            (rt, comp, paramName, param)
+                            (parent, comp, paramName, param)
                         )
     for obj in exp.flow:
         # find in loop
