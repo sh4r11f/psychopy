@@ -1,5 +1,6 @@
 import wx
 from psychopy import experiment
+from psychopy.experiment.components.routineSettings import RoutineSettingsComponent
 from psychopy.app import utils
 from psychopy.app.themes import icons
 from psychopy.localization import _translate
@@ -66,11 +67,18 @@ class BuilderFindDlg(wx.Dialog):
         # setup component icons
         self.imageList = wx.ImageList(16, 16)
         self.imageMap = {}
+        # icon for each Component/Routine
         for cls in experiment.getAllElements().values():
             i = self.imageList.Add(
                 icons.ComponentIcon(cls, theme="light", size=16).bitmap
             )
             self.imageMap[cls] = i
+        # icon for loop
+        i = self.imageList.Add(
+                icons.ButtonIcon("loop", theme="light", size=16).bitmap
+            )
+        self.imageMap[experiment.loops.LoopInitiator] = i
+        # set icons
         self.resultsCtrl.SetImageList(self.imageList, wx.IMAGE_LIST_SMALL)
 
         # add buttons
@@ -90,8 +98,7 @@ class BuilderFindDlg(wx.Dialog):
 
     def resetListCtrl(self):
         self.resultsCtrl.ClearAll()
-        self.resultsCtrl.AppendColumn(_translate("Component"), width=120)
-        self.resultsCtrl.AppendColumn(_translate("Routine"), width=120)  # Moved to second position
+        self.resultsCtrl.AppendColumn(_translate("Location"), width=120)
         self.resultsCtrl.AppendColumn(_translate("Parameter"), width=120)
         self.resultsCtrl.AppendColumn(_translate("Value"), width=-1)
         self.resultsCtrl.resizeLastColumn(minWidth=120)
@@ -115,7 +122,7 @@ class BuilderFindDlg(wx.Dialog):
         # show new output
         for result in self.results:
             # unpack result
-            rt, comp, paramName, param = result
+            parent, comp, paramName, param = result
             # sanitize val for display
             val = str(param.val)
             if "\n" in val:
@@ -124,14 +131,20 @@ class BuilderFindDlg(wx.Dialog):
                     if compareStrings(line, term, caseSensitive, regex):
                         val = line
                         break
+            # construct location string
+            if parent is None:
+                location = comp.name
+            else:
+                location = f"{comp.name} ({parent.name})"
             # construct entry
-            entry = [comp.name, rt.name, param.label, val]
+            entry = [location, param.label, val]
             # add entry
             self.resultsCtrl.Append(entry)
             # set image for comp
+            fallbackImg = icons.ButtonIcon("experiment", theme="light", size=16).bitmap
             self.resultsCtrl.SetItemImage(
                 item=self.resultsCtrl.GetItemCount()-1,
-                image=self.imageMap[type(comp)]
+                image=self.imageMap.get(type(comp), fallbackImg)
             )
         
         # size
@@ -175,10 +188,13 @@ class BuilderFindDlg(wx.Dialog):
             else:
                 openToPage = param.categ
             page.editComponentProperties(component=comp, openToPage=openToPage)
-        else:
+        elif isinstance(comp, experiment.routines.BaseStandaloneRoutine):
             # if we're in a standalone routine, just navigate to categ page
             i = page.ctrls.getCategoryIndex(param.categ)
             page.ctrls.ChangeSelection(i)
+        elif isinstance(comp, experiment.loops.LoopInitiator):
+            # if we're in a loop, open the loop dialog
+            self.frame.flowPanel.canvas.editLoopProperties(loop=comp.loop)
 
 
 def compareStrings(text, term, caseSensitive, regex):
@@ -226,17 +242,32 @@ def getParamLocations(exp, term, caseSensitive=False, regex=False):
                 if compareStrings(str(param.val), term, caseSensitive, regex):
                     # append path (routine -> param)
                     found.append(
-                        (rt, rt, paramName, param)
+                        (None, rt, paramName, param)
                     )
         if isinstance(rt, experiment.routines.Routine):
             # find in regular routine
             for comp in rt:
                 for paramName, param in comp.params.items():
                     if compareStrings(str(param.val), term, caseSensitive, regex):
+                        # treat RoutineSettings as synonymous with the Routine
+                        if isinstance(comp, RoutineSettingsComponent):
+                            parent = None
+                        else:
+                            parent = rt
                         # append path (routine -> component -> param)
                         found.append(
-                            (rt, comp, paramName, param)
+                            (parent, comp, paramName, param)
                         )
+    for obj in exp.flow:
+        # find in loop
+        if isinstance(obj, experiment.loops.LoopInitiator):
+            loop = obj.loop
+            for paramName, param in loop.params.items():
+                if compareStrings(str(param.val), term, caseSensitive, regex):
+                    # append path (loop -> param)
+                    found.append(
+                        (None, obj, paramName, param)
+                    )
 
     return found
 
