@@ -19,7 +19,7 @@ def compilePoFiles(root=root, errIfEmpty=True):
         po.save_as_mofile(mopath)
     
     if len(po_files) < 1:
-        if (libRoot / "app").is_dir():
+        if root.exists():
             raise FileNotFoundError(
                 f"Found no po files to compile to mo. Was this the right folder to search? \n"
                 f"  {root}"
