@@ -16,8 +16,14 @@ def compilePoFiles(root=root, errIfEmpty=True):
         po = polib.pofile(popath)
         po.save_as_mofile(mopath)
     if len(po_files)<1:
-        raise FileNotFoundError(f"Found no po files to compile to mo. Was this the right folder to search? "
-                                f"\n  {root}")
+        if root.exists():
+            raise FileNotFoundError(
+                f"Found no po files to compile to mo. Was this the right folder to search? \n"
+                f"  {root}"
+            )
+        else:
+            # if app folder doesn't exist, there's nothing to translate
+            print("No .po files to compile as this is a library-only installation.")
     else:
         print(f"compiled {len(po_files)} .po files to .mo in {root.absolute()}")
     return len(po_files)
