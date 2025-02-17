@@ -1097,7 +1097,7 @@ class CoderFrame(BaseAuiFrame, handlers.ThemeMixin):
         self.project = None
         self.ignoreErrors = False
         self.fileStatusLastChecked = time.time()
-        self.fileStatusCheckInterval = 5 * 60  # sec
+        self.fileStatusCheckInterval = 5  # sec
         self.showingReloadDialog = False
 
         # default window title string
@@ -2021,6 +2021,7 @@ class CoderFrame(BaseAuiFrame, handlers.ThemeMixin):
             msg = _translate("'%s' was modified outside of PsychoPy:\n\n"
                                 "Reload (without saving)?") % filename
             dlg = dialogs.MessageDialog(self, message=msg, type='Warning')
+            dlg.Raise()
             if dlg.ShowWindowModal() == wx.ID_YES:
                 self.statusBar.SetStatusText(_translate('Reloading file'))
                 self.fileReload(event,
