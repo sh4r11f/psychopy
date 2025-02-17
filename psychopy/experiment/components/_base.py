@@ -501,6 +501,14 @@ class BaseComponent:
         buff.writeIndentedLines(code % params)
         buff.setIndentLevel(+1, relative=True)
 
+        if self.checkNeedToUpdate('set every frame'):
+            # write param updates for first frame (if needed)
+            code = (
+                "// update params\n"
+            )
+            buff.writeIndentedLines(code % params)
+            self.writeParamUpdatesJS(buff, 'set every frame')
+
         code = (f"// keep track of start time/frame for later\n"
                 f"{params['name']}.tStart = t;  // (not accounting for frame time here)\n"
                 f"{params['name']}.frameNStart = frameN;  // exact frame index\n\n")
