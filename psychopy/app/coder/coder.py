@@ -1097,7 +1097,7 @@ class CoderFrame(BaseAuiFrame, handlers.ThemeMixin):
         self.project = None
         self.ignoreErrors = False
         self.fileStatusLastChecked = time.time()
-        self.fileStatusCheckInterval = 5  # sec
+        self.fileStatusCheckInterval = 5 * 60  # sec
         self.showingReloadDialog = False
 
         # default window title string
