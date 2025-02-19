@@ -44,7 +44,7 @@ To help users find your plugin and to make it clear that it is a |PsychoPy| plug
 Structuring your package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A plugin has a similar structure to Python package, see the official `Packaging Python Projects` (https://packaging.python.org/tutorials/packaging-projects) guide for details. We strongly recommend starting by cloning the `template plugin repo <https://github.com/psychopy/psychopy-plugin-template>`_ and modifying it rather than starting from scratch.
+A plugin has a similar structure to Python package, see the official `Packaging Python Projects guide <https://packaging.python.org/tutorials/packaging-projects>`_ for details. We strongly recommend starting by cloning the `template plugin repo <https://github.com/psychopy/psychopy-plugin-template>`_ and modifying it rather than starting from scratch.
 
 .. _pyprojectTOML:
 pyproject.toml
@@ -91,7 +91,8 @@ Set up a trusted publisher
 Now that your GitHub repo is all set up, you need to setup PyPI to look for your repo as the publisher of your package. If you don't have an account with PyPI, you can `create one here <https://pypi.org/account/register/>`_. Once logged in, click on your username in the top right and then "Your Projects". On the left, click "Publishing". This should take you to an interface for managing "publishers" - this is essentially a mapping which tells PyPI which GitHub accounts and environments to accept pushes from when publishing a new version of a specific package.
 
 Scroll down to the "Pending publishers" section and choose "GitHub" from the tabs on the control there. It should look like this:
-.. image:: _static/pypi-setup-plugin.png
+
+.. image:: pypi-setup-plugin.png
 
 but with the fields flanked by `<>` replaced by the relevant information for your plugin. Once you click "Add", you should be good to go!
 
@@ -103,6 +104,6 @@ To trigger the relevant GitHub action to publish your package, you need to make 
 Listing a plugin in Builder
 -------------------------------
 
-Once your plugin is published on PyPI, it can be installed by anyone (via ``pip install <package-name>`` - but it won't appear in the list of plugins from |PsychoPy| Builder as at this point it's no different than any of the thousands of other Python packages on PyPI. Builder gets its list of plugins from a file in the `PsychoPy Plugins repo <https://github.com/psychopy/plugins`_ called ``plugins.json``. This file contains a list of plugins alongwith information about them, links to documentation, an icon for the plugin and author, etc.
+Once your plugin is published on PyPI, it can be installed by anyone (via ``pip install <package-name>`` - but it won't appear in the list of plugins from |PsychoPy| Builder as at this point it's no different than any of the thousands of other Python packages on PyPI. Builder gets its list of plugins from a file in the `PsychoPy Plugins repo <https://github.com/psychopy/plugins>`_ called ``plugins.json``. This file contains a list of plugins alongwith information about them, links to documentation, an icon for the plugin and author, etc.
 
 To add your plugin to this list, simply fork this repo, edit the file to include information about your plugin, and submit it as a pull request. We'll give your plugin a quick check over for malicious code and, assuming it's all fine, will accept your pull request and your plugin will be immediately available from Builder!
