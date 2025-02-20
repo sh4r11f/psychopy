@@ -77,7 +77,7 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         })
         self.params['findSensor'] = Param(
             findSensor, valType="code", inputType="bool", categ="Basic",
-            label=_translate("Find Sensor?"),
+            label=_translate("Find sensor?"),
             hint=_translate(
                 "Run a brief Routine to find the size and position of the light sensor at experiment start?"
             )
