@@ -9,12 +9,12 @@ class AudioValidator:
 
     def __init__(
             self, 
-            vk, channel=None,
+            sensor, channel=None,
             autoLog=False):
         # set autolog
         self.autoLog = autoLog
         # store voicekey handle
-        self.vk = vk
+        self.sensor = sensor
         self.channel = channel
         # initial values (written during experiment)
         self.tStart = self.tStartRefresh = self.tStartDelay = None
@@ -51,7 +51,7 @@ class AudioValidator:
             return None, None
 
         # get and clear responses
-        messages = self.vk.getResponses(state=state, channel=self.channel, clear=True)
+        messages = self.sensor.getResponses(state=state, channel=self.channel, clear=True)
         # if there have been no responses yet, return empty handed
         if not messages:
             return None, None
@@ -68,7 +68,7 @@ class AudioValidator:
         return lastTime, delay
 
     def resetTimer(self, clock=logging.defaultClock):
-        self.vk.resetTimer(clock=clock)
+        self.sensor.resetTimer(clock=clock)
 
-    def getVoiceKeyState(self):
-        return self.vk.getState()
+    def getSensorState(self):
+        return self.sensor.getState()

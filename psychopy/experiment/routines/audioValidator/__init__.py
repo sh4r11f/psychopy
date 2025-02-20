@@ -102,7 +102,7 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             hint=_translate(
                 "If relevant, a channel number attached to the sound sensor, to distinguish it "
                 "from other sound sensors on the same port. Leave blank to use the first sound sensor "
-                "which can detect the Window."
+                "which can detect the speaker."
             )
         )
 
@@ -293,7 +293,7 @@ class MicrophoneSoundSensorValidatorBackend(DeviceBackend):
     key = "microphone"
     label = _translate("Microphone")
     component = AudioValidatorRoutine
-    deviceClasses = ["psychopy.hardware.voicekey.MicrophoneVoiceKeyEmulator"]
+    deviceClasses = ["psychopy.hardware.soundsensor.MicrophoneSoundSensor"]
 
     def getParams(self: AudioValidatorRoutine):
         # define order
@@ -359,7 +359,7 @@ class MicrophoneSoundSensorValidatorBackend(DeviceBackend):
             "    index=%(microphone)s\n"
             ")\n"
             "deviceManager.addDevice(\n"
-            "    deviceClass='psychopy.hardware.voicekey.MicrophoneVoiceKeyEmulator',\n"
+            "    deviceClass='psychopy.hardware.soundsensor.MicrophoneSoundSensor',\n"
             "    deviceName=%(deviceLabel)s,\n"
             "    device=%(name)sDevice, \n"
             "    dbRange=%(dbRange)s, \n"

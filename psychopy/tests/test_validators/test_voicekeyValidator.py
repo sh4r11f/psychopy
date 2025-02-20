@@ -1,6 +1,6 @@
 import pytest
 from psychopy import core, constants, sound, validation
-from psychopy.hardware import microphone, voicekey, DeviceManager
+from psychopy.hardware import microphone, soundsensor, DeviceManager
 
 
 @pytest.mark.needs_sound
@@ -9,7 +9,7 @@ class TestAudioValidator:
         cls.vk = cls.speaker = None
         # find best vk/speaker pair to use
         for profile in DeviceManager.getAvailableDevices(
-            "psychopy.hardware.voicekey.MicrophoneSoundSensorEmulator"
+            "psychopy.hardware.soundsensor.MicrophoneSoundSensorEmulator"
         ):
             # setup sound sensor
             try:

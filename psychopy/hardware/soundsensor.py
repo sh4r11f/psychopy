@@ -5,7 +5,7 @@ from psychopy.localization import _translate
 from psychopy.hardware import keyboard
 
 
-class VoiceKeyResponse(base.BaseResponse):
+class SoundSensorResponse(base.BaseResponse):
     # list of fields known to be a part of this response type
     fields = ["t", "value", "channel", "threshold"]
 
@@ -17,7 +17,7 @@ class VoiceKeyResponse(base.BaseResponse):
         self.threshold = threshold
 
 
-class BaseVoiceKeyGroup(base.BaseResponseDevice):
+class BaseSoundSensorGroup(base.BaseResponseDevice):
 
     def __init__(self, channels=1, threshold=None):
         base.BaseResponseDevice.__init__(self)
@@ -59,7 +59,7 @@ class BaseVoiceKeyGroup(base.BaseResponseDevice):
         # sound to play
         snd = sound.Sound("voicekeyThresholdStim.wav", speaker=speaker, secs=5, loops=-1)
         # keyboard to check for escape/continue
-        kb = keyboard.Keyboard(deviceName="audioValidatorKeyboard")
+        kb = keyboard.Keyboard(deviceName="defaultKeyboard")
         
         def _bisectThreshold(threshRange, recursionLimit=16):
             """
@@ -153,12 +153,12 @@ class BaseVoiceKeyGroup(base.BaseResponseDevice):
     def _setThreshold(self, threshold, channel=None):
         """
         Device-specific threshold setting method. This will be called by `setThreshold` and should 
-        be overloaded by child classes of BaseVoiceKey.
+        be overloaded by child classes of BaseSoundSensor.
 
         Parameters
         ----------
         threshold : int
-            Threshold at which to register a VoiceKey response, with 0 being the lowest possible 
+            Threshold at which to register a SoundSensor response, with 0 being the lowest possible 
             volume and 255 being the highest.
         channel : int
             Channel to set the threshold for (if applicable to device)
@@ -190,7 +190,7 @@ class BaseVoiceKeyGroup(base.BaseResponseDevice):
     
     def findSpeakers(self, channel, allowedSpeakers=None, beepDur=1):
         """
-        Play a sound on different speakers and return a list of all those which this VoiceKey was 
+        Play a sound on different speakers and return a list of all those which this SoundSensor was 
         able to detect.
 
         Parameters
@@ -249,9 +249,9 @@ class BaseVoiceKeyGroup(base.BaseResponseDevice):
 
 
 
-class MicrophoneVoiceKeyEmulator(BaseVoiceKeyGroup):
+class MicrophoneSoundSensor(BaseSoundSensorGroup):
     """
-    Use a MicrophoneDevice to emulate a VoiceKey, by continuously querying its volume.
+    Use a MicrophoneDevice to emulate a SoundSensor, by continuously querying its volume.
 
     Parameters
     ----------
@@ -299,7 +299,7 @@ class MicrophoneVoiceKeyEmulator(BaseVoiceKeyGroup):
         from psychopy.core import Clock
         self.clock = Clock()
         # initialise base class
-        BaseVoiceKeyGroup.__init__(
+        BaseSoundSensorGroup.__init__(
             self, channels=1, threshold=threshold
         )
     
@@ -319,7 +319,7 @@ class MicrophoneVoiceKeyEmulator(BaseVoiceKeyGroup):
 
         Returns
         -------
-        list[VoiceKeyResponse]
+        list[SoundSensorResponse]
             List of matching responses.
         """
         # make sure parent dispatches messages
@@ -340,7 +340,7 @@ class MicrophoneVoiceKeyEmulator(BaseVoiceKeyGroup):
         return matches
     
     def getThreshold(self, channel=None):
-        return BaseVoiceKeyGroup.getThreshold(self, channel=channel or 0)
+        return BaseSoundSensorGroup.getThreshold(self, channel=channel or 0)
     
     def getThresholdDb(self, channel=None):
         """
@@ -380,7 +380,7 @@ class MicrophoneVoiceKeyEmulator(BaseVoiceKeyGroup):
             state = adjVol > self.getThreshold(channel=channel)
             # if state has changed, make an event
             if state != self.state[channel]:
-                resp = VoiceKeyResponse(
+                resp = SoundSensorResponse(
                     t=self.clock.getTime(),
                     value=state,
                     channel=channel,
@@ -391,7 +391,7 @@ class MicrophoneVoiceKeyEmulator(BaseVoiceKeyGroup):
 
     def parseMessage(self, message):
         """
-        Events are created as VoiceKeyResponse, so parseMessage is not needed. Will return message 
+        Events are created as SoundSensorResponse, so parseMessage is not needed. Will return message 
         unchanged.
         """
         return message
@@ -410,8 +410,8 @@ class MicrophoneVoiceKeyEmulator(BaseVoiceKeyGroup):
         # iterate through available microphones
         for micProfile in DeviceManager.getAvailableDevices("psychopy.hardware.microphone.MicrophoneDevice"):
             profiles.append({
-                'deviceName': "VoiceKey Emulator (%(deviceName)s)" % micProfile,
-                'deviceClass': "psychopy.hardware.voicekey.MicrophoneVoiceKeyEmulator",
+                'deviceName': "SoundSensor Emulator (%(deviceName)s)" % micProfile,
+                'deviceClass': "psychopy.hardware.soundsensor.MicrophoneSoundSensor",
                 'device': micProfile['index'],
 
             })
@@ -423,13 +423,13 @@ class MicrophoneVoiceKeyEmulator(BaseVoiceKeyGroup):
         self.clock._epochTimeAtLastReset = clock._epochTimeAtLastReset
 
 
-class VoiceKey:
+class SoundSensor:
     """
-    Object to represent a VoiceKey in Builder experiments. Largely exists as a wrapper around 
-    BaseVoiceKeyGroup, with the ability to inherit a device defined by a backend.
+    Object to represent a SoundSensor in Builder experiments. Largely exists as a wrapper around 
+    BaseSoundSensorGroup, with the ability to inherit a device defined by a backend.
     """
     def __init__(self, device):
-        if isinstance(device, BaseVoiceKeyGroup):
+        if isinstance(device, BaseSoundSensorGroup):
             # if given a button group, use it
             self.device = device
         # if given a string, get via DeviceManager

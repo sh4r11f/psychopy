@@ -10,14 +10,14 @@ class SoundSensorComponent(BaseDeviceComponent, PluginDevicesMixin):
     """
     categories = ['Responses']  # which section(s) in the components panel
     targets = ['PsychoPy']
-    iconFile = Path(__file__).parent / 'voicekey.png'
+    iconFile = Path(__file__).parent / 'soundsensor.png'
     tooltip = _translate('Voice Key: Get input from a microphone as simple true/false values')
     beta = True
 
     def __init__(
             self, exp, parentName,
             # basic
-            name='buttonBox',
+            name='soundSensor',
             startType='time (s)', startVal=0.0,
             stopType='duration (s)', stopVal=1.0,
             startEstim='', durationEstim='',
@@ -46,8 +46,8 @@ class SoundSensorComponent(BaseDeviceComponent, PluginDevicesMixin):
         self.type = "SoundSensor"
 
         self.exp.requireImport(
-            importName="VoiceKey",
-            importFrom="psychopy.hardware.voicekey"
+            importName="SoundSensor",
+            importFrom="psychopy.hardware.soundsensor"
         )
 
         # --- Basic params ---
@@ -135,7 +135,7 @@ class SoundSensorComponent(BaseDeviceComponent, PluginDevicesMixin):
         inits = getInitVals(self.params)
         # code to create object
         code = (
-            "%(name)s = VoiceKey(\n"
+            "%(name)s = SoundSensor(\n"
             "    device=%(deviceLabel)s\n"
             ")\n"
         )
@@ -266,7 +266,7 @@ class SoundSensorComponent(BaseDeviceComponent, PluginDevicesMixin):
         buff.writeIndentedLines(code % params)
         
 
-class SoundSensorBackend(DeviceBackend):
+class MicrophoneSoundSensorBackend(DeviceBackend):
     """
     Adds a basic microphone emulation backend for SoundSensorComponent, as well as acting as an example
     for implementing other SoundSensorBackends.
@@ -275,7 +275,7 @@ class SoundSensorBackend(DeviceBackend):
     key = "microphone"
     label = _translate("Microphone emulator")
     component = SoundSensorComponent
-    deviceClasses = ['psychopy.hardware.voicekey.MicrophoneVoiceKeyEmulator']
+    deviceClasses = ['psychopy.hardware.soundsensor.MicrophoneSoundSensorEmulator']
 
     def getParams(self: SoundSensorComponent):
         # define order
@@ -350,7 +350,7 @@ class SoundSensorBackend(DeviceBackend):
         # make ButtonGroup object
         code = (
             "deviceManager.addDevice(\n"
-            "    deviceClass='psychopy.hardware.voicekey.MicrophoneVoiceKeyEmulator',\n"
+            "    deviceClass='psychopy.hardware.soundsensor.MicrophoneSoundSensorEmulator',\n"
             "    deviceName=%(deviceLabel)s,\n"
             "    device=%(meMicrophone)s,\n"
             "    threshold=%(meThreshold)s, \n"
