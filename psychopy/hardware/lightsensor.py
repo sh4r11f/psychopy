@@ -2,11 +2,11 @@ from psychopy import core, layout, logging
 from psychopy.hardware import base, DeviceManager
 from psychopy.localization import _translate
 from psychopy.hardware import keyboard
-# for legacy compatability, import PhotodiodeValidator and PhotodiodeValidationError here
-from psychopy.validation.photodiode import PhotodiodeValidator, PhotodiodeValidationError
+# for legacy compatability, import VisualValidator and VisualValidationError here
+from psychopy.validation.visual import VisualValidator, VisualValidationError
 
 
-class PhotodiodeResponse(base.BaseResponse):
+class LightSensorResponse(base.BaseResponse):
     # list of fields known to be a part of this response type
     fields = ["t", "value", "channel", "threshold"]
 
@@ -18,8 +18,8 @@ class PhotodiodeResponse(base.BaseResponse):
         self.threshold = threshold
 
 
-class BasePhotodiodeGroup(base.BaseResponseDevice):
-    responseClass = PhotodiodeResponse
+class BaseLightSensorGroup(base.BaseResponseDevice):
+    responseClass = LightSensorResponse
 
     def __init__(self, channels=1, threshold=None, pos=None, size=None, units=None):
         base.BaseResponseDevice.__init__(self)
@@ -64,7 +64,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
             # get class from class str
             cls = DeviceManager._resolveClassString(cls)
             # if class is a light sensor, add its available devices
-            if issubclass(cls, BasePhotodiodeGroup) and cls is not BasePhotodiodeGroup:
+            if issubclass(cls, BaseLightSensorGroup) and cls is not BaseLightSensorGroup:
                 devices += cls.getAvailableDevices()
 
         return devices
@@ -84,7 +84,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
 
         Returns
         -------
-        list[PhotodiodeResponse]
+        list[LightSensorResponse]
             List of matching responses.
         """
         # make sure parent dispatches messages
@@ -164,7 +164,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         rect.fillColor = "black"
         rect.draw()
         win.flip()
-        # wait 250ms for flip to happen and photodiode to catch it
+        # wait 250ms for flip to happen and sensor to catch it
         timeoutClock.reset()
         while timeoutClock.getTime() < 0.25:
             self.dispatchMessages()
@@ -184,7 +184,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         
         return tuple(channelsOn & channelsOff)
     
-    def findPhotodiode(self, win, channel=None, retryLimit=5):
+    def findSensor(self, win, channel=None, retryLimit=5):
         """
         Draws rectangles on the screen and records light sensor responses to recursively find the location of the diode.
 
@@ -200,7 +200,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         # timeout clock
         timeoutClock = core.Clock()
         # keyboard to check for escape
-        kb = keyboard.Keyboard(deviceName="photodiodeValidatorKeyboard")
+        kb = keyboard.Keyboard(deviceName="visualValidatorKeyboard")
         # stash autodraw
         win.stashAutoDraw()
         # import visual here - if they're using this function, it's already in the stack
@@ -310,7 +310,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
             timer = core.CountdownTimer(start=timeout)
             # set label text to alert user
             msg = (
-                "Received no responses from light sensor during `findPhotodiode`. Light sensor may not "
+                "Received no responses from light sensor during `findSensor`. Light sensor may not "
                 "be connected or may be configured incorrectly.\n"
                 "\n"
                 "To manually specify the light sensor's position, press ENTER. To quit, press "
@@ -339,7 +339,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
             # re-detect threshold
             self.findThreshold(win, channel=channel)
             # re-find light sensor
-            return self.findPhotodiode(win, channel=channel, retryLimit=retryLimit-1)
+            return self.findSensor(win, channel=channel, retryLimit=retryLimit-1)
         
         def specifyManually(label, rect):
             # set label text to alert user
@@ -400,7 +400,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         # if cancelled, warn and continue
         if responsive is None:
             logging.warn(
-                "`findPhotodiode` procedure cancelled by user."
+                "`findSensor` procedure cancelled by user."
             )
             return (
                 layout.Position(self.pos, units="norm", win=win),
@@ -440,7 +440,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
             # return array of thresholds
             return thresholds
         # keyboard to check for escape/continue
-        kb = keyboard.Keyboard(deviceName="photodiodeValidatorKeyboard")
+        kb = keyboard.Keyboard(deviceName="defaultKeyboard")
         # stash autodraw
         win.stashAutoDraw()
         # import visual here - if they're using this function, it's already in the stack
@@ -516,10 +516,10 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         # report thresholds
         logging.debug(f"Channel {channel} responded 'on' for a black screen at threshold {thresholds['black']}")
         logging.debug(f"Channel {channel} responded 'on' for a white screen at threshold {thresholds['white']}")
-        # if black is detected at the same or lower threshold as white, the photodiode isn't working
+        # if black is detected at the same or lower threshold as white, the sensor isn't working
         if thresholds['black'] <= thresholds['white']:
             logging.debug(
-                f"Could not detect a reasonable threshold for channel {channel}, photodiode may be "
+                f"Could not detect a reasonable threshold for channel {channel}, sensor may be "
                 f"unplugged."
             )
             self._setThreshold(0, channel=channel)
@@ -541,9 +541,9 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
 
         return int(threshold)
 
-    def checkPhotodiode(self, win, channels=None, reps=1):
+    def checkSensor(self, win, channels=None, reps=1):
         """
-        Check that the photodiode is responsive on a given channel by alternating the full window 
+        Check that the sensor is responsive on a given channel by alternating the full window 
         between white and black, then checking that the channel state is True when white and False 
         when black.
 
@@ -554,7 +554,7 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         channels : list[int] or tuple[int] or int or None, optional
             Channel or channels to check, use None (default) to check all channels.
         reps : int, optional
-            How many times to repeat the test - if the photodiode has a habit of randomly 
+            How many times to repeat the test - if the sensor has a habit of randomly 
             flickering, there's a chance of it passing tests by random chance, so you may wish to 
             repeat it several times. Default is 1 (aka do not repeat)
 
@@ -616,14 +616,14 @@ class BasePhotodiodeGroup(base.BaseResponseDevice):
         return self.state[channel]
 
 
-class ScreenBufferSampler(BasePhotodiodeGroup):
+class ScreenBufferSampler(BaseLightSensorGroup):
     def __init__(self, win, threshold=125, pos=None, size=None, units=None):
         # store win
         self.win = win
         # default rect
         self.rect = None
         # initialise base class
-        BasePhotodiodeGroup.__init__(
+        BaseLightSensorGroup.__init__(
             self, channels=1, threshold=threshold, pos=pos, size=size, units=units
         )
         # make clock
@@ -665,7 +665,7 @@ class ScreenBufferSampler(BasePhotodiodeGroup):
                 frameT = logging.defaultClock.getTime() - self.win._frameTimes[-1]
             else:
                 frameT = 0
-            resp = PhotodiodeResponse(
+            resp = LightSensorResponse(
                 t=self.clock.getTime() - frameT,
                 value=state,
                 channel=0,
@@ -676,7 +676,7 @@ class ScreenBufferSampler(BasePhotodiodeGroup):
 
     def parseMessage(self, message):
         """
-        Events are created as PhotodiodeResponses, so parseMessage is not needed for
+        Events are created as LightSensorResponses, so parseMessage is not needed for
         ScreenBufferValidator. Will return message unchanged.
         """
         return message
@@ -699,8 +699,8 @@ class ScreenBufferSampler(BasePhotodiodeGroup):
     @staticmethod
     def getAvailableDevices():
         return [{
-            'deviceName': "Photodiode Emulator (Screen Buffer)",
-            'deviceClass': "psychopy.hardware.photodiode.ScreenBufferSampler",
+            'deviceName': "Light Sensor Emulator (Screen Buffer)",
+            'deviceClass': "psychopy.hardware.lightsensor.ScreenBufferSampler",
             'win': "session.win"
         }]
 
@@ -762,7 +762,7 @@ class ScreenBufferSampler(BasePhotodiodeGroup):
     def units(self, value):
         self._units = value
 
-    def findPhotodiode(self, win=None, channel=0):
+    def findSensor(self, win=None, channel=0):
         if win is None:
             win = self.win
         else:

@@ -33,19 +33,19 @@ Find best threshold?
 Threshold (*if :ref:`visualvalidatorroutine-findthreshold` isn't ==True*)
     Light threshold at which the light sensor should register a positive, units go from 0 (least light) to 255 (most light).
     
-.. _visualvalidatorroutine-findDiode:
+.. _visualvalidatorroutine-findSensor:
 Find diode? 
     Run a brief Routine to find the size and position of the light sensor at experiment start?
     
-.. _visualvalidatorroutine-diodePos:
+.. _visualvalidatorroutine-sensorPos:
 Position [x,y] (*if :ref:`visualvalidatorroutine-finddiode` isn't ==True*)
     Position of the light sensor on the window.
     
-.. _visualvalidatorroutine-diodeSize:
+.. _visualvalidatorroutine-sensorSize:
 Size [x,y] (*if :ref:`visualvalidatorroutine-finddiode` isn't ==True*)
     Size of the area covered by the light sensor on the window.
     
-.. _visualvalidatorroutine-diodeUnits:
+.. _visualvalidatorroutine-sensorUnits:
 Spatial units (*if :ref:`visualvalidatorroutine-finddiode` isn't ==True*)
     Spatial units in which the light sensor size and position are specified.
     

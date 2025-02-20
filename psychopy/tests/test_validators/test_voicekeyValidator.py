@@ -4,7 +4,7 @@ from psychopy.hardware import microphone, voicekey, DeviceManager
 
 
 @pytest.mark.needs_sound
-class TestVoiceKeyValidator:
+class TestAudioValidator:
     def setup_class(cls):
         cls.vk = cls.speaker = None
         # find best vk/speaker pair to use
@@ -40,7 +40,7 @@ class TestVoiceKeyValidator:
         if cls.vk is None or cls.speaker is None:
             pytest.skip()
         # create validator
-        cls.validator = validation.VoiceKeyValidator(cls.vk)
+        cls.validator = validation.AudioValidator(cls.vk)
     
     def test_soundHeard(self):
         """

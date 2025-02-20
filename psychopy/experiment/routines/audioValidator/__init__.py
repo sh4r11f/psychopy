@@ -22,7 +22,7 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         "Use a sound sensor to confirm that audio stimuli are presented when they should "
         "be."
     )
-    deviceClasses = ["psychopy.validation.voicekey.VoiceKeyValidator"]
+    deviceClasses = ["psychopy.validation.voicekey.AudioValidator"]
     version = "2025.1.0"
 
     def __init__(
@@ -41,10 +41,7 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         self.order += []
         self.type = 'AudioValidator'
 
-        exp.requireImport(
-            importName="validation",
-            importFrom="psychopy"
-        )
+        exp.requirePsychopyLibs(["validation"])
 
         # --- Basic ---
         self.order += [
@@ -159,7 +156,7 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         # create validator object
         code = (
             "# validator object for %(name)s\n"
-            "%(name)s = validation.VoiceKeyValidator(\n"
+            "%(name)s = validation.AudioValidator(\n"
             "    %(name)sDevice, %(channel)s,\n"
             ")\n"
         )

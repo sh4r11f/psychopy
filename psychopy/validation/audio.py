@@ -1,11 +1,11 @@
-from psychopy import layout, logging
+from psychopy import logging
 
 
-class VoiceKeyValidationError(BaseException):
+class AudioValidationError(BaseException):
     pass
 
 
-class VoiceKeyValidator:
+class AudioValidator:
 
     def __init__(
             self, 
@@ -16,6 +16,9 @@ class VoiceKeyValidator:
         # store voicekey handle
         self.vk = vk
         self.channel = channel
+        # initial values (written during experiment)
+        self.tStart = self.tStartRefresh = self.tStartDelay = None
+        self.tStop = self.tStopRefresh = self.tStopDelay = None
 
     def connectStimulus(self, stim):
         # store mapping of stimulus to self in window

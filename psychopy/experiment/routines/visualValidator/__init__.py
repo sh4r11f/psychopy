@@ -17,11 +17,11 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
     targets = ['PsychoPy']
 
     categories = ['Validation']
-    iconFile = Path(__file__).parent / 'photodiode_validator.png'
+    iconFile = Path(__file__).parent / 'visual_validator.png'
     tooltip = _translate(
         "Use a light sensor to confirm that visual stimuli are presented when they should be."
     )
-    deviceClasses = []
+    deviceClasses = ["psychopy.hardware.lightsensor.ScreenBufferPhotodiode"]
     version = "2025.1.0"
 
     def __init__(
@@ -30,9 +30,9 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             exp, name='visualVal',
             findThreshold=True, threshold=127,
             # layout
-            findDiode=True, diodePos="(1, 1)", diodeSize="(0.1, 0.1)", diodeUnits="norm",
+            findSensor=True, sensorPos="(1, 1)", sensorSize="(0.1, 0.1)", sensorUnits="norm",
             # device
-            deviceLabel="", deviceBackend="screenbuffer", port="", channel="0",
+            deviceLabel="", deviceBackend="screenbuffer", channel="0",
     ):
 
         self.exp = exp  # so we can access the experiment if necess
@@ -40,22 +40,18 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         self.depends = []
         super(VisualValidatorRoutine, self).__init__(exp, name=name)
         self.order += []
-        self.type = 'PhotodiodeValidator'
+        self.type = 'VisualValidator'
 
-        exp.requireImport(
-            importName="photodiode",
-            importFrom="psychopy.hardware",
-            importAs="phd"
-        )
+        exp.requirePsychopyLibs(['validation'])
 
         # --- Basic ---
         self.order += [
             "findThreshold",
             "threshold",
-            "findDiode",
-            "diodePos",
-            "diodeSize",
-            "diodeUnits",
+            "findSensor",
+            "sensorPos",
+            "sensorSize",
+            "sensorUnits",
         ]
         self.params['findThreshold'] = Param(
             findThreshold, valType="bool", inputType="bool", categ="Basic",
@@ -79,40 +75,40 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             "true": "hide",  # should...
             "false": "show",  # otherwise...
         })
-        self.params['findDiode'] = Param(
-            findDiode, valType="code", inputType="bool", categ="Basic",
-            label=_translate("Find diode?"),
+        self.params['findSensor'] = Param(
+            findSensor, valType="code", inputType="bool", categ="Basic",
+            label=_translate("Find Sensor?"),
             hint=_translate(
                 "Run a brief Routine to find the size and position of the light sensor at experiment start?"
             )
         )
-        self.params['diodePos'] = Param(
-            diodePos, valType="list", inputType="single", categ="Basic",
+        self.params['sensorPos'] = Param(
+            sensorPos, valType="list", inputType="single", categ="Basic",
             updates="constant", allowedUpdates=['constant', 'set every repeat', 'set every frame'],
             label=_translate("Position [x,y]"),
             hint=_translate(
                 "Position of the light sensor on the window."
             )
         )
-        self.params['diodeSize'] = Param(
-            diodeSize, valType="list", inputType="single", categ="Basic",
+        self.params['sensorSize'] = Param(
+            sensorSize, valType="list", inputType="single", categ="Basic",
             updates="constant", allowedUpdates=['constant', 'set every repeat', 'set every frame'],
             label=_translate("Size [x,y]"),
             hint=_translate(
                 "Size of the area covered by the light sensor on the window."
             )
         )
-        self.params['diodeUnits'] = Param(
-            diodeUnits, valType="str", inputType="choice", categ="Basic",
+        self.params['sensorUnits'] = Param(
+            sensorUnits, valType="str", inputType="choice", categ="Basic",
             allowedVals=['from exp settings', 'deg', 'cm', 'pix', 'norm', 'height', 'degFlatPos', 'degFlat'],
             label=_translate("Spatial units"),
             hint=_translate(
                 "Spatial units in which the light sensor size and position are specified."
             )
         )
-        for param in ("diodePos", "diodeSize", "diodeUnits"):
+        for param in ("sensorPos", "sensorSize", "sensorUnits"):
             self.depends.append({
-                "dependsOn": "findDiode",  # if...
+                "dependsOn": "findSensor",  # if...
                 "condition": "==True",  # is...
                 "param": param,  # then...
                 "true": "hide",  # should...
@@ -188,51 +184,51 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             )
         buff.writeOnceIndentedLines(code % inits)
         # find pos if indicated
-        if self.params['findDiode']:
+        if self.params['findSensor']:
             code = (
-                "# find position and size of photodiode\n"
-                "%(deviceLabelCode)s.findPhotodiode(win, channel=%(channel)s)\n"
+                "# find position and size of the light sensor\n"
+                "%(deviceLabelCode)s.findSensor(win, channel=%(channel)s)\n"
             )
             buff.writeOnceIndentedLines(code % inits)
 
     def writeMainCode(self, buff):
         inits = getInitVals(self.params)
-        # get diode
+        # get Sensor
         code = (
-            "# diode object for %(name)s\n"
-            "%(name)sDiode = deviceManager.getDevice(%(deviceLabel)s)\n"
+            "# Sensor object for %(name)s\n"
+            "%(name)sSensor = deviceManager.getDevice(%(deviceLabel)s)\n"
         )
         buff.writeIndentedLines(code % inits)
 
         if self.params['threshold'] and not self.params['findThreshold']:
             code = (
-                "%(name)sDiode.setThreshold(%(threshold)s, channel=%(channel)s)\n"
+                "%(name)sSensor.setThreshold(%(threshold)s, channel=%(channel)s)\n"
             )
             buff.writeIndentedLines(code % inits)
-        # find/set diode position
-        if not self.params['findDiode']:
+        # find/set Sensor position
+        if not self.params['findSensor']:
             code = ""
             # set units (unless None)
-            if self.params['diodeUnits']:
+            if self.params['sensorUnits']:
                 code += (
-                    "%(name)sDiode.units = %(diodeUnits)s\n"
+                    "%(name)sSensor.units = %(sensorUnits)s\n"
                 )
             # set pos (unless None)
-            if self.params['diodePos']:
+            if self.params['sensorPos']:
                 code += (
-                    "%(name)sDiode.pos = %(diodePos)s\n"
+                    "%(name)sSensor.pos = %(sensorPos)s\n"
                 )
             # set size (unless None)
-            if self.params['diodeSize']:
+            if self.params['sensorSize']:
                 code += (
-                    "%(name)sDiode.size = %(diodeSize)s\n"
+                    "%(name)sSensor.size = %(sensorSize)s\n"
                 )
             buff.writeIndentedLines(code % inits)
         # create validator object
         code = (
             "# validator object for %(name)s\n"
-            "%(name)s = phd.PhotodiodeValidator(\n"
-            "    win, %(name)sDiode, %(channel)s,\n"
+            "%(name)s = validation.VisualValidator(\n"
+            "    win, %(name)sSensor, %(channel)s,\n"
             ")\n"
         )
         buff.writeIndentedLines(code % inits)
@@ -358,16 +354,16 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         return stims
 
 
-class ScreenBufferPhotodiodeValidatorBackend(DeviceBackend):
+class ScreenBufferVisualValidatorBackend(DeviceBackend):
     """
-    Adds a basic screen buffer emulation backend for PhotodiodeValidator, as well as acting as an
+    Adds a basic screen buffer emulation backend for VisualValidator, as well as acting as an
     example for implementing other light sensor device backends.
     """
 
     key = "screenbuffer"
     label = _translate("Screen Buffer (Debug)")
     component = VisualValidatorRoutine
-    deviceClasses = ["psychopy.hardware.photodiode.ScreenBufferSampler"]
+    deviceClasses = ["psychopy.hardware.lightsensor.ScreenBufferSampler"]
 
     def getParams(self: VisualValidatorRoutine):
         # define order
@@ -388,7 +384,7 @@ class ScreenBufferPhotodiodeValidatorBackend(DeviceBackend):
         # make ButtonGroup object
         code = (
             "deviceManager.addDevice(\n"
-            "    deviceClass='psychopy.hardware.photodiode.ScreenBufferSampler',\n"
+            "    deviceClass='psychopy.hardware.lightsensor.ScreenBufferSampler',\n"
             "    deviceName=%(deviceLabel)s,\n"
             "    win=win,\n"
             ")\n"
