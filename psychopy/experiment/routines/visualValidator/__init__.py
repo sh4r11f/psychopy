@@ -21,7 +21,7 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
     tooltip = _translate(
         "Use a light sensor to confirm that visual stimuli are presented when they should be."
     )
-    deviceClasses = ["psychopy.hardware.lightsensor.ScreenBufferPhotodiode"]
+    deviceClasses = []
     version = "2025.1.0"
 
     def __init__(
