@@ -323,7 +323,7 @@ class BuilderFrame(BaseAuiFrame, handlers.ThemeMixin):
         self.menuIDs.ID_REVEAL = wx.NewIdRef(count=1)
         menu.Append(
             self.menuIDs.ID_REVEAL,
-            _translate("Reveal in file explorer..."),
+            _translate("Reveal in file explorer...\t%s") % keys['revealFolder'],
             _translate("Open the folder containing this experiment in your system's file explorer")
         )
         self.Bind(wx.EVT_MENU, self.fileReveal, id=self.menuIDs.ID_REVEAL)
@@ -470,6 +470,13 @@ class BuilderFrame(BaseAuiFrame, handlers.ThemeMixin):
         self.expMenu = wx.Menu()
         menuBar.Append(self.expMenu, _translate('E&xperiment'))
         menu = self.expMenu
+
+        item = menu.Append(wx.ID_ANY,
+                           _translate("Experiment &Settings\t%s") % keys['expSettings'],
+                           _translate("Edit experiment settings"))
+        self.Bind(wx.EVT_MENU, self.setExperimentSettings, item)
+        menu.AppendSeparator()
+        
         item = menu.Append(wx.ID_ANY,
                            _translate("&New Routine\t%s") % keys['newRoutine'],
                            _translate("Create a new routine (e.g. the trial "
@@ -2498,6 +2505,8 @@ class RoutineCanvas(wx.ScrolledWindow, handlers.ThemeMixin):
             maxDur, useMax = self.routine.settings.getDuration()
             overspill = 0
             if useMax:
+                if maxDur is None:
+                    maxDur = duration
                 overspill = max(duration - maxDur, 0)
                 duration = min(maxDur, duration)
             # If there's a fixed end time and no start time, start 20px before 0

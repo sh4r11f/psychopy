@@ -179,6 +179,8 @@
     save = string(default='Ctrl+S')
     # save a Builder or Coder file under a new name
     saveAs = string(default='Ctrl+Shift+S')
+    # reveal the folder containing the current Builder file
+    revealFolder = string(default='Alt+Shift+R')
     # Coder: print the file
     print = string(default='Ctrl+P')
     # close the Builder or Coder window
@@ -243,6 +245,8 @@
     # Coder: show / hide indentation level lines
     toggleIndentGuides = string(default='Ctrl+Shift+I')
 
+    # Builder: edit experiment settings
+    expSettings = string(default='Ctrl+Shift+X')
     # Builder: create a new routine
     newRoutine = string(default='Ctrl+Shift+N')
     # Builder: copy an existing routine

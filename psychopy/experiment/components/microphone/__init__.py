@@ -38,21 +38,25 @@ class MicrophoneComponent(BaseDeviceComponent):
         'google': "psychopy.sound.transcribe:GoogleCloudTranscriber"
     }
 
-    def __init__(self, exp, parentName, name='mic',
-                 startType='time (s)', startVal=0.0,
-                 stopType='duration (s)', stopVal=2.0,
-                 startEstim='', durationEstim='',
-                 channels='auto', device=None,
-                 exclusive=False,
-                 sampleRate='DVD Audio (48kHz)', maxSize=24000,
-                 outputType='default', speakTimes=False, trimSilent=False,
-                 policyWhenFull='warn',
-                 transcribe=False, transcribeBackend="none",
-                 transcribeLang="en-US", transcribeWords="",
-                 transcribeWhisperModel="base",
-                 transcribeWhisperDevice="auto",
-                 #legacy
-                 stereo=None, channel=None):
+    def __init__(
+        self, exp, parentName, name='mic',
+        startType='time (s)', startVal=0.0,
+        stopType='duration (s)', stopVal=2.0,
+        startEstim='', durationEstim='',
+        device=None,
+        exclusive=False,
+        outputType='default', speakTimes=False, trimSilent=False,
+        policyWhenFull='warn',
+        transcribe=False, transcribeBackend="none",
+        transcribeLang="en-US", transcribeWords="",
+        transcribeWhisperModel="base",
+        transcribeWhisperDevice="auto",
+        #legacy
+        sampleRate=48000, 
+        channels=2,
+        stereo=None, 
+        channel=None
+    ):
         super(MicrophoneComponent, self).__init__(
             exp, parentName, name=name,
             startType=startType, startVal=startVal,
@@ -73,8 +77,6 @@ class MicrophoneComponent(BaseDeviceComponent):
         # --- Device params ---
         self.order += [
             "device",
-            "channels",
-            "sampleRate",
             "exclusive",
             "maxSize",
         ]
@@ -83,7 +85,7 @@ class MicrophoneComponent(BaseDeviceComponent):
             from psychopy.hardware.microphone import MicrophoneDevice
             profiles = MicrophoneDevice.getAvailableDevices()
 
-            return [None] + [profile['index'] for profile in profiles]
+            return ["$None"] + [profile['index'] for profile in profiles]
 
         def getDeviceNames():
             from psychopy.hardware.microphone import MicrophoneDevice
@@ -92,7 +94,7 @@ class MicrophoneComponent(BaseDeviceComponent):
             return ["default"] + [profile['deviceName'] for profile in profiles]
 
         self.params['device'] = Param(
-            device, valType='code', inputType="choice", categ="Device",
+            device, valType='str', inputType="choice", categ="Device",
             allowedVals=getDeviceIndices,
             allowedLabels=getDeviceNames,
             label=_translate("Device"),
@@ -101,58 +103,12 @@ class MicrophoneComponent(BaseDeviceComponent):
                 "local experiments - online experiments ask the participant which mic to use."
             )
         )
-        # grey out device settings when device is default
-        for depParam in ("channels", "sampleRate"):
-            self.depends.append({
-                "dependsOn": "device",  # if...
-                "condition": "== 'None'",  # is...
-                "param": depParam,  # then...
-                "true": "hide",  # should...
-                "false": "show",  # otherwise...
-            })
-        if stereo is not None:
-            # If using a legacy mic component, work out channels from old bool value of stereo
-            channels = ['mono', 'stereo'][stereo]
-        self.params['channels'] = Param(
-            channels, valType='str', inputType="choice", categ='Device',
-            allowedVals=['auto', 'mono', 'stereo'],
-            allowedLabels=[_translate("Auto"), _translate("Mono"), _translate("Stereo")],
-            label=_translate("Channels"),
-            hint=_translate(
-                "Record two channels (stereo) or one (mono, smaller file). Select 'auto' to use as "
-                "many channels as the selected device allows."
-            )
-        )
-
-        def getSampleRates():
-            return [r[0] for r in at.sampleRateQualityLevels.values()]
-        def getSampleRateLabels():
-            return [r[1] for r in at.sampleRateQualityLevels.values()]
-        self.params['sampleRate'] = Param(
-            sampleRate, valType='num', inputType="choice", categ='Device',
-            allowedVals=getSampleRates,
-            allowedLabels=getSampleRateLabels,
-            label=_translate("Sample rate (hz)"),
-            hint=_translate(
-                "How many samples per second (Hz) to record at"
-            ),
-            direct=False
-        )
         self.params['exclusive'] = Param(
             exclusive, valType="code", inputType="bool", categ="Device",
             label=_translate("Exclusive control"),
             hint=_translate(
                 "Take exclusive control of the microphone, so other apps can't use it during your "
                 "experiment."
-            )
-        )
-        self.params['maxSize'] = Param(
-            maxSize, valType='num', inputType="single", categ='Device',
-            updates="set every repeat",
-            label=_translate("Max recording size (kb)"),
-            hint=_translate(
-                "To avoid excessively large output files, what is the biggest file size you are "
-                "likely to expect?"
             )
         )
 
@@ -244,7 +200,7 @@ class MicrophoneComponent(BaseDeviceComponent):
         )
         self.depends.append({
             "dependsOn": "transcribeBackend",
-            "condition": "=='Google'",
+            "condition": "=='google'",
             "param": "transcribeLang",
             "true": "show",  # what to do with param if condition is True
             "false": "hide",  # permitted: hide, show, enable, disable
@@ -259,7 +215,7 @@ class MicrophoneComponent(BaseDeviceComponent):
         )
         self.depends.append({
             "dependsOn": "transcribeBackend",
-            "condition": "=='Google'",
+            "condition": "=='google'",
             "param": "transcribeWords",
             "true": "show",  # what to do with param if condition is True
             "false": "hide",  # permitted: hide, show, enable, disable
@@ -324,11 +280,8 @@ class MicrophoneComponent(BaseDeviceComponent):
         inits = getInitVals(self.params)
 
         # --- setup mic ---
-        # make sure sample rate is numeric
-        if inits['sampleRate'].val in at.sampleRateLabels:
-            inits['sampleRate'].val = at.sampleRateLabels[inits['sampleRate'].val]
-        # Substitute channel value for numeric equivalent
-        inits['channels'] = {'mono': 1, 'stereo': 2, 'auto': None}[self.params['channels'].val]
+        # force index to str type (holdover from when we used numeric indices)
+        inits['device'].valType = "str"
         # initialise mic device
         code = (
             "# initialise microphone\n"
@@ -336,15 +289,7 @@ class MicrophoneComponent(BaseDeviceComponent):
             "    deviceClass='psychopy.hardware.microphone.MicrophoneDevice',\n"
             "    deviceName=%(deviceLabel)s,\n"
             "    index=%(device)s,\n"
-            "    maxRecordingSize=%(maxSize)s,\n"
             "    exclusive=%(exclusive)s,\n"
-        )
-        if self.params['device'].val not in ("None", "", None):
-            code += (
-            "    channels=%(channels)s, \n"
-            "    sampleRateHz=%(sampleRate)s, \n"
-            )
-        code += (
             ")\n"
         )
         buff.writeOnceIndentedLines(code % inits)
@@ -420,11 +365,8 @@ class MicrophoneComponent(BaseDeviceComponent):
 
     def writeInitCodeJS(self, buff):
         inits = getInitVals(self.params)
-        # make sure sample rate is numeric
-        if inits['sampleRate'].val in at.sampleRateLabels:
-            inits['sampleRate'].val = at.sampleRateLabels[inits['sampleRate'].val]
         # Alert user if non-default value is selected for device
-        if inits['device'].val != 'default':
+        if inits['device'].val != '$None':
             alert(5055, strFields={'name': inits['name'].val})
         # Write code
         code = (
@@ -435,9 +377,6 @@ class MicrophoneComponent(BaseDeviceComponent):
         code = (
                 "win : psychoJS.window, \n"
                 "name:'%(name)s',\n"
-                "sampleRateHz : %(sampleRate)s,\n"
-                "channels : %(channels)s,\n"
-                "maxRecordingSize : %(maxSize)s,\n"
                 "loopback : true,\n"
                 "policyWhenFull : 'ignore',\n"
         )

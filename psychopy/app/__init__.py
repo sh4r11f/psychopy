@@ -118,7 +118,10 @@ def startApp(
 
         # NOTE - messages and errors cropping up before this point will go to
         # console, afterwards to 'last_app_load.log'.
-        sys.stderr = sys.stdout = _Tee(lastRunLog)  # redirect output to file
+        if sys.platform == 'win32' and sys.executable.endswith('pythonw.exe'):
+            sys.stderr = sys.stdout = lastRunLog
+        else:
+            sys.stderr = sys.stdout = _Tee(lastRunLog)  # redirect output to file
 
     # Create the application instance which starts loading it.
     # If `testMode==True`, all messages and errors (i.e. exceptions) will log to

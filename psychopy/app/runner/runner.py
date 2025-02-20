@@ -693,7 +693,7 @@ class RunnerPanel(wx.Panel, ScriptProcess, handlers.ThemeMixin):
         # start server
         self.startServer(htmlPath, port=port)
         # open experiment
-        webbrowser.open("http://localhost:{}".format(port))
+        webbrowser.open("http://localhost:{}?__pilotToken=local".format(port))
         # log experiment open
         print(
             f"##### Running PsychoJS task from {htmlPath} on port {port} #####\n"

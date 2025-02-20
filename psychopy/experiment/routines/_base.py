@@ -742,13 +742,7 @@ class Routine(list):
             "    return\n"
         )
         buff.writeIndentedLines(code)
-
-        # handle pausing
-        playbackComponents = [
-            comp.name for comp in self
-            if type(comp).__name__ in ("MovieComponent", "SoundComponent")
-        ]
-        playbackComponentsStr = ", ".join(playbackComponents)
+        # write code (work out playback and dispatch comps at runtime)
         code = (
             "# pause experiment here if requested\n"
             "if thisExp.status == PAUSED:\n"
@@ -756,13 +750,12 @@ class Routine(list):
             "        thisExp=thisExp, \n"
             "        win=win, \n"
             "        timers=[routineTimer, globalClock], \n"
-            "        playbackComponents=[{playbackComponentsStr}]\n"
+            "        currentRoutine=%(name)s,\n"
             "    )\n"
             "    # skip the frame we paused on\n"
             "    continue"
         )
-        code = code.format(playbackComponentsStr=playbackComponentsStr)
-        buff.writeIndentedLines(code)
+        buff.writeIndentedLines(code % self.params)
 
         # are we done yet?
         code = (
@@ -827,6 +820,8 @@ class Routine(list):
                 "t = 0;\n"
                 "frameN = -1;\n"
                 "continueRoutine = true; // until we're told otherwise\n"
+                "// keep track of whether this Routine was forcibly ended\n"
+                "routineForceEnded = false;\n"
                 % self.params)
         buff.writeIndentedLines(code)
         # can we use non-slip timing?
@@ -927,6 +922,7 @@ class Routine(list):
         code = ("// check if the Routine should terminate\n"
                 "if (!continueRoutine) {"
                 "  // a component has requested a forced-end of Routine\n"
+                "  routineForceEnded = true;\n"
                 "  return Scheduler.Event.NEXT;\n"
                 "}\n\n"
                 "continueRoutine = false;  "
@@ -1017,7 +1013,9 @@ class Routine(list):
         # reset routineTimer at the *very end* of all non-nonSlip routines
         if useNonSlip:
             code = (
-                "if (%(name)sMaxDurationReached) {{\n"
+                "if (routineForceEnded) {{\n"
+                "    routineTimer.reset();"
+                "}} else if (%(name)sMaxDurationReached) {{\n"
                 "    %(name)sClock.add(%(name)sMaxDuration);\n"
                 "}} else {{\n"
                 "    %(name)sClock.add({:f});\n"

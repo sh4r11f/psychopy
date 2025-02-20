@@ -967,6 +967,7 @@ class TrialHandler2(_BaseTrialHandler):
         self.elapsedTrials = []
         self.upcomingTrials = None
         self.thisTrial = None
+        self._cancelNextIteration = False
 
         self.originPath, self.origin = self.getOriginPathAndFile(originPath)
         self._exp = None  # the experiment handler that owns me!
@@ -1022,7 +1023,12 @@ class TrialHandler2(_BaseTrialHandler):
         # We want to ignore the RNG object when doing the comparison.
         self_copy = copy.deepcopy(self)
         other_copy = copy.deepcopy(other)
-        del self_copy._rng, other_copy._rng
+        
+        # Only delete _rng if it exists
+        if hasattr(self_copy, '_rng'):
+            del self_copy._rng
+        if hasattr(other_copy, '_rng'):
+            del other_copy._rng
 
         result = super(TrialHandler2, self_copy).__eq__(other_copy)
         return result
@@ -1057,6 +1063,10 @@ class TrialHandler2(_BaseTrialHandler):
                     break  # break out of the forever loop
                 # do stuff here for the trial
         """
+        # if we've just rewound/skipped trials, skip just this time
+        if self._cancelNextIteration:
+            self._cancelNextIteration = False
+            return self.thisTrial
         # mark previous trial as elapsed
         if self.thisTrial is not None:
             self.elapsedTrials.append(self.thisTrial)
@@ -1255,8 +1265,6 @@ class TrialHandler2(_BaseTrialHandler):
         n : int
             Number of trials to skip ahead
         """
-        # account for the fact current trial will end once skipped
-        n -= 1
         # if skipping past last trial, print warning and skip to last trial
         if n > len(self.upcomingTrials):
             logging.warn(
@@ -1276,6 +1284,8 @@ class TrialHandler2(_BaseTrialHandler):
             # advance row in data file
             if self.getExp() is not None:
                 self.getExp().nextEntry()
+        # mark as recently skipped so the next iteration is cancelled
+        self._cancelNextIteration = True
 
         return self.thisTrial   
 
@@ -1303,6 +1313,8 @@ class TrialHandler2(_BaseTrialHandler):
             rewound = []
         else:
             rewound = [self.thisTrial]
+            # mark as skipping so routines end
+            self.thisTrial.status = constants.STOPPING
         # pop the last n values from elapsed trials
         for i in range(n):
             rewound = [self.elapsedTrials.pop(-1)] + rewound
@@ -1312,6 +1324,8 @@ class TrialHandler2(_BaseTrialHandler):
         self.upcomingTrials = rewound + self.upcomingTrials
         # progress so we get the first upcoming trial
         self.__next__()
+        # mark as recently rewound so the next iteration is cancelled
+        self._cancelNextIteration = True
 
         return self.thisTrial
     

@@ -180,8 +180,7 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         if self.params['findThreshold']:
             code = (
                 "# find threshold for light sensor\n"
-                "if %(deviceLabelCode)s.getThreshold(channel=%(channel)s) is None:\n"
-                "    %(deviceLabelCode)s.findThreshold(win, channel=%(channel)s)\n"
+                "%(deviceLabelCode)s.findThreshold(win, channel=%(channel)s)\n"
             )
         else:
             code = (
@@ -191,9 +190,8 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         # find pos if indicated
         if self.params['findDiode']:
             code = (
-                "# find position and size of light sensor\n"
-                "if %(deviceLabelCode)s.pos is None and %(deviceLabelCode)s.size is None and %(deviceLabelCode)s.units is None:\n"
-                "    %(deviceLabelCode)s.findPhotodiode(win, channel=%(channel)s)\n"
+                "# find position and size of photodiode\n"
+                "%(deviceLabelCode)s.findPhotodiode(win, channel=%(channel)s)\n"
             )
             buff.writeOnceIndentedLines(code % inits)
 
@@ -267,7 +265,7 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
 
         # choose a clock to sync to according to component's params
         if "syncScreenRefresh" in stim.params and stim.params['syncScreenRefresh']:
-            clockStr = ""
+            clockStr = "clock=globalClock"
         else:
             clockStr = "clock=routineTimer"
         # sync component start/stop timers with validator clocks
@@ -298,7 +296,6 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         """
         # get starting indent level
         startIndent = buff.indentLevel
-
         # validate start time
         code = (
             "# validate {name} start time\n"
@@ -313,6 +310,7 @@ class VisualValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             "        thisExp.addData('{name}.%(name)s.started', %(name)s.tStart)\n"
             "        thisExp.addData('%(name)s.startDelay', %(name)s.tStartDelay)\n"
             )
+        buff.writeIndentedLines(code.format(**stim.params) % self.params)
 
         # validate stop time
         code = (
