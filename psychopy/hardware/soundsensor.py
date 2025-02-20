@@ -128,7 +128,7 @@ class BaseSoundSensorGroup(base.BaseResponseDevice):
         return int(threshold)
 
     def getThreshold(self, channel):
-        return self._threshold
+        return self.threshold[channel]
     
     def setThreshold(self, threshold, channel=None):
         # if not given a channel, set for all channels
@@ -170,6 +170,42 @@ class BaseSoundSensorGroup(base.BaseResponseDevice):
         """
         raise NotImplementedError()
     
+    def getResponses(self, state=None, channel=None, clear=True):
+        """
+        Get responses which match a given on/off state.
+
+        Parameters
+        ----------
+        state : bool or None
+            True to get voicekey "on" responses, False to get voicekey "off" responses, None to 
+            get all responses.
+        channel : int
+            Which voicekey to get responses from?
+        clear : bool
+            Whether or not to remove responses matching `state` after retrieval.
+
+        Returns
+        -------
+        list[SoundSensorResponse]
+            List of matching responses.
+        """
+        # make sure parent dispatches messages
+        self.dispatchMessages()
+        # array to store matching responses
+        matches = []
+        # check messages in chronological order
+        for resp in self.responses.copy():
+            # does this message meet the criterion?
+            if (state is None or resp.value == state) and (channel is None or resp.channel == channel):
+                # if clear, remove the response
+                if clear:
+                    i = self.responses.index(resp)
+                    resp = self.responses.pop(i)
+                # append the response to responses array
+                matches.append(resp)
+
+        return matches
+    
     def receiveMessage(self, message):
         # do base receiving
         base.BaseResponseDevice.receiveMessage(self, message)
@@ -178,9 +214,6 @@ class BaseSoundSensorGroup(base.BaseResponseDevice):
 
     def resetTimer(self, clock=logging.defaultClock):
         raise NotImplementedError()
-
-    def getThreshold(self, channel):
-        return self.threshold[channel]
 
     def getState(self, channel):
         # dispatch messages from parent
@@ -302,42 +335,6 @@ class MicrophoneSoundSensor(BaseSoundSensorGroup):
         BaseSoundSensorGroup.__init__(
             self, channels=1, threshold=threshold
         )
-    
-    def getResponses(self, state=None, channel=None, clear=True):
-        """
-        Get responses which match a given on/off state.
-
-        Parameters
-        ----------
-        state : bool or None
-            True to get voicekey "on" responses, False to get voicekey "off" responses, None to 
-            get all responses.
-        channel : int
-            Which voicekey to get responses from?
-        clear : bool
-            Whether or not to remove responses matching `state` after retrieval.
-
-        Returns
-        -------
-        list[SoundSensorResponse]
-            List of matching responses.
-        """
-        # make sure parent dispatches messages
-        self.dispatchMessages()
-        # array to store matching responses
-        matches = []
-        # check messages in chronological order
-        for resp in self.responses.copy():
-            # does this message meet the criterion?
-            if (state is None or resp.value == state) and (channel is None or resp.channel == channel):
-                # if clear, remove the response
-                if clear:
-                    i = self.responses.index(resp)
-                    resp = self.responses.pop(i)
-                # append the response to responses array
-                matches.append(resp)
-
-        return matches
     
     def getThreshold(self, channel=None):
         return BaseSoundSensorGroup.getThreshold(self, channel=channel or 0)
