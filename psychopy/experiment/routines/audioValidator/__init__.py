@@ -29,7 +29,7 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
             self,
             # basic
             exp, name='audioVal',
-            findThreshold=True, threshold=127,
+            threshold=127,
             # device
             deviceLabel="", deviceBackend="microphone", channel="0",
     ):
@@ -45,16 +45,8 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
 
         # --- Basic ---
         self.order += [
-            "findThreshold",
             "threshold",
         ]
-        self.params['findThreshold'] = Param(
-            findThreshold, valType="bool", inputType="bool", categ="Basic",
-            label=_translate("Find best threshold?"),
-            hint=_translate(
-                "Run a brief Routine to find the best threshold for the sound sensor at experiment start?"
-            )
-        )
         self.params['threshold'] = Param(
             threshold, valType="code", inputType="single", categ="Basic",
             label=_translate("Threshold"),
@@ -62,13 +54,6 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
                 "Volume threshold at which the sound sensor should register a positive, units go from 0 (least volume) to 255 (most volume)."
             )
         )
-        self.depends.append({
-            "dependsOn": "findThreshold",  # if...
-            "condition": "==True",  # is...
-            "param": "threshold",  # then...
-            "true": "hide",  # should...
-            "false": "show",  # otherwise...
-        })
         del self.params['stopType']
         del self.params['stopVal']
 
@@ -123,20 +108,9 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         inits = getInitVals(self.params)
         # get device handle
         code = (
-            "%(deviceLabelCode)s = deviceManager.getDevice(%(deviceLabel)s)"
+            "%(deviceLabelCode)s = deviceManager.getDevice(%(deviceLabel)s)\n"
+            "%(deviceLabelCode)s.setThreshold(%(threshold)s, channel=%(channel)s)\n"
         )
-        buff.writeOnceIndentedLines(code % inits)
-        # find threshold if indicated
-        if self.params['findThreshold']:
-            code = (
-                "# find threshold for sound sensor\n"
-                "if %(deviceLabelCode)s.getThreshold(channel=%(channel)s) is None:\n"
-                "    %(deviceLabelCode)s.findThreshold(win, channel=%(channel)s)\n"
-            )
-        else:
-            code = (
-                "%(deviceLabelCode)s.setThreshold(%(threshold)s, channel=%(channel)s)"
-            )
         buff.writeOnceIndentedLines(code % inits)
 
     def writeMainCode(self, buff):
@@ -148,7 +122,7 @@ class AudioValidatorRoutine(BaseValidatorRoutine, PluginDevicesMixin):
         )
         buff.writeIndentedLines(code % inits)
 
-        if self.params['threshold'] and not self.params['findThreshold']:
+        if self.params['threshold']:
             code = (
                 "%(name)sDevice.setThreshold(%(threshold)s, channel=%(channel)s)\n"
             )
@@ -316,7 +290,7 @@ class MicrophoneSoundSensorValidatorBackend(DeviceBackend):
 
             return ["default"] + [profile['deviceName'] for profile in profiles]
 
-        self.params['microphone'] = Param(
+        params['microphone'] = Param(
             None, valType='str', inputType="choice", categ="Device",
             allowedVals=getDeviceIndices,
             allowedLabels=getDeviceNames,
