@@ -12,15 +12,15 @@ default behaviour unless ``activatePlugins()`` is called again.
 
 Read :ref:`usingplugins` for more information about plugins before proceeding on this page.
 
-Creating your package
+Creating your plugin package
 -------------------------------
 
-A |PsychoPy| plugin works the same as any other Python package, so you can create one in the same way. Check out the `Python Packaging User Guide <https://packaging.python.org/en/latest/guides/writing-pyproject-toml/>`_ for a comprehensive guide to making Python packages in general. Below we'll go through the key steps of making a |PsychoPy| plugin package specifically.
+A plugin is ultimately just a type of Python package, just one which interacts with |PsychoPy|, so you can create one in the same way you would make any other Python package. Check out the `Python Packaging User Guide <https://packaging.python.org/en/latest/guides/writing-pyproject-toml/>`_ for a comprehensive guide to making Python packages in general. Below we'll go through the key steps of making a |PsychoPy| plugin package specifically.
 
-Naming your package
+Naming your plugin package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To help users find your plugin and to make it clear that it is a |PsychoPy| plugin, your plugin name should start with ``psychopy-`` followed by a word or a few words which describe what it is (separated by ``-``). The module within your package (the folder that gets imported when a user does ``import <your plugin>``) should have the same name as the package but with ``-`` replaced by ``_``. Below are some example plugin names and what they do:
+To help users find your plugin and to make it clear that it is a |PsychoPy| plugin, your plugin package name should start with ``psychopy-`` followed by a word or a few words which describe what it is (separated by ``-``). The module within your plugin package (the folder that gets imported when a user does ``import <your plugin>``) should have the same name as the package but with ``-`` replaced by ``_``. Below are some example plugin names and what they do:
 
 .. list-table:: Title
    :header-rows: 1
@@ -41,41 +41,41 @@ To help users find your plugin and to make it clear that it is a |PsychoPy| plug
      - psychopy_monkeys
      - Adds various "response monkey" Components, which save time testing by immitating participant responses when running in pilot mode
 
-Structuring your package
+Structuring your plugin package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A plugin has a similar structure to Python package, see the official `Packaging Python Projects guide <https://packaging.python.org/tutorials/packaging-projects>`_ for details. We strongly recommend starting by cloning the `template plugin repo <https://github.com/psychopy/psychopy-plugin-template>`_ and modifying it rather than starting from scratch.
+A plugin package is no different structurally from any other package, so see the official `Packaging Python Projects guide <https://packaging.python.org/tutorials/packaging-projects>`_ for details on how to structure a Python package in general. For |PsychoPy| plugins specifically, we strongly recommend starting by cloning the `template plugin repo <https://github.com/psychopy/psychopy-plugin-template>`_ and modifying it rather than starting from scratch.
 
 .. _pyprojectTOML:
 pyproject.toml
 ~~~~~~~~~~~~~~~~~~~
 
-Python looks for a file at the root level of your package called ``pyproject.toml``, which contains the information it needs (name, version, etc.) to set up the package. Essentially, it's what turns a Python module into a Python package. For an example of a finished ``pyproject.toml`` file, check out the one from the `template plugin repo <https://github.com/psychopy/psychopy-plugin-template>`_.
+Python looks for a file at the root level of your plugin package called ``pyproject.toml``, which contains the information it needs (name, version, etc.) to set up the package. Essentially, it's what turns a Python module into a Python package. For an example of a finished ``pyproject.toml`` file, check out the one from the `template plugin repo <https://github.com/psychopy/psychopy-plugin-template>`_.
 
 
 .. _entryPoints:
 Entry points
 ~~~~~~~~~~~~~~~~~~~
 
-Defining an entry point is essentially telling Python "pretend that ``x.y`` is also located at ``z.y``", similar to if the file ``z.py`` had ``from x import y`` at the top. This allows an external package to edit what can be imported from |PsychoPy| without changing any of |PsychoPy|'s code. |PsychoPy| can also get a list of all packages which define entry points to a certain place, which in some cases will help it find your plugin. For example, if you wanted to add a Component, you would define an entry point to ``psychopy.experiment.components`` and Builder would then find your plugin Component by looking for that entry point.
+Defining an entry point is essentially telling Python "pretend that ``x.y`` is also located at ``z.y``", similar to if the file ``z.py`` had ``from x import y`` at the top. This allows an external package to edit what can be imported from |PsychoPy| without changing any of |PsychoPy|'s code. |PsychoPy| can also get a list of all plugin packages which define entry points to a certain place, which in some cases will help it find your plugin. For example, if you wanted to add a Component, you would define an entry point to ``psychopy.experiment.components`` and Builder would then find your plugin Component by looking for that entry point.
 
 .. _baseClasses:
 Base classes
 ~~~~~~~~~~~~~~~~~~~
 
-In many cases, the element your plugin adds may need to be a subclass of a particular base class to be detected and used properly. For example, a new Component should be a subclass of ``psychopy.experiment.components.BaseComponent``. Similarly, new backend for a hardware Component which supports multiple backends (such as :ref:_buttonboxcomponent or :ref:_voicekeycomponent) would need to be a subclass of ``psychopy.experiment.components.plugins.DeviceBackend``. 
+In many cases, the element your plugin package adds may need to be a subclass of a particular base class to be detected and used properly. For example, a new Component should be a subclass of ``psychopy.experiment.components.BaseComponent``. Similarly, new backend for a hardware Component which supports multiple backends (such as :ref:_buttonboxcomponent or :ref:_voicekeycomponent) would need to be a subclass of ``psychopy.experiment.components.plugins.DeviceBackend``. 
 
 If you're unsure what to subclass, try looking for another similar element in |PsychoPy| or in another plugin and see what they subclass (for example, ``psychopy.experiment.components.buttonBox.KeyboardButtonBoxBackend`` is a subclass of ``DeviceBackend``).
 
-Testing your package
+Testing your plugin package
 -------------------------------
 
-Once you're ready to try your package out, you can install it via the Plugins & Packages Manager in Builder (opened via the Tools menu item or the "Get more..." button at the top of the Components panel). In the "Packages" tab, click the "Install from file" button and select the ``pyproject.toml`` file for your plugin (you will need to change the file type dropdown to look for "Python projects" rather than a "Wheel files" to see it). Doing so will prompt PsychoPy to perform an `editable install <https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs>`_ of your plugin, meaning that any edits you make to your plugin will be immediately visible once you restart PsychoPy, without requiring the plugin to be reinstalled. The only exception is any changes made to the ``pyproject.toml`` file itself - these do require a reinstall to register unfortunately.
+Once you're ready to try your plugin package out, you can install it via the Plugins & Packages Manager in Builder (opened via the Tools menu item or the "Get more..." button at the top of the Components panel). In the "Packages" tab, click the "Install from file" button and select the ``pyproject.toml`` file for your plugin (you will need to change the file type dropdown to look for "Python projects" rather than a "Wheel files" to see it). Doing so will prompt PsychoPy to perform an `editable install <https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs>`_ of your plugin, meaning that any edits you make to your plugin will be immediately visible once you restart PsychoPy, without requiring the plugin to be reinstalled. The only exception is any changes made to the ``pyproject.toml`` file itself - these do require a reinstall to register unfortunately.
 
-Publishing your package
+Publishing your plugin package
 -------------------------------
 
-|PsychoPy| plugin packages are built like any other package and hosted via the `Python Package Index (PyPI) <https://pypi.org/>`_. While you can absolutely build and package it yourself if you're comfortable and familiar doing so, we recommend copying the ``.github`` folder from the `template plugin repo <https://github.com/psychopy/psychopy-plugin-template>`_, as this defines a `GitHub action <https://github.com/features/actions>`_ to build and publish your package for you whenever you `make a new release on GitHub <https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases>`_. To allow this to work, there's just a few configuration steps to follow.
+|PsychoPy| plugin packages are built like any other package and hosted via the `Python Package Index (PyPI) <https://pypi.org/>`_. While you can absolutely build and package it yourself if you're comfortable and familiar doing so, we recommend copying the ``.github`` folder from the `template plugin repo <https://github.com/psychopy/psychopy-plugin-template>`_, as this defines a `GitHub action <https://github.com/features/actions>`_ to build and publish your plugin package for you whenever you `make a new release on GitHub <https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases>`_. To allow this to work, there's just a few configuration steps to follow.
 
 Give action permissions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -93,7 +93,7 @@ In order for PyPI to recognise your plugin, and prevent anyone else pushing to i
 Set up a trusted publisher
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now that your GitHub repo is all set up, you need to setup PyPI to look for your repo as the publisher of your package. If you don't have an account with PyPI, you can `create one here <https://pypi.org/account/register/>`_. Once logged in, click on your username in the top right and then "Your Projects". On the left, click "Publishing". This should take you to an interface for managing "publishers" - this is essentially a mapping which tells PyPI which GitHub accounts and environments to accept pushes from when publishing a new version of a specific package.
+Now that your GitHub repo is all set up, you need to setup PyPI to look for your repo as the publisher of your plugin package. If you don't have an account with PyPI, you can `create one here <https://pypi.org/account/register/>`_. Once logged in, click on your username in the top right and then "Your Projects". On the left, click "Publishing". This should take you to an interface for managing "publishers" - this is essentially a mapping which tells PyPI which GitHub accounts and environments to accept pushes from when publishing a new version of a specific package.
 
 Scroll down to the "Pending publishers" section and choose "GitHub" from the tabs on the control there. It should look like this:
 
@@ -104,7 +104,7 @@ but with the fields flanked by `<>` replaced by the relevant information for you
 Make a release on GitHub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To trigger the relevant GitHub action to publish your package, you need to make a release. See `the documentation from GitHub <https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases>`_ for information on how to do this. Remember to tag the release with the version number! The first release will most likely be ``0.0.1``.
+To trigger the relevant GitHub action to publish your plugin package, you need to make a release. See `the documentation from GitHub <https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases>`_ for information on how to do this. Remember to tag the release with the version number! The first release will most likely be ``0.0.1``.
 
 Listing a plugin in Builder
 -------------------------------
