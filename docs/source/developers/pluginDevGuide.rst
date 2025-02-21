@@ -12,7 +12,7 @@ default behaviour unless ``activatePlugins()`` is called again.
 
 Read :ref:`usingplugins` for more information about plugins before proceeding on this page.
 
-Creating a package
+Creating your package
 -------------------------------
 
 A |PsychoPy| plugin works the same as any other Python package, so you can create one in the same way. Check out the `Python Packaging User Guide <https://packaging.python.org/en/latest/guides/writing-pyproject-toml/>`_ for a comprehensive guide to making Python packages in general. Below we'll go through the key steps of making a |PsychoPy| plugin package specifically.
@@ -67,7 +67,12 @@ In many cases, the element your plugin adds may need to be a subclass of a parti
 
 If you're unsure what to subclass, try looking for another similar element in |PsychoPy| or in another plugin and see what they subclass (for example, ``psychopy.experiment.components.buttonBox.KeyboardButtonBoxBackend`` is a subclass of ``DeviceBackend``).
 
-Publishing a package
+Testing your package
+-------------------------------
+
+Once you're ready to try your package out, you can install it via the Plugins & Packages Manager in Builder (opened via the Tools menu item or the "Get more..." button at the top of the Components panel). In the "Packages" tab, click the "Install from file" button and select the ``pyproject.toml`` file for your plugin (you will need to change the file type dropdown to look for "Python projects" rather than a "Wheel files" to see it). Doing so will prompt PsychoPy to perform an `editable install <https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs>`_ of your plugin, meaning that any edits you make to your plugin will be immediately visible once you restart PsychoPy, without requiring the plugin to be reinstalled. The only exception is any changes made to the ``pyproject.toml`` file itself - these do require a reinstall to register unfortunately.
+
+Publishing your package
 -------------------------------
 
 |PsychoPy| plugin packages are built like any other package and hosted via the `Python Package Index (PyPI) <https://pypi.org/>`_. While you can absolutely build and package it yourself if you're comfortable and familiar doing so, we recommend copying the ``.github`` folder from the `template plugin repo <https://github.com/psychopy/psychopy-plugin-template>`_, as this defines a `GitHub action <https://github.com/features/actions>`_ to build and publish your package for you whenever you `make a new release on GitHub <https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases>`_. To allow this to work, there's just a few configuration steps to follow.
