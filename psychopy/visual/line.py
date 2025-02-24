@@ -51,11 +51,6 @@ class Line(ShapeStim):
     lineColor : array_like, str, :class:`~psychopy.colors.Color` or None
         Color of the line. If `None`, a fully transparent color is used which
         makes the line invisible. *Deprecated* use `color` instead.
-    lineColorSpace : str or None
-        Colorspace to use for the line. These change how the values passed to
-        `lineColor` are interpreted. *Deprecated*. Please use `colorSpace` to
-        set the line colorspace. This arguments may be removed in a future
-        version.
     pos : array_like
         Initial translation (`x`, `y`) of the line on-screen relative to the
         origin located at the center of the window or buffer in `units`.
@@ -92,9 +87,6 @@ class Line(ShapeStim):
         smoother (less-pixelated) line.
     draggable : bool
         Can this stimulus be dragged by a mouse click?
-    lineRGB: array_like, :class:`~psychopy.colors.Color` or None
-        *Deprecated*. Please use `color` instead. This argument may be removed
-        in a future version.
     name : str
         Optional name of the stimuli for logging.
     autoLog : bool

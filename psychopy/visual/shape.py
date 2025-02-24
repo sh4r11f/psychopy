@@ -574,16 +574,7 @@ class ShapeStim(BaseShapeStim):
         frame without the need to explicitly call the
         :py:meth:`~psychopy.visual.ShapeStim.draw` method.
     color : array_like, str, :class:`~psychopy.colors.Color` or None
-        Sets both the initial `lineColor` and `fillColor` of the shape.
-    lineRGB, fillRGB: array_like, :class:`~psychopy.colors.Color` or None
-        *Deprecated*. Please use `lineColor` and `fillColor`. These
-        arguments may be removed in a future version.
-    lineColorSpace, fillColorSpace : str
-        Colorspace to use for the outline and fill. These change how the
-        values passed to `lineColor` and `fillColor` are interpreted.
-        *Deprecated*. Please use `colorSpace` to set both outline and fill
-        colorspace. These arguments may be removed in a future version.
-
+        Synonymous with `fillColor`
     """
     # Author: Jeremy Gray, November 2015, using psychopy.contrib.tesselate
     _tesselMode = 'triangle'  # best for most shapes
