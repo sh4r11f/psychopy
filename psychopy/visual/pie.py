@@ -116,9 +116,6 @@ class Pie(BaseShapeStim):
 
     """
 
-    _defaultFillColor = None
-    _defaultLineColor = None
-
     def __init__(self,
                  win,
                  radius=.5,
@@ -127,8 +124,8 @@ class Pie(BaseShapeStim):
                  edges=32,
                  units='',
                  lineWidth=1.5,
-                 lineColor=False,
-                 fillColor=False,
+                 lineColor=None,
+                 fillColor=None,
                  pos=(0, 0),
                  size=1.0,
                  ori=0.0,

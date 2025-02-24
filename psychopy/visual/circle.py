@@ -11,6 +11,7 @@ as a special case of a :class:`~psychopy.visual.Polygon`
 
 import psychopy  # so we can get the __path__
 
+from psychopy.tools.attributetools import undefined
 from psychopy.visual.polygon import Polygon
 
 
@@ -107,17 +108,14 @@ class Circle(Polygon):
 
     """
 
-    _defaultFillColor = "white"
-    _defaultLineColor = None
-
     def __init__(self,
                  win,
                  radius=.5,
                  edges="circle",
                  units='',
                  lineWidth=1.5,
-                 lineColor=False,
-                 fillColor=False,
+                 lineColor=None,
+                 fillColor="white",
                  colorSpace='rgb',
                  pos=(0, 0),
                  size=1.0,
@@ -134,9 +132,9 @@ class Circle(Polygon):
                  autoLog=None,
                  autoDraw=False,
                  # legacy
-                 color=False,
-                 fillColorSpace=None,
-                 lineColorSpace=None,
+                 color=undefined,
+                 fillColorSpace=undefined,
+                 lineColorSpace=undefined,
                  ):
 
         # what local vars are defined (these are the init params) for use by
@@ -152,9 +150,7 @@ class Circle(Polygon):
             units=units,
             lineWidth=lineWidth,
             lineColor=lineColor,
-            lineColorSpace=lineColorSpace,
             fillColor=fillColor,
-            fillColorSpace=fillColorSpace,
             pos=pos,
             size=size,
             anchor=anchor,
@@ -169,5 +165,9 @@ class Circle(Polygon):
             name=name,
             autoLog=autoLog,
             autoDraw=autoDraw,
+            colorSpace=colorSpace,
+            # legacy
             color=color,
-            colorSpace=colorSpace)
+            fillColorSpace=fillColorSpace,
+            lineColorSpace=lineColorSpace,
+        )

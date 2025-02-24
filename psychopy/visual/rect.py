@@ -12,7 +12,7 @@ import numpy as np
 
 import psychopy  # so we can get the __path__
 from psychopy.visual.shape import BaseShapeStim
-from psychopy.tools.attributetools import attributeSetter, setAttribute
+from psychopy.tools.attributetools import attributeSetter, setAttribute, undefined
 
 
 class Rect(BaseShapeStim):
@@ -109,17 +109,14 @@ class Rect(BaseShapeStim):
 
     """
 
-    _defaultFillColor = 'white'
-    _defaultLineColor = None
-
     def __init__(self,
                  win,
                  width=.5,
                  height=.5,
                  units='',
                  lineWidth=1.5,
-                 lineColor=False,
-                 fillColor=False,
+                 lineColor=None,
+                 fillColor='white',
                  colorSpace='rgb',
                  pos=(0, 0),
                  size=None,
@@ -134,11 +131,11 @@ class Rect(BaseShapeStim):
                  autoLog=None,
                  autoDraw=False,
                  # legacy
-                 color=None,
-                 lineColorSpace=None,
-                 fillColorSpace=None,
-                 lineRGB=False,
-                 fillRGB=False,
+                 color=undefined,
+                 lineColorSpace=undefined,
+                 fillColorSpace=undefined,
+                 lineRGB=undefined,
+                 fillRGB=undefined
                  ):
         # width and height attributes, these are later aliased with `size`
         self.__dict__['width'] = float(width)
@@ -161,9 +158,7 @@ class Rect(BaseShapeStim):
             units=units,
             lineWidth=lineWidth,
             lineColor=lineColor,
-            lineColorSpace=lineColorSpace,
             fillColor=fillColor,
-            fillColorSpace=fillColorSpace,
             vertices=vertices,
             closeShape=True,
             pos=pos,
@@ -175,13 +170,17 @@ class Rect(BaseShapeStim):
             depth=depth,
             interpolate=interpolate,
             draggable=draggable,
-            lineRGB=lineRGB,
-            fillRGB=fillRGB,
             name=name,
             autoLog=autoLog,
             autoDraw=autoDraw,
+            colorSpace=colorSpace,
+            # legacy
             color=color,
-            colorSpace=colorSpace)
+            lineColorSpace=lineColorSpace,
+            fillColorSpace=fillColorSpace,
+            lineRGB=lineRGB,
+            fillRGB=fillRGB
+        )
 
     def setSize(self, size, operation='', log=None):
         """Usually you can use 'stim.attribute = value' syntax instead,

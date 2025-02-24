@@ -17,7 +17,7 @@ from psychopy import logging
 import numpy
 
 from psychopy.visual.shape import ShapeStim
-from psychopy.tools.attributetools import attributeSetter, setAttribute
+from psychopy.tools.attributetools import attributeSetter, setAttribute, undefined
 
 
 class Line(ShapeStim):
@@ -123,16 +123,13 @@ class Line(ShapeStim):
 
     """
 
-    _defaultFillColor = None
-    _defaultLineColor = "white"
-
     def __init__(self,
                  win,
                  start=(-.5, -.5),
                  end=(.5, .5),
                  units=None,
                  lineWidth=1.5,
-                 lineColor=False,
+                 lineColor="white",
                  colorSpace='rgb',
                  pos=(0, 0),
                  size=1.0,
@@ -147,11 +144,11 @@ class Line(ShapeStim):
                  autoLog=None,
                  autoDraw=False,
                  # legacy
-                 color=False,
-                 fillColor=False,
-                 lineColorSpace=None,
-                 lineRGB=False,
-                 fillRGB=False,
+                 color=undefined,
+                 fillColor=undefined,
+                 lineColorSpace=undefined,
+                 lineRGB=undefined,
+                 fillRGB=undefined,
                  ):
 
         """
@@ -170,9 +167,6 @@ class Line(ShapeStim):
             units=units,
             lineWidth=lineWidth,
             lineColor=lineColor,
-            lineColorSpace=None,
-            fillColor=None,
-            fillColorSpace=lineColorSpace,  # have these set to the same
             vertices=(start, end),
             anchor=anchor,
             closeShape=False,
@@ -184,13 +178,17 @@ class Line(ShapeStim):
             depth=depth,
             interpolate=interpolate,
             draggable=draggable,
-            lineRGB=lineRGB,
-            fillRGB=fillRGB,
             name=name,
             autoLog=autoLog,
             autoDraw=autoDraw,
+            colorSpace=colorSpace,
+            # legacy
             color=color,
-            colorSpace=colorSpace)
+            fillColor=fillColor,
+            lineColorSpace=lineColorSpace,
+            lineRGB=lineRGB,
+            fillRGB=fillRGB,
+        )
 
         del self._tesselVertices
 

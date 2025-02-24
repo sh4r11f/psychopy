@@ -10,7 +10,7 @@
 
 import psychopy  # so we can get the __path__
 from psychopy.visual.shape import ShapeStim
-from psychopy.tools.attributetools import attributeSetter, setAttribute
+from psychopy.tools.attributetools import attributeSetter, setAttribute, undefined
 from psychopy.tools import gltools as gt
 
 import numpy as np
@@ -107,9 +107,6 @@ class Polygon(ShapeStim):
         Can this stimulus be dragged by a mouse click?
 
     """
-
-    _defaultFillColor = "white"
-    _defaultLineColor = "white"
     _tesselMode = 'fan'  # fastest for regular/equilateral polygons
 
     def __init__(self,
@@ -118,8 +115,8 @@ class Polygon(ShapeStim):
                  radius=.5,
                  units='',
                  lineWidth=1.5,
-                 lineColor=False,
-                 fillColor=False,
+                 lineColor="white",
+                 fillColor="white",
                  pos=(0, 0),
                  size=1.0,
                  anchor=None,
@@ -134,11 +131,11 @@ class Polygon(ShapeStim):
                  autoDraw=False,
                  colorSpace='rgb',
                  # legacy
-                 color=False,
-                 fillColorSpace=None,
-                 lineColorSpace=None,
-                 lineRGB=False,
-                 fillRGB=False,
+                 color=undefined,
+                 fillColorSpace=undefined,
+                 lineColorSpace=undefined,
+                 lineRGB=undefined,
+                 fillRGB=undefined,
                  ):
 
         # what local vars are defined (these are the init params) for use by
@@ -157,9 +154,7 @@ class Polygon(ShapeStim):
             units=units,
             lineWidth=lineWidth,
             lineColor=lineColor,
-            lineColorSpace=lineColorSpace,
             fillColor=fillColor,
-            fillColorSpace=fillColorSpace,
             vertices=self.vertices,
             closeShape=True,
             pos=pos,
@@ -171,13 +166,17 @@ class Polygon(ShapeStim):
             depth=depth,
             interpolate=interpolate,
             draggable=draggable,
-            lineRGB=lineRGB,
-            fillRGB=fillRGB,
             name=name,
             autoLog=autoLog,
             autoDraw=autoDraw,
+            colorSpace=colorSpace,
+            # legacy
             color=color,
-            colorSpace=colorSpace)
+            fillColorSpace=fillColorSpace,
+            lineColorSpace=lineColorSpace,
+            lineRGB=lineRGB,
+            fillRGB=fillRGB,
+        )
 
     def _calcVertices(self):
         if self.edges == "circle":
