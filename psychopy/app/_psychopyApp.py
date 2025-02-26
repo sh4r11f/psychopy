@@ -49,7 +49,7 @@ from psychopy.localization import _translate
 # e.g. coder and builder are imported during app.__init__ because they
 # take a while
 
-# needed by splash screen for the path to resources/psychopySplash.png
+# needed by splash screen for the path to resources/splash.png
 import ctypes
 from psychopy import logging, __version__
 from psychopy import projects
@@ -417,8 +417,14 @@ class PsychoPyApp(wx.App, handlers.ThemeMixin):
 
         if showSplash:
             # show splash screen
-            splashFile = os.path.join(
-                self.prefs.paths['resources'], 'psychopySplash.png')
+            if str(__version__).endswith("beta"):
+                splashFile = os.path.join(
+                    self.prefs.paths['resources'], 'betasplash.png'
+                )
+            else:
+                splashFile = os.path.join(
+                    self.prefs.paths['resources'], 'splash.png'
+                )
             splashImage = wx.Image(name=splashFile)
             splashImage.ConvertAlphaToMask()
             splash = AS.AdvancedSplash(
@@ -426,7 +432,7 @@ class PsychoPyApp(wx.App, handlers.ThemeMixin):
                 timeout=3000, agwStyle=AS.AS_TIMEOUT | AS.AS_CENTER_ON_SCREEN
             )
             w, h = splashImage.GetSize()
-            splash.SetTextPosition((340, h - 30))
+            splash.SetTextPosition((300, h - 30))
             splash.SetText(
                 _translate("Copyright (C) {year} OpenScienceTools.org").format(year=2024))
         else:
@@ -456,7 +462,7 @@ class PsychoPyApp(wx.App, handlers.ThemeMixin):
 
         # load fonts
         if splash:
-            splash.SetText(_translate("  Loading app fonts..."))
+            splash.SetText(_translate("Loading app fonts..."))
         self.dpi = int(wx.GetDisplaySize()[0] /
                        float(wx.GetDisplaySizeMM()[0]) * 25.4)
         # detect retina displays
@@ -505,13 +511,13 @@ class PsychoPyApp(wx.App, handlers.ThemeMixin):
 
         # load plugins so they're available before frames are created
         if splash:
-            splash.SetText(_translate("  Loading plugins..."))
+            splash.SetText(_translate("Loading plugins..."))
         from psychopy.plugins import activatePlugins
         activatePlugins()
         
         # load starting files
         if splash:
-            splash.SetText(_translate("  Loading requested files..."))
+            splash.SetText(_translate("Loading requested files..."))
         # get starting files
         if startFiles is None:
             startFiles = []
@@ -562,7 +568,7 @@ class PsychoPyApp(wx.App, handlers.ThemeMixin):
         
         # show frames
         if splash:
-            splash.SetText(_translate("  Creating frames..."))
+            splash.SetText(_translate("Creating frames..."))
         # get starting windows
         if startView in (None, []):
             # if no window specified, use default from prefs
