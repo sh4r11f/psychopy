@@ -1049,7 +1049,9 @@ class PluginDetailsPanel(wx.Panel, handlers.ThemeMixin):
         releases = self.info.getReleases()
         if releases:
             self.updateBtn.Show(
-                self.info.installed and self.info.installedVersion < max(releases)
+                self.info.installed 
+                and self.info.installedVersion is not None 
+                and self.info.installedVersion < max(releases)
             )
         # Enable/disable homepage
         self.homepageBtn.Enable(bool(self.info.homepage))
