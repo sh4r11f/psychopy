@@ -367,16 +367,16 @@ msgid "Copyright (C) {year} OpenScienceTools.org"
 msgstr "Copyright (C) {year} OpenScienceTools.org"
 
 #: app/_psychopyApp.py:459
-msgid "  Loading app fonts..."
-msgstr "  フォントをロード中..."
+msgid "Loading app fonts..."
+msgstr "フォントをロード中..."
 
 #: app/_psychopyApp.py:508
-msgid "  Loading plugins..."
-msgstr " プラグインをロード中..."
+msgid "Loading plugins..."
+msgstr "プラグインをロード中..."
 
 #: app/_psychopyApp.py:514
-msgid "  Loading requested files..."
-msgstr "  要求されたファイルをロード中..."
+msgid "Loading requested files..."
+msgstr "要求されたファイルをロード中..."
 
 #: app/_psychopyApp.py:536
 msgid "Failed to open {}, file does not exist."
@@ -387,8 +387,8 @@ msgid "Failed to open file {}, reason: {}"
 msgstr "{}を開けません. ({})"
 
 #: app/_psychopyApp.py:565
-msgid "  Creating frames..."
-msgstr " ウィンドウを準備中..."
+msgid "Creating frames..."
+msgstr "ウィンドウを準備中..."
 
 #: app/_psychopyApp.py:617
 msgid "Compatibility information"
