@@ -6,14 +6,8 @@
 # Distributed under the terms of the GNU General Public License (GPL).
 
 """
-Discover all _localized strings from all Builder components, etc.
-
-Mainly used by validators.py -- need access to _translate()d field names.
+Collections of strings that do not appear explicitly in the source code but need to be localized.
 """
-import copy
-import os
-import glob
-from psychopy.localization import _localized as _localizedBase
 from psychopy.localization import _translate
 
 _localizedCategories = {
@@ -176,7 +170,7 @@ _localizedDialogs = {
     'first': _translate('first'),
     'last': _translate('last'),
     'all': _translate('all'),
-    'average': _translate('average'),
+    # 'average': _translate('average'), # "appaered at strings for allowedVals in settings"
     # NameSpace
     'one of your Components, Routines, or condition parameters': 
     _translate('one of your Components, Routines, or condition parameters'),
@@ -218,23 +212,175 @@ _localizedDialogs = {
     'hidden': _translate('hidden'),
 }
 
+_localizedPreferences = {
+    # category labels
+    'General': _translate('General'),
+    'Application': _translate('Application'),
+    'Pilot mode': _translate('Pilot mode'),
+    'Key Bindings': _translate('Key Bindings'),
+    'Hardware': _translate('Hardware'),
+    'Connections': _translate('Connections'),
+    # section labels
+    'general': _translate('general'),
+    'app': _translate('app'),
+    'builder': "Builder",  # not localized
+    'coder': "Coder",  # not localized
+    'runner': "Runner",  # not localized
+    'piloting': _translate("piloting"), 
+    'keyBindings': _translate('keyBindings'),
+    'hardware': _translate('hardware'),
+    'connections': _translate('connections'),
+    # pref labels in General section
+    'winType': _translate("window type"),
+    'units': _translate("units"),
+    'fullscr': _translate("fullscr"),
+    'allowGUI': _translate("allowGUI"),
+    'paths': _translate('paths'),
+    'flac': _translate('flac'),
+    'shutdownKey': _translate("shutdownKey"),
+    'shutdownKeyModifiers': _translate("shutdownKeyModifiers"),
+    'gammaErrorPolicy': _translate("gammaErrorPolicy"),
+    'startUpPlugins': _translate("startUpPlugins"),
+    'appKeyGoogleCloud':_translate('appKeyGoogleCloud'),
+    #'transcrKeyAzure':_translate('transcrKeyAzure'),
+    # pref labels in App section
+    'showStartupTips': _translate("showStartupTips"),
+    'defaultView': _translate("defaultView"),
+    'resetPrefs': _translate('resetPrefs'),
+    'autoSavePrefs': _translate('autoSavePrefs'),
+    'debugMode': _translate('debugMode'),
+    'locale': _translate('locale'),
+    'errorDialog': _translate('errorDialog'),
+    'theme': _translate('theme'),
+    'showSplash': _translate('showSplash'),
+    # pref labels in Builder section
+    'reloadPrevExp': _translate('reloadPrevExp'),
+    'codeComponentLanguage': _translate('codeComponentLanguage'),
+    'unclutteredNamespace': _translate('unclutteredNamespace'),
+    'componentsFolders': _translate('componentsFolders'),
+    'componentFilter':_translate('componentFilter'),
+    'hiddenComponents': _translate('hiddenComponents'),
+    'abbreviateLongCompNames': _translate('abbreviateLongCompNames'),
+    'unpackedDemosDir': _translate('unpackedDemosDir'),
+    'savedDataFolder': _translate('savedDataFolder'),
+    'builderLayout': _translate('builderLayout'),
+    'alwaysShowReadme': _translate('alwaysShowReadme'),
+    'maxFavorites': _translate('maxFavorites'),
+    'confirmRoutineClose': _translate('confirmRoutineClose'),
+    # pref labels in Coder section
+    'readonly': _translate('readonly'),
+    'outputFont': _translate('outputFont'),
+    'codeFont': _translate('codeFont'),
+    'outputFontSize': _translate('outputFontSize'),
+    'codeFontSize': _translate('codeFontSize'),
+    'lineSpacing': _translate('lineSpacing'),
+    'edgeGuideColumn': _translate('edgeGuideColumn'),
+    'showSourceAsst': _translate('showSourceAsst'),
+    'showOutput': _translate('showOutput'),
+    'autocomplete': _translate('autocomplete'),
+    'reloadPrevFiles': _translate('reloadPrevFiles'),
+    'preferredShell': _translate('preferredShell'),
+    # pref labels in Pilot mode section
+    'forceWindowed': _translate('forceWindowed'),
+    'forceMouseVisible': _translate('forceMouseVisible'),
+    'forcedWindoweSize': _translate('forcedWindowSize'),
+    'pilotLoggingLevel': _translate('pilotLoggingLevel'),
+    'pilotConsoleLoggingLevel': _translate('pilotConsoleLoggingLevel'),
+    'showPilotingIndicator': _translate('showPilotingIndicator'),
+    'forceNonRush': _translate('forceNonRush'),
+    'replaceParticipantID': _translate('replaceParticipantID'),
+    # pref labels in KeyBindings section
+    'open': _translate('open'),
+    'new': _translate('new'),
+    'save': _translate('save'),
+    'saveAs': _translate('saveAs'),
+    'revealFolder':_translate('revealFolder'),
+    'print': _translate('print'),
+    'close': _translate('close'),
+    'quit': _translate('quit'),
+    'preferences': _translate('preferences'),
+    'exportHTML': _translate('exportHTML'),
+    'cut': _translate('cut'),
+    'copy': _translate('copy'),
+    'paste': _translate('paste'),
+    'duplicate': _translate('duplicate'),
+    'indent': _translate('indent'),
+    'dedent': _translate('dedent'),
+    'smartIndent': _translate('smartIndent'),
+    'find': _translate('find'),
+    'findAgain': _translate('findAgain'),
+    'undo': _translate('undo'),
+    'redo': _translate('redo'),
+    'comment': _translate('comment'),
+    'uncomment': _translate('uncomment'),
+    'toggle comment': _translate('toggle comment'),
+    'fold': _translate('fold'),
+    'enlargeFont': _translate('enlargeFont'),
+    'shrinkFont': _translate('shrinkFont'),
+    'analyseCode': _translate('analyseCode'),
+    'compileScript': _translate('compileScript'),
+    'runScript': _translate('runScript'),
+    'runnerScript': _translate('runnerScript'),
+    'stopScript': _translate('stopScript'),
+    'toggleWhitespace': _translate('toggleWhitespace'),
+    'toggleEOLs': _translate('toggleEOLs'),
+    'toggleIndentGuides': _translate('toggleIndentGuides'),
+    'expSettings': _translate('expSettings'),
+    'newRoutine': _translate('newRoutine'),
+    'copyRoutine': _translate('copyRoutine'),
+    'pasteRoutine': _translate('pasteRoutine'),
+    'pasteCompon': _translate('pasteCompon'),
+    'builderFind': _translate('builderFind'),
+    'toggleOutputPanel': _translate('toggleOutputPanel'),
+    'renameRoutine': _translate('renameRoutine'),
+    'cycleWindows': _translate('cycleWindows'),
+    'largerFlow': _translate('largerFlow'),
+    'smallerFlow': _translate('smallerFlow'),
+    'largerRoutine': _translate('largerRoutine'),
+    'smallerRoutine': _translate('smallerRoutine'),
+    'toggleReadme': _translate('toggleReadme'),
+    'pavlovia_logIn': _translate('pavlovia_logIn'),
+    'OSF_logIn': _translate('OSF_logIn'),
+    'projectsSync': _translate('projectsSync'),
+    'projectsFind': _translate('projectsFind'),
+    'projectsOpen': _translate('projectsOpen'),
+    'projectsNew': _translate('projectsNew'),
+    # pref labels in Hardware section
+    'audioWASAPIOnly': _translate('audioWASAPIOnly'),
+    #'audioLib': _translate("audio library")
+    #'audioLatencyMode': _translate("audio latency mode"),
+    'audioDriver': _translate("audioDriver"),
+    'audioDevice': _translate("audioDevice"),
+    'parallelPorts': _translate("parallelPorts"),
+    'qmixConfiguration': _translate("qmixConfiguration"),
+    #'highDPI': _translate('Try to support display high DPI'),
+    # pref labels in Connections section
+    'proxy': _translate('proxy'),
+    'autoProxy': _translate('autoProxy'),
+    'allowUsageStats': _translate('allowUsageStats'),
+    'checkForUpdates': _translate('checkForUpdates'),
+    'timeout': _translate('timeout'),
+    # pref wxChoice lists:
+    'all': _translate('Builder, Coder and Runner'),
+    'keep': _translate('same as in the file'),  # line endings
+    'abort': _translate('abort'), # gammaErrorPolicy
+    'warn': _translate('warn'), # gammaErrorPolicy
+    # not translated:
+    'pix': 'pix',
+    'deg': 'deg',
+    'cm': 'cm',
+    'norm': 'norm',
+    'height': 'height',
+    'pyshell': 'pyshell',
+    'iPython': 'iPython',
+    # font
+    'From theme...': _translate('From theme...'),
+}
 
-_localized = copy.copy(_localizedBase)
-_localized.update(_localizedCategories)
-_localized.update(_localizedDialogs)
-
-thisDir = os.path.dirname(os.path.abspath(__file__))
-modules = glob.glob(os.path.join(thisDir, 'components', '*.py'))
-components = [os.path.basename(m).replace('.py', '') for m in modules
-              if not m.endswith('patch.py')]
-
-for comp in components:
-    try:
-        exec('from psychopy.experiment.components.' + comp + ' import _localized as _loc')
-        _localized.update(_loc)  # noqa: F821  # exists through exec import
-    except ImportError:
-        pass
 
 if __name__ == '__main__':
-    for key, val in _localized.items():
-        print(key, val)
+    for collection in (_localizedCategories, 
+                       _localizedDialogs,
+                       _localizedPreferences):
+        for key, val in collection.items():
+            print(key, val)
