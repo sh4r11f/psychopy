@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Part of the PsychoPy library
-# Copyright (C) 2002-2018 Jonathan Peirce (C) 2019-2024 Open Science Tools Ltd.
+# Copyright (C) 2002-2018 Jonathan Peirce (C) 2019-2025 Open Science Tools Ltd.
 # Distributed under the terms of the GNU General Public License (GPL).
 import glob
 import json
@@ -24,7 +24,7 @@ import webbrowser
 from pathlib import Path
 from subprocess import Popen, PIPE
 
-from psychopy import experiment, logging
+from psychopy import experiment, logging, alerts
 from psychopy.app.utils import FrameSwitcher, FileDropTarget
 from psychopy.localization import _translate
 from psychopy.projects.pavlovia import getProject
@@ -538,7 +538,7 @@ class RunnerPanel(wx.Panel, ScriptProcess, handlers.ThemeMixin):
         self.splitter.SplitVertically(
             window1=self.topPanel,
             window2=self.bottomPanel,
-            sashPosition=480
+            sashPosition=360
         )
         self.splitter.SetMinimumPaneSize(360)
 
@@ -693,7 +693,7 @@ class RunnerPanel(wx.Panel, ScriptProcess, handlers.ThemeMixin):
         # start server
         self.startServer(htmlPath, port=port)
         # open experiment
-        webbrowser.open("http://localhost:{}".format(port))
+        webbrowser.open("http://localhost:{}?__pilotToken=local".format(port))
         # log experiment open
         print(
             f"##### Running PsychoJS task from {htmlPath} on port {port} #####\n"
@@ -1050,7 +1050,12 @@ class RunnerPanel(wx.Panel, ScriptProcess, handlers.ThemeMixin):
 
 class RunnerOutputNotebook(aui.AuiNotebook, handlers.ThemeMixin):
     def __init__(self, parent):
-        aui.AuiNotebook.__init__(self, parent, style=wx.BORDER_NONE)
+        aui.AuiNotebook.__init__(
+            self, 
+            parent, 
+            style=wx.BORDER_NONE, 
+            agwStyle=aui.AUI_NB_CLOSE_ON_ALL_TABS
+        )
 
         # store pages by non-translated names for easy access (see RunnerFrame.getOutputPanel)
         self.panels = {}
@@ -1065,6 +1070,7 @@ class RunnerOutputNotebook(aui.AuiNotebook, handlers.ThemeMixin):
             self.alertsPnl, caption=_translate("Alerts")
         )
         self.panels['alerts'] = self.alertsPnl
+        alerts.addAlertHandler(self.alertsPnl.ctrl)
 
         # StdOut
         self.stdoutPnl = ScriptOutputPanel(
@@ -1091,8 +1097,14 @@ class RunnerOutputNotebook(aui.AuiNotebook, handlers.ThemeMixin):
         # bind function when page receives focus
         self._readCache = {}
         self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CHANGED, self.onFocus)
-
-        self.SetMinSize(wx.Size(100, 100))  # smaller than window min size
+        # min size is 80 chars / 40 lines
+        self.SetMinSize(wx.Size(
+            self.stdoutPnl.GetCharWidth() * 80, 
+            self.stdoutPnl.GetCharHeight() * 40, 
+        ))
+        # hide close buttons on tabs
+        for i in range(self.GetPageCount()):
+            self.SetCloseButton(i, False)
 
     def setRead(self, i, state):
         """

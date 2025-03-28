@@ -6,8 +6,6 @@ Installation
 Download
 -----------
 
-For the easiest installation download and install the Standalone package.
-
 .. tab-set::
 
     .. tab-item:: Windows
@@ -46,16 +44,44 @@ For the easiest installation download and install the Standalone package.
 
     .. tab-item:: Linux
 
-        The following will install PsychoPy into 
+      Install curl with your package manager. On most distros, curl is already installed.
+
+      1. **Download the script:**
+
+          .. code-block:: bash
+            
+            curl -LOs https://github.com/wieluk/psychopy_linux_installer/releases/latest/download/psychopy_linux_installer
+      
+      2. **Make it executable:**
+
+          .. code-block:: bash
+            
+            chmod +x psychopy_linux_installer
+      
+      3. **Run the installer:**
+
+          - **GUI Mode**:
+
+            .. code-block:: bash
+              
+              ./psychopy_linux_installer --gui
+            
+            *Note:* `curl` and `zenity` are required for GUI mode.
+
+          - **Command-Line Mode**:
+
+            .. code-block:: bash
+              
+              ./psychopy_linux_installer
+      
+      For a list of available arguments, run:
 
         .. code-block:: bash
-
-            # create a virtual environment and activate it
-            python3.10 -m venv ~/.psychopy_py310  
-            source ~/.psychopy_py310/bin/activate  
             
-            # fetch and run install script
-            python -c "$(curl -fsSL https://raw.githubusercontent.com/psychopy/psychopy/dev/installPsychoPy.py)"
+            ./psychopy_linux_installer --help
+      
+      For more detailed information or to report bugs, please visit the 
+      `psychopy_linux_installer GitHub page <https://github.com/wieluk/psychopy_linux_installer>`_.
 
 .. raw:: html
 
@@ -137,20 +163,26 @@ On a MacOS machine, `brew` can be used to install |PsychoPy|::
 Linux
 ~~~~~~~~~~~~~~~~~
 
-We are aware that the procedure for installing on Linux is often rather painful. 
+We are aware that the procedure for installing on Linux is often rather painful.
 This is not the platform that the core PsychoPy developers currently use so support
 is less good than on some platforms. Feel free to jump in and help improve it as a
-contributor! :-) 
+contributor! :-)
 
 There used to be neurodebian and Gentoo packages for |PsychoPy| but these are both
-badly outdated. We'd recommend you do:
+badly outdated. We'd recommend you first make sure you have a compatible Python
+version installed (currently ``>=3.8, <3.11``). If you need an older version, you
+can on Ubuntu for example do:
 
 .. code-block:: bash
 
-    # with --no-deps flag if you want to install dependencies manually
-    pip install psychopy
+    sudo add-apt-repository ppa:deadsnakes/ppa
+    sudo apt update
+    sudo apt install python3.10-venv python3.10-dev
+    python3.10 -m venv path/to/new/psychopyenv  # choose a path of interest!
+    source path/to/new/psychopyenv/bin/activate
 
-**Then fetch a wxPython wheel** for your platform from:
+Once you have a compatible Python activated, **copy the link to a wxPython wheel** for
+your platform from:
 
 https://extras.wxpython.org/wxPython4/extras/linux/gtk3/
 
@@ -158,16 +190,28 @@ and having downloaded the right wheel you can then install it with something lik
 
 .. code-block:: bash
 
-  pip install path/to/your/wxpython.whl
+  pip install https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-22.04/wxPython-4.2.1-cp310-cp310-linux_x86_64.whl
 
-wxPython>4.0 and doesn't have universal wheels yet which is why you have to
+``wxPython>=4.0`` doesn't have universal wheels yet which is why you have to
 find and install the correct wheel for your particular flavor of linux.
+If a wheel is not yet available for your platform (e.g., a new version of Linux),
+you will have to build it manually. For example, you can use ``pip download wxPython``,
+extract the archive, enter the directory, and try ``python setup.py bdist_wheel`` to
+build a wheel yourself. You will likely need to install some system build dependencies.
+Once it builds, you can install for example with ``pip install dist/wxPython*.whl``.
 
 For some reasons wxPython (wx.html2) is using an older version of libwebkitgtk
 e.g. psychopy will not show up
 to fix this (of our own risk):
 sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu bionic main universe'
 sudo apt install -t bionic libwebkitgtk-1.0-0
+
+Finally, you can do:
+
+.. code-block:: bash
+
+    # with --no-deps flag if you want to install dependencies manually
+    pip install psychopy
 
 **Building Python PsychToolbox bindings:**
 
@@ -193,14 +237,14 @@ as needed:
 Anaconda and Miniconda
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Support for conda was contributed and is badly outdated but you may be able to 
-get it working using `pip install` within your conda environment. 
+Support for conda was contributed and is badly outdated but you may be able to
+get it working using `pip install` within your conda environment.
 
 Generally we recommend you use StandalonePsychoPy instead, for experiment creation,
 as an entirely separate app, and use your conda installation for other (e.g. analysis)
 scripts.
 
-Alternatively if someone wants to jump in and get things working here again that 
+Alternatively if someone wants to jump in and get things working here again that
 would be appreciated by other users I'm sure.
 
 .. _developers_install:
