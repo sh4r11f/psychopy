@@ -1,3 +1,5 @@
+:orphan:
+
 
 .. PEP 2014 slides file, created by
    hieroglyph-quickstart on Tue Mar  4 20:42:06 2014.
@@ -17,7 +19,7 @@ Setting up our experiment
 
 OK step 1 of any experiment is to consider "what makes the main stimuli in my trial". In the Stroop task, this is simple - a word, and a keyboard response (and maybe a fixation cross to start of the trial!). 
 
-.. image:: /_images/tutorials/stroop/basic_flow.png
+.. image:: ./stroop_basic_flow.png
    :width: 100 %
 
 
