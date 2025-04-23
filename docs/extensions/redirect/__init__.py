@@ -4,20 +4,6 @@ from docutils.parsers.rst import directives
 from sphinx.util.docutils import SphinxDirective
 
 
-class redirect(nodes.Element):
-    tagname = "meta"
-    local_attributes = ("http-equiv", "content")
-
-    def __init__(self, url):
-        nodes.Element.__init__(
-            self,
-            attributes={
-                'http-equiv': "refresh",
-                'content': f"0; url={url}"
-            }
-        )
-
-
 class PreviousDirective(SphinxDirective):
     """
     Indicates the target page as the former location of the current page. On compile, will create a 
@@ -28,16 +14,21 @@ class PreviousDirective(SphinxDirective):
 
     def run(self):
         self.assert_has_content()
-        # get target to redirect to
-        to_raw = self.get_source_info()[0]
-        # get document to redirect from
-        from_raw = self.env.relfn2path(self.content[0])[0]
-        # add redirect
-        add_redirect(
-            self.env, 
-            from_raw=from_raw, 
-            to_raw=to_raw
-        )
+        # iterate through lines in content
+        for content in self.content:
+            if " > " in content:
+                # if given a to and from, use both
+                from_raw, to_raw = content.split(" > ")
+            else:
+                # otherwise use current page
+                to_raw = self.get_source_info()[0]
+                from_raw = content
+            # add redirect
+            add_redirect(
+                self.env, 
+                from_raw=from_raw, 
+                to_raw=to_raw
+            )
 
         return []
 
@@ -51,16 +42,18 @@ class RedirectDirective(SphinxDirective):
 
     def run(self):
         self.assert_has_content()
-        # get target to redirect to
-        to_raw = self.env.relfn2path(self.content[0])[0]
-        # get document to redirect from
-        from_raw = self.get_source_info()[0]
-        # add redirect
-        add_redirect(
-            self.env, 
-            from_raw=from_raw, 
-            to_raw=to_raw
-        )
+        # iterate through lines in content
+        for content in self.content:
+            # get target to redirect to
+            to_raw = content
+            # get document to redirect from
+            from_raw = self.get_source_info()[0]
+            # add redirect
+            add_redirect(
+                self.env, 
+                from_raw=from_raw, 
+                to_raw=to_raw
+            )
 
         return []
 
@@ -82,14 +75,18 @@ def add_redirect(env, from_raw, to_raw):
     if not hasattr(env, 'redirects'):
         env.redirects = []
     # get document to redirect from
-    from_doc = env.path2doc(from_raw)
+    from_doc = env.path2doc(
+        env.relfn2path(from_raw)[0]
+    )
     # get url to redirect to
     if to_raw.startswith("https:"):
         # if it's an external url, point to it as is
         to_url = to_raw
     else:
         # otherwise get a relative link
-        to_doc = env.path2doc(to_raw)
+        to_doc = env.path2doc(
+            env.relfn2path(to_raw)[0]
+        )
         to_url = f"/{to_doc}"
     # append to list of redirects
     env.redirects.append(
