@@ -307,3 +307,6 @@ Validate with...
 .. seealso::
 
     API reference for :class:`~psychopy.visual.Slider`
+
+.. previous:: ratingscale.rst
+.. previous:: slider.rst
