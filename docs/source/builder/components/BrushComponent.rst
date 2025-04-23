@@ -161,4 +161,4 @@ Validate with...
 .. seealso::
     API reference for :class:`~psychopy.visual.Brush`
 
-.. previous:: brush.rst
+.. redirect-from:: brush.rst

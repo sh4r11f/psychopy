@@ -198,4 +198,4 @@ Disable Routine
 	
 	API reference for :class:`~psychopy.hardware.eyetracker.EyetrackerCalibration`
 
-.. previous:: eyetracker_calibration.rst
+.. redirect-from:: eyetracker_calibration.rst

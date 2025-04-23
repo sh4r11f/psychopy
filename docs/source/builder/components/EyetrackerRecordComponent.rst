@@ -147,4 +147,4 @@ Disable Component
 	
 	API reference for :class:`~psychopy.iohub.devices.eyetracker.hw.mouse.EyeTracker`
 
-.. previous:: eyetracker_record.rst
+.. redirect-from:: eyetracker_record.rst

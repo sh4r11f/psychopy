@@ -174,4 +174,4 @@ Disable Component
 
     API reference for :doc:`psychopy.hardware.keyboard>`
 
-.. previous:: keyboard.rst
+.. redirect-from:: keyboard.rst

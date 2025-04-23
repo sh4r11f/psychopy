@@ -236,4 +236,4 @@ Validate with...
 	
 	API reference for :class:`~psychopy.visual.Aperture`
 
-.. previous:: aperture.rst
+.. redirect-from:: aperture.rst

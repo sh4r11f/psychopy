@@ -174,4 +174,4 @@ Tools for testing, debugging and checking the performance of this Component.
 Disable Component
     Disable this Component
 
-.. previous:: cedrusResponseBox.rst
+.. redirect-from:: cedrusResponseBox.rst

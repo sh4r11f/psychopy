@@ -308,4 +308,4 @@ Validate with...
 
     API reference for :class:`~psychopy.visual.Slider`
 
-.. previous:: slider.rst
+.. redirect-from:: slider.rst

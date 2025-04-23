@@ -260,4 +260,4 @@ Validate with...
 	
 	API reference for :class:`~psychopy.visual.MovieStim`
 
-.. previous:: movie.rst
+.. redirect-from:: movie.rst

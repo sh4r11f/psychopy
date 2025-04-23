@@ -161,4 +161,4 @@ Tools for testing, debugging and checking the performance of this Component.
 Disable Component 
     Disable this Component
 
-.. previous:: resource_manager.rst
+.. redirect-from:: resource_manager.rst
