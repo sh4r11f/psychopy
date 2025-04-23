@@ -212,4 +212,5 @@ Validate with...
 .. seealso::
 	
 	API reference for :class:`~psychopy.visual.Panorama`
-    
+
+.. previous:: panorama.rst

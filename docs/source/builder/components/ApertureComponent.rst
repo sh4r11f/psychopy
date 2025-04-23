@@ -234,4 +234,6 @@ Validate with...
 
 .. seealso::
 	
-	API reference for :class:`~psychopy.visual.Aperture`    
+	API reference for :class:`~psychopy.visual.Aperture`
+
+.. previous:: aperture.rst

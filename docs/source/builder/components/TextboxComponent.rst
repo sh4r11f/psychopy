@@ -371,3 +371,5 @@ Validate with...
 .. seealso::
 	
 	API reference for :class:`~psychopy.visual.TextBox`
+
+.. previous:: textbox.rst

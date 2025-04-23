@@ -203,3 +203,5 @@ Disable Component
 .. seealso::
 
     API reference for :mod:`~psychopy.hardware.Joystick`
+
+.. previous:: joystick.rst

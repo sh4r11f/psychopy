@@ -307,3 +307,5 @@ Validate with...
 .. seealso::
     
     API reference for :class:`~psychopy.visual.DotStim`
+
+.. previous:: dots.rst
