@@ -308,4 +308,4 @@ Validate with...
     
     API reference for :class:`~psychopy.visual.DotStim`
 
-.. previous:: dots.rst
+.. redirect-from:: dots.rst

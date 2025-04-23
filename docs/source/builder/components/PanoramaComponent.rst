@@ -213,4 +213,4 @@ Validate with...
 	
 	API reference for :class:`~psychopy.visual.Panorama`
 
-.. previous:: panorama.rst
+.. redirect-from:: panorama.rst

@@ -4,10 +4,9 @@ from docutils.parsers.rst import directives
 from sphinx.util.docutils import SphinxDirective
 
 
-class PreviousDirective(SphinxDirective):
+class RedirectDirective(SphinxDirective):
     """
-    Indicates the target page as the former location of the current page. On compile, will create a 
-    .html file in that location which redirects to the document containing the directive.
+    Redirect from one page to another.
     """
 
     has_content = True
@@ -16,13 +15,8 @@ class PreviousDirective(SphinxDirective):
         self.assert_has_content()
         # iterate through lines in content
         for content in self.content:
-            if " > " in content:
-                # if given a to and from, use both
-                from_raw, to_raw = content.split(" > ")
-            else:
-                # otherwise use current page
-                to_raw = self.get_source_info()[0]
-                from_raw = content
+            # get to and from locations
+            from_raw, to_raw = content.split(" > ")
             # add redirect
             add_redirect(
                 self.env, 
@@ -33,10 +27,9 @@ class PreviousDirective(SphinxDirective):
         return []
 
 
-class RedirectDirective(SphinxDirective):
+class RedirectToDirective(SphinxDirective):
     """
-    Indicates the target page as the new location of the current page. On compile, will create a 
-    redirect element in the file containing the directive which links to the target page.
+    Redirect from the current page to a given page.
     """
     has_content = True
 
@@ -44,15 +37,32 @@ class RedirectDirective(SphinxDirective):
         self.assert_has_content()
         # iterate through lines in content
         for content in self.content:
-            # get target to redirect to
-            to_raw = content
-            # get document to redirect from
-            from_raw = self.get_source_info()[0]
             # add redirect
             add_redirect(
                 self.env, 
-                from_raw=from_raw, 
-                to_raw=to_raw
+                from_raw=self.get_source_info()[0], 
+                to_raw=content
+            )
+
+        return []
+
+
+class RedirectFromDirective(SphinxDirective):
+    """
+    Redirect from a given page to the current page.
+    """
+
+    has_content = True
+
+    def run(self):
+        self.assert_has_content()
+        # iterate through lines in content
+        for content in self.content:
+            # add redirect
+            add_redirect(
+                self.env, 
+                from_raw=content, 
+                to_raw=self.get_source_info()[0]
             )
 
         return []
@@ -108,7 +118,6 @@ def create_redirect_pages(app):
     pages = []
     # add a new page for every redirect
     for from_doc, to_url in app.env.redirects:
-        print(f"Creating redirect from {from_doc} to {to_url}.")
         # add parameters from given links
         pages.append(
             (from_doc, {'url': to_url}, templatename)
@@ -119,8 +128,9 @@ def create_redirect_pages(app):
 
 def setup(app):
     # add directives
-    directives.register_directive('previous', PreviousDirective)
     directives.register_directive('redirect', RedirectDirective)
+    directives.register_directive('redirect-to', RedirectToDirective)
+    directives.register_directive('redirect-from', RedirectFromDirective)
     # connect event callback
     app.connect('html-collect-pages', create_redirect_pages)
 

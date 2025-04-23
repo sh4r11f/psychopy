@@ -204,4 +204,4 @@ Disable Component
 
     API reference for :mod:`~psychopy.hardware.Joystick`
 
-.. previous:: joystick.rst
+.. redirect-from:: joystick.rst

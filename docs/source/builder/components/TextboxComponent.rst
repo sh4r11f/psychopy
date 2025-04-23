@@ -372,4 +372,4 @@ Validate with...
 	
 	API reference for :class:`~psychopy.visual.TextBox`
 
-.. previous:: textbox.rst
+.. redirect-from:: textbox.rst

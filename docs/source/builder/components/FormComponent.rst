@@ -306,4 +306,4 @@ Validate with...
 
 	API reference for :class:`~psychopy.visual.Form`
 
-.. previous:: form.rst
+.. redirect-from:: form.rst

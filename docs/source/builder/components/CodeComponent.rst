@@ -143,4 +143,4 @@ Selected contents of `the numpy library and numpy.random <http://docs.scipy.org/
 
 - np.______: Many math-related features are available through the complete numpy libraries, which are available within psychopy builder scripts as 'np.'. For example, you could use `np.hanning(3)` or `np.random.poisson(10, 10)` in a code component.
 
-.. previous:: code.rst
+.. redirect-from:: code.rst

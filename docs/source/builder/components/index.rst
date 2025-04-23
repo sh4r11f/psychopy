@@ -48,7 +48,7 @@ If you do want the parameters of a stimulus to be evaluated by code in this way 
 .. _numpy.random.rand(): http://docs.scipy.org/doc/numpy/reference/generated/numpy.random.rand.html#numpy.random.rand
 .. _numpy: http://numpy.scipy.org/
 
-.. previous::
+.. redirect::
    reward.rst > https://github.com/psychopy/psychopy-labeotech
    ratingscale.rst > https://psychopy.github.io/psychopy-legacy/builder/components/RatingScaleComponent/
    pump.rst > https://github.com/psychopy/psychopy-qmix

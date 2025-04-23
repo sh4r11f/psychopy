@@ -103,4 +103,4 @@ Tools for testing, debugging and checking the performance of this Component.
 Disable Routine
     Disable this Routine
 
-.. previous:: counterbalanceComponent.rst
+.. redirect-from:: counterbalanceComponent.rst

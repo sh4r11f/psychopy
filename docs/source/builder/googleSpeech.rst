@@ -52,4 +52,4 @@ Steps
 .. warning:: 
 	Remember to check that your accounts billing information stays up to date. Even if you haven't done enough recordings to warrant a large payment, if a card on your billing account expires this will invalidate the JSON key and raise a "billing" error in |PsychoPy|.
 
-.. previous:: ./components/googleSpeech.rst
+.. redirect-from:: ./components/googleSpeech.rst

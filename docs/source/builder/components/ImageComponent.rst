@@ -279,4 +279,4 @@ Validate with...
 
 	API reference for :class:`~psychopy.visual.ImageStim`
 
-.. previous:: image.rst
+.. redirect-from:: image.rst
