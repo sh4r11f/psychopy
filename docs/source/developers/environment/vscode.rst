@@ -121,3 +121,5 @@ You can also add configurations to run PsychoPy with a specific frame open (e.g.
     }
 
 Once you save this file, you can go to the Run & debug section and choose any of the configurations you just added, then simply click run to start the app from your local code.
+
+.. redirect-from:: /tutorials/contributing/vscode.rst

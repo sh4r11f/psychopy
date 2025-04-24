@@ -118,3 +118,5 @@ We are always taking note of feedback from users and aim to develop and improve 
 #. To access a new component of PsychoPy, search from the release at the bottom of the right screen.
 #. Click on the component name > Checkout.
 #. Return to psychopyApp.py and run the script to use the component in PsychoPy.
+
+.. redirect-from:: /tutorials/contributing/pycharm.rst
