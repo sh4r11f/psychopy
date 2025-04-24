@@ -31,6 +31,9 @@ touching them.
    :glob:
 
    repository
+   environment/index
    *
 
 Happy Coding Folks!!
+
+.. redirect-from:: /tutorials/contributing/index.rst
