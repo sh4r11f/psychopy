@@ -144,7 +144,7 @@ html_theme = 'psychopy'
 with open("./navbar_links.json", "r") as f:  
   navbar_links = json.load(f)
 html_theme_options = {
-  'plugin': False,
+  'variant': "home",
   'navbar_links': navbar_links
 }
 
