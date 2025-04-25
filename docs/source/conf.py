@@ -136,8 +136,7 @@ napoleon_include_special_with_doc = False
 
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
-html_theme_path = ["../themes"]
-html_theme = 'psychopy_bootstrap'
+html_theme = 'psychopy'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -145,6 +144,7 @@ html_theme = 'psychopy_bootstrap'
 with open("./navbar_links.json", "r") as f:  
   navbar_links = json.load(f)
 html_theme_options = {
+  'variant': "home",
   'navbar_links': navbar_links
 }
 
