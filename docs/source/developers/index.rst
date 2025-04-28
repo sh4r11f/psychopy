@@ -37,7 +37,7 @@ to |PsychoPy|.
 
    .. grid-item-card:: Fork the |PsychoPy| respository
       :img-top: ./git-logo.svg
-      :link: ./repository#create-your-own-fork-of-the-central-repository
+      :link: ./setupfork
 
       Create your own linked copy of the |PsychoPy| code to edit
 
