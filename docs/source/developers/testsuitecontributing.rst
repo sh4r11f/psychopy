@@ -8,13 +8,11 @@ With any bit of software, no matter how perfect the code seems as you're writing
 
 .. image:: /images/user-bugs.jpg
   :alt: "Starship Troopers" (TriStar Pictures; Touchstone Pictures)
-  :height: 100px
 
 ...but when the test suite finds a bug, developers react like this:
 
-.. figure:: /images/test-suite-bugs.jpg
+.. image:: /images/test-suite-bugs.jpg
   :alt: "Birds In A Nest" (Robert Lynch)
-  :height: 100px
 
 The more bugs the test suite finds, the better!
 
